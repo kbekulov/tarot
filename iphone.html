@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#eef4fb" />
-    <title>Magic Atlas | Tarot and Oracle Readings</title>
+    <title>Magic Atlas | Tarot, Oracle, and Archetype Mirror</title>
     <meta
       name="description"
-      content="Choose tarot or oracle, focus on your question, and reveal a guided reading inside a simple app-style experience."
+      content="Choose tarot, oracle, or archetype mirror, then reveal a guided experience inside a simple app-style interface."
     />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -58,6 +58,15 @@
                     <i class="bi bi-journal-bookmark"></i>
                     <span>Oracle</span>
                   </button>
+                  <button
+                    type="button"
+                    class="mode-switch__option"
+                    data-app-mode="archetype"
+                    aria-pressed="false"
+                  >
+                    <i class="bi bi-eye"></i>
+                    <span>Mirror</span>
+                  </button>
                 </div>
               </div>
 
@@ -90,6 +99,19 @@
                         <span class="mode-choice__title">Oracle</span>
                         <span class="mode-choice__text">Page-like messages for quick clarity and simple guidance.</span>
                       </button>
+
+                      <button
+                        type="button"
+                        class="mode-choice mode-choice--wide"
+                        data-select-mode="archetype"
+                        aria-label="Choose Archetype Mirror mode"
+                      >
+                        <span class="mode-choice__artifact mode-choice__artifact--archetype" aria-hidden="true">
+                          <span class="mode-choice__glyph"><i class="bi bi-eye-fill"></i></span>
+                        </span>
+                        <span class="mode-choice__title">Archetype Mirror</span>
+                        <span class="mode-choice__text">Psychological spreads for patterns, defenses, conflict, and integration.</span>
+                      </button>
                     </div>
 
                     <div class="setup-stage__halo"></div>
@@ -104,10 +126,13 @@
 
                   <div class="stage-panel">
                     <div id="setupStepLabel" class="stage-step">Step 1</div>
-                    <h1 id="setupTitle" class="stage-title">Choose Tarot or Oracle to begin.</h1>
+                    <h1 id="setupTitle" class="stage-title">
+                      Choose Tarot, Oracle, or Archetype Mirror.
+                    </h1>
                     <p id="setupBody" class="stage-body">
-                      Pick the kind of guidance you want first. Tarot gives you spreads and card positions.
-                      Oracle gives you short page-like messages with a cleaner, quicker feel.
+                      Choose the kind of guidance you want first. Tarot gives you symbolic spreads.
+                      Oracle gives you concise page-like messages. Archetype Mirror is for inner
+                      reflection, pattern recognition, and integration.
                     </p>
 
                     <div id="spreadChoicePanel" class="stage-section" hidden>
@@ -127,6 +152,23 @@
                             Ten seconds of quiet focus before the spread reveals itself.
                           </p>
                         </div>
+                      </div>
+                    </div>
+
+                    <div id="actionPanel" class="stage-section" hidden>
+                      <div class="reflection-intro">
+                        <div class="reflection-intro__copy">
+                          <div class="stage-section__label">Archetype Mirror</div>
+                          <h2 id="actionSpreadName" class="focus-timer__title"></h2>
+                          <p id="actionSpreadBody" class="focus-timer__body mb-0"></p>
+                        </div>
+                        <button
+                          id="generateMirrorButton"
+                          class="btn btn-ios btn-ios--secondary"
+                          type="button"
+                        >
+                          Generate the mirror
+                        </button>
                       </div>
                     </div>
 
@@ -184,7 +226,7 @@
                     <div class="reading-sheet__inner">
                       <div class="reading-sheet__header">
                         <div>
-                          <div class="surface-kicker">Interpretation</div>
+                          <div id="readingSurfaceKicker" class="surface-kicker">Interpretation</div>
                           <h2 id="readingHeadline" class="surface-title"></h2>
                           <p id="readingSummary" class="reading-sheet__summary mb-0"></p>
                           <p id="readingGuideText" class="reading-sheet__guide mb-0"></p>
@@ -218,6 +260,7 @@
     <script src="vendor/browser-sibyl.js" defer></script>
     <script src="tarot-art.js" defer></script>
     <script src="oracle-phrases.js" defer></script>
+    <script src="archetype-mirror-data.js" defer></script>
     <script src="app.js" defer></script>
   </body>
 </html>

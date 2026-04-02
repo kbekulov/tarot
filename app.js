@@ -247,6 +247,14 @@ const oracleCatalog = [
   }
 ];
 
+const archetypeMirrorData = window.ARCHETYPE_MIRROR || { spreads: [], archetypes: [] };
+const archetypeCatalog = Array.isArray(archetypeMirrorData.spreads)
+  ? archetypeMirrorData.spreads
+  : [];
+const archetypeDefinitions = Array.isArray(archetypeMirrorData.archetypes)
+  ? archetypeMirrorData.archetypes
+  : [];
+
 const majorArcana = [
   {
     number: 0,
@@ -541,14 +549,19 @@ const elements = {
   spreadChoicePanel: document.querySelector("#spreadChoicePanel"),
   spreadPicker: document.querySelector("#spreadPicker"),
   focusPanel: document.querySelector("#focusPanel"),
+  actionPanel: document.querySelector("#actionPanel"),
   focusRing: document.querySelector("#focusRing"),
   focusTimerValue: document.querySelector("#focusTimerValue"),
   focusSpreadName: document.querySelector("#focusSpreadName"),
   focusCountdownText: document.querySelector("#focusCountdownText"),
+  actionSpreadName: document.querySelector("#actionSpreadName"),
+  actionSpreadBody: document.querySelector("#actionSpreadBody"),
+  generateMirrorButton: document.querySelector("#generateMirrorButton"),
   setupFootnote: document.querySelector("#setupFootnote"),
   setupView: document.querySelector("#setupView"),
   readingView: document.querySelector("#readingView"),
   readingStage: document.querySelector(".reading-stage"),
+  readingKicker: document.querySelector(".reading-stage .view-kicker"),
   readingTitle: document.querySelector("#readingTitle"),
   readingHeadline: document.querySelector("#readingHeadline"),
   readingSummary: document.querySelector("#readingSummary"),
@@ -558,6 +571,7 @@ const elements = {
   readingSheet: document.querySelector("#readingSheet"),
   sheetToggle: document.querySelector("#sheetToggle"),
   sheetToggleLabel: document.querySelector("#sheetToggleLabel"),
+  readingSurfaceKicker: document.querySelector("#readingSurfaceKicker"),
   cardsAccordion: document.querySelector("#cardsAccordion"),
   readingTakeaways: document.querySelector("#readingTakeaways"),
   redrawButton: document.querySelector("#redrawButton"),
@@ -568,6 +582,7 @@ const elements = {
 
 const tarotDeck = buildDeck();
 const oracleDeck = buildOracleDeck();
+const archetypeDeck = buildArchetypeDeck();
 const appState = {
   currentMode: null,
   selectedSpreadId: null,
@@ -606,6 +621,7 @@ function initialize() {
   elements.sheetToggle.addEventListener("click", toggleSheet);
   elements.redrawButton.addEventListener("click", redrawReading);
   elements.redrawTopButton.addEventListener("click", redrawReading);
+  elements.generateMirrorButton?.addEventListener("click", revealReading);
   elements.backButton.addEventListener("click", resetExperience);
   elements.resetButton.addEventListener("click", resetExperience);
 }
@@ -664,6 +680,13 @@ function buildOracleDeck() {
   });
 }
 
+function buildArchetypeDeck() {
+  return archetypeDefinitions.map((archetype) => ({
+    kind: "archetype",
+    ...archetype
+  }));
+}
+
 function renderModeSwitch() {
   elements.modeButtons.forEach((button) => {
     const isActive = button.dataset.appMode === appState.currentMode;
@@ -714,7 +737,7 @@ function renderSpreadPicker() {
   elements.spreadPicker.innerHTML = catalog
     .map((spread) => {
       const secondaryCopy =
-        appState.currentMode === "oracle" ? spread.description : spread.compactHint;
+        appState.currentMode === "tarot" ? spread.compactHint : spread.description;
 
       return `
         <button
@@ -741,7 +764,19 @@ function renderSpreadPicker() {
 function selectSpread(spreadId) {
   appState.selectedSpreadId = spreadId;
   appState.currentReading = null;
+
+  if (appState.currentMode === "archetype") {
+    prepareArchetypeReflection();
+    return;
+  }
+
   startFocusCountdown();
+}
+
+function prepareArchetypeReflection() {
+  clearFocusCountdown();
+  appState.currentStage = "action";
+  renderSetupStage();
 }
 
 function startFocusCountdown() {
@@ -772,7 +807,11 @@ function renderSetupStage() {
   const selection = getSelectedReadingConfig();
   const isModeStage = appState.currentStage === "mode";
   const isOracleMode = appState.currentMode === "oracle";
-  const shouldAnimate = appState.currentStage === "spreads" || appState.currentStage === "focus";
+  const isArchetypeMode = appState.currentMode === "archetype";
+  const shouldAnimate =
+    appState.currentStage === "spreads" ||
+    appState.currentStage === "focus" ||
+    appState.currentStage === "action";
 
   elements.appMain.classList.toggle(
     "is-mode-select",
@@ -781,24 +820,37 @@ function renderSetupStage() {
   elements.setupStage.classList.toggle("setup-stage--mode", isModeStage);
   elements.setupStage.classList.toggle("setup-stage--spreads", appState.currentStage === "spreads");
   elements.setupStage.classList.toggle("setup-stage--focus", appState.currentStage === "focus");
+  elements.setupStage.classList.toggle("setup-stage--action", appState.currentStage === "action");
   elements.setupStage.classList.toggle("setup-stage--oracle", isOracleMode);
-  elements.mysteryCardButton.classList.toggle("is-spinning", shouldAnimate && !isOracleMode);
+  elements.setupStage.classList.toggle("setup-stage--archetype", isArchetypeMode);
+  elements.mysteryCardButton.classList.toggle(
+    "is-spinning",
+    shouldAnimate && !isOracleMode && !isArchetypeMode
+  );
   elements.mysteryCardButton.classList.toggle("is-flipping", shouldAnimate && isOracleMode);
+  elements.mysteryCardButton.classList.toggle("is-mirroring", shouldAnimate && isArchetypeMode);
   elements.modeChoiceGrid.hidden = !isModeStage;
   elements.mysteryCardButton.hidden = isModeStage;
   elements.spreadChoicePanel.hidden = appState.currentStage !== "spreads";
   elements.focusPanel.hidden = appState.currentStage !== "focus";
-  elements.choiceSectionLabel.textContent = isOracleMode ? "Choose the oracle form" : "Choose the reading type";
+  elements.actionPanel.hidden = appState.currentStage !== "action";
+  elements.choiceSectionLabel.textContent = isOracleMode
+    ? "Choose the oracle form"
+    : isArchetypeMode
+      ? "Choose the mirror spread"
+      : "Choose the reading type";
   elements.mysteryCardCrest.innerHTML = isOracleMode
     ? '<i class="bi bi-journal-bookmark-fill"></i>'
-    : '<i class="bi bi-stars"></i>';
+    : isArchetypeMode
+      ? '<i class="bi bi-eye-fill"></i>'
+      : '<i class="bi bi-stars"></i>';
 
   if (isModeStage) {
     elements.setupStepLabel.textContent = "Step 1";
-    elements.setupTitle.textContent = "Choose Tarot or Oracle to begin.";
+    elements.setupTitle.textContent = "Choose Tarot, Oracle, or Archetype Mirror.";
     elements.setupBody.textContent =
-      "Pick the style of guidance you want first. Tarot is best when you want structure and positions. Oracle is best when you want a fast, page-like message.";
-    elements.setupFootnote.textContent = "Choose either one to move straight into the ritual.";
+      "Tarot gives you symbolic spreads. Oracle gives you short page-like messages. Archetype Mirror reflects inner patterns, defenses, and integration without trying to predict the future.";
+    elements.setupFootnote.textContent = "Choose one to move straight into the ritual.";
     return;
   }
 
@@ -806,15 +858,29 @@ function renderSetupStage() {
     elements.setupStepLabel.textContent = "Step 2";
     elements.setupTitle.textContent = isOracleMode
       ? "Choose your pages."
-      : "Choose your reading.";
+      : isArchetypeMode
+        ? "Choose the mirror spread."
+        : "Choose your reading.";
     elements.setupBody.textContent = isOracleMode
       ? "While the book opens, choose a straight answer, a now-and-then pair, or a past-present-future path."
-      : "Pick the shape of the reveal while the deck keeps turning.";
+      : isArchetypeMode
+        ? "Archetype Mirror is for inner reflection, not prediction. Choose the spread that best matches the psychological pattern you want to examine."
+        : "Pick the shape of the reveal while the deck keeps turning.";
     elements.setupFootnote.textContent = isOracleMode
       ? "Choose between one, two, or three pages."
-      : "Five layouts. One tap chooses.";
-    elements.mysteryCardName.textContent = isOracleMode ? "Pages whisper" : "The deck is turning";
-    elements.mysteryCardPrompt.textContent = isOracleMode ? "Choose them" : "Pick a layout";
+      : isArchetypeMode
+        ? "Three reflective spreads. Generate the mirror after you choose."
+        : "Five layouts. One tap chooses.";
+    elements.mysteryCardName.textContent = isOracleMode
+      ? "Pages whisper"
+      : isArchetypeMode
+        ? "The mirror is listening"
+        : "The deck is turning";
+    elements.mysteryCardPrompt.textContent = isOracleMode
+      ? "Choose them"
+      : isArchetypeMode
+        ? "Pick a spread"
+        : "Pick a layout";
     return;
   }
 
@@ -832,6 +898,20 @@ function renderSetupStage() {
       : "The question is settling";
     elements.mysteryCardPrompt.textContent = isOracleMode ? "The page is almost here" : "The reveal is close";
     updateFocusCountdown();
+    return;
+  }
+
+  if (appState.currentStage === "action" && selection && isArchetypeMode) {
+    elements.setupStepLabel.textContent = "Step 3";
+    elements.setupTitle.textContent = "Generate the mirror.";
+    elements.setupBody.textContent =
+      "This spread reflects inner patterns instead of predicting outcomes. Use it as a psychological mirror for what is active, defended, repeated, or ready to integrate.";
+    elements.setupFootnote.textContent = `Preparing ${selection.name.toLowerCase()}.`;
+    elements.mysteryCardName.textContent = "The mirror is ready";
+    elements.mysteryCardPrompt.textContent = "Reveal the pattern";
+    elements.actionSpreadName.textContent = selection.name;
+    elements.actionSpreadBody.textContent = selection.intro || selection.description;
+    elements.generateMirrorButton.textContent = "Reveal the mirror";
   }
 }
 
@@ -905,6 +985,21 @@ function createReading() {
     return true;
   }
 
+  if (appState.currentMode === "archetype") {
+    if (archetypeDeck.length < selection.positions.length) {
+      return false;
+    }
+
+    disposeArtworkDeck();
+    appState.currentReading = {
+      mode: "archetype",
+      configId: selection.id,
+      draws: drawArchetypes(selection.positions.length, selection)
+    };
+    renderReadingView();
+    return true;
+  }
+
   const artworkDeck = getArtworkDeck(buildReadingSeed());
   const draws = drawCards(selection.positions.length).map((draw) => ({
     ...draw,
@@ -964,6 +1059,37 @@ function drawOraclePages(count, config) {
   }));
 }
 
+function drawArchetypes(count, config) {
+  const pool = [...archetypeDeck];
+  const draws = [];
+
+  while (draws.length < count && pool.length) {
+    const totalWeight = pool.reduce(
+      (sum, archetype) => sum + (typeof archetype.rarityWeight === "number" ? archetype.rarityWeight : 1),
+      0
+    );
+    let threshold = Math.random() * totalWeight;
+    let selectedIndex = 0;
+
+    for (let index = 0; index < pool.length; index += 1) {
+      threshold -= typeof pool[index].rarityWeight === "number" ? pool[index].rarityWeight : 1;
+
+      if (threshold <= 0) {
+        selectedIndex = index;
+        break;
+      }
+    }
+
+    const [chosen] = pool.splice(selectedIndex, 1);
+    draws.push({
+      ...chosen,
+      artUri: buildArchetypeCardArt(chosen, config, draws.length)
+    });
+  }
+
+  return draws;
+}
+
 function renderReadingView() {
   const reading = appState.currentReading;
 
@@ -978,10 +1104,14 @@ function renderReadingView() {
   }
 
   const isOracle = reading.mode === "oracle";
+  const isArchetype = reading.mode === "archetype";
   const overallInsight = isOracle ? null : buildOverallInsight(reading.mode, config, reading.draws);
 
+  elements.readingKicker.textContent = isArchetype ? "Mirror revealed" : "Reading revealed";
+  elements.readingSurfaceKicker.textContent = isArchetype ? "Reflection" : "Interpretation";
   elements.readingTitle.textContent = config.name;
   elements.readingStage.classList.toggle("reading-stage--oracle", isOracle);
+  elements.readingStage.classList.toggle("reading-stage--archetype", isArchetype);
   elements.readingSheet.hidden = isOracle;
   elements.redrawTopButton.hidden = !isOracle;
   elements.readingHeadline.textContent = overallInsight ? overallInsight.headline : "";
@@ -989,8 +1119,14 @@ function renderReadingView() {
   elements.readingGuideText.textContent = overallInsight ? buildReadingGuide(reading.mode, config) : "";
   elements.readingMeta.textContent = isOracle
     ? ""
-    : `${config.positions.length} cards · ${countReversed(reading.draws)} reversed`;
-  elements.redrawButton.textContent = isOracle ? "Open new pages" : "Draw again";
+    : isArchetype
+      ? `${config.positions.length} positions · inner reflection`
+      : `${config.positions.length} cards · ${countReversed(reading.draws)} reversed`;
+  elements.redrawButton.textContent = isOracle
+    ? "Open new pages"
+    : isArchetype
+      ? "Generate again"
+      : "Draw again";
 
   renderReadingBoard(config, reading.draws, reading.mode);
 
@@ -1003,7 +1139,7 @@ function renderReadingView() {
   elements.readingTakeaways.innerHTML = isOracle
     ? ""
     : `
-        <h2 class="takeaways-title">Text Reading</h2>
+        <h2 class="takeaways-title">${isArchetype ? "Reflection Notes" : "Text Reading"}</h2>
         <ul>
           ${overallInsight.takeaways.map((item) => `<li>${item}</li>`).join("")}
         </ul>
@@ -1022,7 +1158,7 @@ function renderReadingBoard(config, draws, mode) {
     elements.readingBoard.innerHTML = draws
       .map((draw, index) =>
         renderReadingPosition(draw, config.positions[index], index, {
-          extraClasses: ""
+          extraClasses: mode === "archetype" ? "reading-position--archetype" : ""
         })
       )
       .join("");
@@ -1103,11 +1239,17 @@ function renderReadingPosition(draw, position, index, options = {}) {
   const descriptor =
     draw.kind === "oracle"
       ? `${draw.title}. ${draw.phrase}`
+      : draw.kind === "archetype"
+        ? `${draw.name}. ${draw.shortDescription}`
       : draw.isReversed
         ? "Reversed"
         : "Upright";
   const artAlt =
-    draw.kind === "oracle" ? `${draw.title} oracle page` : `${draw.name} tarot card art`;
+    draw.kind === "oracle"
+      ? `${draw.title} oracle page`
+      : draw.kind === "archetype"
+        ? `${draw.name} archetype card`
+        : `${draw.name} tarot card art`;
   const tagName = interactive ? "button" : "article";
   const interactiveAttributes = interactive
     ? `type="button" data-card-index="${index}" aria-controls="reading-collapse-${index}"`
@@ -1137,6 +1279,10 @@ function renderReadingPosition(draw, position, index, options = {}) {
 function renderAccordionItem(draw, position, index, config) {
   if (draw.kind === "oracle") {
     return renderOracleAccordionItem(draw, position, index, config);
+  }
+
+  if (draw.kind === "archetype") {
+    return renderArchetypeAccordionItem(draw, position, index);
   }
 
   const isFirst = index === 0;
@@ -1249,6 +1395,73 @@ function renderOracleAccordionItem(draw, position, index, config) {
   `;
 }
 
+function renderArchetypeAccordionItem(draw, position, index) {
+  const isFirst = index === 0;
+  const headingId = `reading-heading-${index}`;
+  const collapseId = `reading-collapse-${index}`;
+
+  return `
+    <div class="accordion-item accordion-item--archetype">
+      <h2 class="accordion-header" id="${headingId}">
+        <button
+          class="accordion-button ${isFirst ? "" : "collapsed"}"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#${collapseId}"
+          aria-expanded="${isFirst ? "true" : "false"}"
+          aria-controls="${collapseId}"
+        >
+          <div class="accordion-button__content">
+            <div class="accordion-step">${position.title}</div>
+            <div class="accordion-title">${draw.name}</div>
+            <p class="accordion-summary">${draw.shortDescription} · ${draw.tone}</p>
+          </div>
+        </button>
+      </h2>
+      <div
+        id="${collapseId}"
+        class="accordion-collapse collapse ${isFirst ? "show" : ""}"
+        aria-labelledby="${headingId}"
+      >
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            <div class="card-art-panel">
+              <div class="card-art-frame card-art-frame--archetype">
+                <img src="${draw.artUri}" alt="${draw.name} archetype card" loading="lazy" />
+              </div>
+              <div class="card-art-meta">
+                <span>${draw.name}</span>
+                <span>${draw.tone}</span>
+              </div>
+            </div>
+
+            <div class="archetype-detail">
+              <div class="accordion-step">${position.title}</div>
+              <p class="accordion-copy mb-0">${position.purpose}</p>
+              <p class="accordion-copy mb-0"><strong>${draw.coreMeaning}</strong></p>
+              <p class="accordion-copy mb-0">${buildArchetypeInterpretation(draw, position)}</p>
+              <div class="archetype-facets">
+                <div class="archetype-facet">
+                  <span class="accordion-step">Gift</span>
+                  <p class="accordion-copy mb-0">${draw.gift}</p>
+                </div>
+                <div class="archetype-facet">
+                  <span class="accordion-step">Risk</span>
+                  <p class="accordion-copy mb-0">${draw.risk}</p>
+                </div>
+              </div>
+              <div class="archetype-reflection">
+                <span class="accordion-step">Reflection Prompt</span>
+                <p class="accordion-copy mb-0">${buildArchetypeReflectionPrompt(draw, position)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function buildCardInterpretation(draw, position) {
   const realmSentence =
     draw.kind === "major"
@@ -1272,6 +1485,18 @@ function buildOracleInterpretation(draw, position, index) {
   return `In the ${position.title.toLowerCase()} page, "${draw.title}" says "${draw.phrase}" ${placementNotes[index] || "Let the sentence stay with you for the rest of the day and notice which word continues to echo."}`;
 }
 
+function buildArchetypeInterpretation(draw, position) {
+  if (draw.positionReadings?.[position.id]) {
+    return draw.positionReadings[position.id];
+  }
+
+  return `${draw.coreMeaning} In ${position.title.toLowerCase()}, this archetype is asking for a more conscious relationship with the pattern it represents.`;
+}
+
+function buildArchetypeReflectionPrompt(draw, position) {
+  return position.promptLead ? `${position.promptLead} ${draw.reflectionPrompt}` : draw.reflectionPrompt;
+}
+
 function buildReadingGuide(mode, config) {
   if (mode === "oracle") {
     if (config.positions.length === 1) {
@@ -1279,6 +1504,10 @@ function buildReadingGuide(mode, config) {
     }
 
     return "Tap any page above to open that oracle note, or pull the interpretation window higher for the full page set.";
+  }
+
+  if (mode === "archetype") {
+    return "Tap any archetype card above to open that position, or pull the reflection sheet upward to read the whole mirror.";
   }
 
   if (config.positions.length === 1) {
@@ -1291,6 +1520,10 @@ function buildReadingGuide(mode, config) {
 function buildOverallInsight(mode, config, draws) {
   if (mode === "oracle") {
     return buildOracleOverallInsight(config, draws);
+  }
+
+  if (mode === "archetype") {
+    return buildArchetypeOverallInsight(config, draws);
   }
 
   return buildTarotOverallInsight(config, draws);
@@ -1357,6 +1590,35 @@ function buildOracleOverallInsight(config, draws) {
   };
 }
 
+function buildArchetypeOverallInsight(config, draws) {
+  const primary = draws[0];
+  const final = draws[draws.length - 1];
+  const hasSelf = draws.some((draw) => draw.id === "self");
+  const hasShadow = draws.some((draw) => draw.id === "shadow");
+  const hasPersona = draws.some((draw) => draw.id === "persona");
+  let headline = `${primary.name} is closest to the surface of this mirror.`;
+
+  if (hasSelf) {
+    headline = "The mirror is pulling toward integration rather than performance.";
+  } else if (hasShadow && hasPersona) {
+    headline = "The mirror is showing a split between image and what is harder to admit.";
+  } else if (draws.some((draw) => draw.id === "hero")) {
+    headline = "The mirror is highlighting effort, defense, and what strength is trying to protect.";
+  }
+
+  return {
+    headline,
+    summary: `This ${config.name.toLowerCase()} is not predicting the future. It is mapping a living inner pattern through ${draws
+      .map((draw) => draw.name)
+      .join(", ")}. Start with ${primary.name} where the pattern is easiest to notice, and use ${final.name} in the final position as the most practical clue about what integration now requires.`,
+    takeaways: [
+      `Treat ${primary.name} as the clearest entry point into the mirror. Ask where that pattern already shows up in ordinary life.`,
+      `Notice which position feels most uncomfortable to read. That is often where the spread is closest to the living conflict.`,
+      `Use the final position, ${config.positions[config.positions.length - 1].title}, as the place to turn reflection into one grounded change.`
+    ]
+  };
+}
+
 function buildOraclePageArt(page, config, index) {
   const titleLines = wrapOracleText(page.title, 13, 2);
   const phraseLines = wrapOracleText(page.phrase, 21, 6);
@@ -1400,6 +1662,59 @@ function buildOraclePageArt(page, config, index) {
       </text>
       <text x="95" y="264" text-anchor="middle" font-size="11" letter-spacing="2.8" fill="${config.palette.accent}" font-family="Arial, sans-serif">${escapeSvgText(
         page.theme.toUpperCase()
+      )}</text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg.trim())}`;
+}
+
+function buildArchetypeCardArt(archetype, config, index) {
+  const titleLines = wrapOracleText(archetype.name, 15, 2);
+  const summaryLines = wrapOracleText(archetype.shortDescription, 18, 4);
+  const titleSvgLines = titleLines
+    .map(
+      (line, lineIndex) =>
+        `<tspan x="95" dy="${lineIndex === 0 ? 0 : 16}">${escapeSvgText(line)}</tspan>`
+    )
+    .join("");
+  const summarySvgLines = summaryLines
+    .map(
+      (line, lineIndex) =>
+        `<tspan x="95" dy="${lineIndex === 0 ? 0 : 15}">${escapeSvgText(line)}</tspan>`
+    )
+    .join("");
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 317">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${archetype.accent.paper}"/>
+          <stop offset="100%" stop-color="#ffffff"/>
+        </linearGradient>
+        <radialGradient id="halo" cx="50%" cy="28%" r="55%">
+          <stop offset="0%" stop-color="${archetype.accent.accent}" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="${archetype.accent.accent}" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="190" height="317" rx="30" fill="url(#bg)"/>
+      <rect x="16" y="16" width="158" height="285" rx="24" fill="none" stroke="${archetype.accent.border}" stroke-width="1.5"/>
+      <rect x="30" y="28" width="130" height="261" rx="18" fill="#ffffff" fill-opacity="0.65" stroke="${archetype.accent.border}" stroke-width="1"/>
+      <circle cx="95" cy="84" r="44" fill="url(#halo)"/>
+      <circle cx="95" cy="84" r="28" fill="none" stroke="${archetype.accent.accent}" stroke-width="2.2" opacity="0.8"/>
+      <circle cx="95" cy="84" r="8" fill="${archetype.accent.accent}" opacity="0.92"/>
+      <path d="M58 84h74" stroke="${archetype.accent.accent}" stroke-width="1.8" opacity="0.62"/>
+      <text x="95" y="134" text-anchor="middle" font-size="12" letter-spacing="3.1" fill="${archetype.accent.accent}" font-family="Arial, sans-serif">CARD ${
+        index + 1
+      }</text>
+      <text x="95" y="164" text-anchor="middle" font-size="16" fill="${archetype.accent.ink}" font-family="Georgia, serif">
+        ${titleSvgLines}
+      </text>
+      <text x="95" y="214" text-anchor="middle" font-size="12.5" fill="${archetype.accent.ink}" opacity="0.82" font-family="Arial, sans-serif">
+        ${summarySvgLines}
+      </text>
+      <text x="95" y="266" text-anchor="middle" font-size="11" letter-spacing="2.5" fill="${archetype.accent.accent}" font-family="Arial, sans-serif">${escapeSvgText(
+        config.compactHint.toUpperCase()
       )}</text>
     </svg>
   `;
@@ -1502,6 +1817,10 @@ function getCatalogForMode(mode) {
     return oracleCatalog;
   }
 
+  if (mode === "archetype") {
+    return archetypeCatalog;
+  }
+
   if (mode === "tarot") {
     return spreadCatalog;
   }
@@ -1557,7 +1876,22 @@ function setSheetExpanded(expanded) {
   appState.sheetExpanded = expanded;
   elements.readingSheet.classList.toggle("is-expanded", expanded);
   elements.sheetToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
-  elements.sheetToggleLabel.textContent = expanded ? "Close interpretation" : "Open interpretation";
+  const labels = getSheetLabels();
+  elements.sheetToggleLabel.textContent = expanded ? labels.expanded : labels.collapsed;
+}
+
+function getSheetLabels() {
+  if (appState.currentReading?.mode === "archetype") {
+    return {
+      collapsed: "Open reflection",
+      expanded: "Close reflection"
+    };
+  }
+
+  return {
+    collapsed: "Open interpretation",
+    expanded: "Close interpretation"
+  };
 }
 
 function resetExperience() {
@@ -1578,6 +1912,7 @@ function resetExperience() {
 function clearReadingSurface() {
   setSheetExpanded(false);
   elements.readingStage.classList.remove("reading-stage--oracle");
+  elements.readingStage.classList.remove("reading-stage--archetype");
   elements.readingSheet.hidden = false;
   elements.redrawTopButton.hidden = true;
   elements.readingSheet.classList.remove("is-visible", "is-expanded");
