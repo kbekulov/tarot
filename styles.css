@@ -1101,8 +1101,8 @@ body::before {
 
 .reading-stage--oracle .reading-stage__board {
   align-items: center;
-  padding-top: 0.35rem;
-  padding-bottom: 0.9rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   padding-left: 0.35rem;
   padding-right: 0.35rem;
 }
@@ -1288,7 +1288,6 @@ body::before {
   align-content: center;
   justify-content: center;
   perspective: 1200px;
-  transform: translateY(calc(-1 * clamp(2.2rem, 8vh, 3.8rem)));
 }
 
 .reading-board--oracle-3 .reading-position--oracle,
@@ -1943,8 +1942,8 @@ body::before {
   }
 
   .reading-stage--oracle .reading-stage__board {
-    padding-top: 0.25rem;
-    padding-bottom: 0.75rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
   }
 
   .reading-board.spread-layout-oracle,
