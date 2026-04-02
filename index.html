@@ -96,9 +96,45 @@
                       <p id="setupSpreadMeta" class="focus-note__copy mb-0"></p>
                     </div>
 
-                    <label class="form-label text-uppercase small tracking" for="questionInput">
-                      What do you want insight on?
-                    </label>
+                    <div class="field-row">
+                      <label class="form-label text-uppercase small tracking mb-0" for="questionInput">
+                        What do you want insight on?
+                      </label>
+                      <span id="questionCounter" class="field-meta">0 / 240</span>
+                    </div>
+                    <p class="suggestion-copy">
+                      Not sure how to phrase it? Start with one of these and edit it.
+                    </p>
+                    <div class="prompt-suggestions" aria-label="Question starters">
+                      <button
+                        type="button"
+                        class="prompt-chip"
+                        data-question-suggestion="What should I understand about this relationship right now?"
+                      >
+                        Relationship
+                      </button>
+                      <button
+                        type="button"
+                        class="prompt-chip"
+                        data-question-suggestion="What is the wisest next step in my work or career?"
+                      >
+                        Career
+                      </button>
+                      <button
+                        type="button"
+                        class="prompt-chip"
+                        data-question-suggestion="What do I need to see clearly before I make this decision?"
+                      >
+                        Decision
+                      </button>
+                      <button
+                        type="button"
+                        class="prompt-chip"
+                        data-question-suggestion="What pattern am I being asked to outgrow right now?"
+                      >
+                        Growth
+                      </button>
+                    </div>
                     <textarea
                       id="questionInput"
                       class="form-control form-control-lg question-box"
@@ -114,6 +150,9 @@
                       Ask for insight, direction, or understanding. The wording of your question
                       also seeds the visual deck, so the artwork stays consistent as you redraw.
                     </div>
+                    <div id="drawReadiness" class="readiness-note" role="status">
+                      Write one clear question to unlock the reading.
+                    </div>
 
                     <div class="d-grid">
                       <button id="drawButton" class="btn btn-draw btn-lg" type="button">
@@ -127,6 +166,15 @@
                       <div>
                         <div class="surface-kicker">Selection</div>
                         <h2 class="surface-title">Current session</h2>
+                      </div>
+                    </div>
+
+                    <div class="session-card">
+                      <div class="session-status">
+                        <span id="sessionStatusBadge" class="session-status__badge">Setup</span>
+                        <p id="sessionStatusText" class="session-status__text mb-0">
+                          Choose a spread and write one clear question to prepare the reading.
+                        </p>
                       </div>
                     </div>
 
@@ -199,6 +247,18 @@
                     <span id="readingMeta" class="rail-chip"></span>
                   </div>
                   <div id="readingSummary"></div>
+                </div>
+
+                <div class="surface-card surface-card--section">
+                  <div class="surface-header surface-header--compact">
+                    <div>
+                      <div class="surface-kicker">How to read this</div>
+                      <h2 class="surface-title">Start with the open card, then explore the spread</h2>
+                    </div>
+                  </div>
+                  <p id="readingGuideText" class="rail-copy mb-0">
+                    Tap a position below to jump into its meaning, then move through the cards in the order that feels most useful.
+                  </p>
                 </div>
 
                 <div class="surface-card">

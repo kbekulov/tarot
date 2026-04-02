@@ -444,6 +444,10 @@ const elements = {
   spreadPreviewDescription: document.querySelector("#spreadPreviewDescription"),
   spreadPreviewPositions: document.querySelector("#spreadPreviewPositions"),
   questionPreview: document.querySelector("#questionPreview"),
+  questionCounter: document.querySelector("#questionCounter"),
+  drawReadiness: document.querySelector("#drawReadiness"),
+  sessionStatusBadge: document.querySelector("#sessionStatusBadge"),
+  sessionStatusText: document.querySelector("#sessionStatusText"),
   setupSpreadName: document.querySelector("#setupSpreadName"),
   setupSpreadMeta: document.querySelector("#setupSpreadMeta"),
   questionInput: document.querySelector("#questionInput"),
@@ -457,10 +461,12 @@ const elements = {
   readingQuestion: document.querySelector("#readingQuestion"),
   readingMeta: document.querySelector("#readingMeta"),
   readingSummary: document.querySelector("#readingSummary"),
+  readingGuideText: document.querySelector("#readingGuideText"),
   positionTimeline: document.querySelector("#positionTimeline"),
   cardsAccordion: document.querySelector("#cardsAccordion"),
   readingTakeaways: document.querySelector("#readingTakeaways"),
-  progressItems: Array.from(document.querySelectorAll("[data-progress-step]"))
+  progressItems: Array.from(document.querySelectorAll("[data-progress-step]")),
+  questionSuggestionButtons: Array.from(document.querySelectorAll("[data-question-suggestion]"))
 };
 
 const tarotDeck = buildDeck();
@@ -483,6 +489,9 @@ function initialize() {
   showView("setup");
 
   elements.questionInput.addEventListener("input", handleQuestionInput);
+  elements.questionSuggestionButtons.forEach((button) => {
+    button.addEventListener("click", () => applyQuestionSuggestion(button.dataset.questionSuggestion));
+  });
   elements.drawButton.addEventListener("click", handleDraw);
   elements.backButton.addEventListener("click", () => showView("setup"));
   elements.redrawButton.addEventListener("click", redrawReading);
@@ -577,13 +586,14 @@ function renderSidebar() {
   elements.questionPreview.textContent = appState.currentQuestion
     ? appState.currentQuestion
     : "Your question will appear here once you start typing.";
+  renderSessionStatus();
 }
 
 function renderSetupContext() {
   const spread = getSelectedSpread();
   elements.setupSpreadName.textContent = spread.name;
   elements.setupSpreadMeta.textContent = `${spread.positions.length} cards. ${spread.description}`;
-  elements.drawButton.innerHTML = `<i class="bi bi-stars me-2"></i>Reveal ${spread.shortLabel} reading`;
+  updateComposerState();
 }
 
 function handleQuestionInput() {
@@ -597,7 +607,15 @@ function handleQuestionInput() {
   appState.currentQuestion = nextQuestion;
   appState.currentReading = null;
   renderSidebar();
+  updateComposerState();
   updateProgress();
+}
+
+function applyQuestionSuggestion(suggestion) {
+  elements.questionInput.value = suggestion;
+  handleQuestionInput();
+  elements.questionInput.focus();
+  elements.questionInput.setSelectionRange(suggestion.length, suggestion.length);
 }
 
 function handleDraw() {
@@ -660,9 +678,11 @@ function renderReadingView() {
   const spread = spreadCatalog.find((item) => item.id === reading.spreadId);
   const overallInsight = buildOverallInsight(spread, reading.question, reading.draws);
 
+  renderSessionStatus();
   elements.readingTitle.textContent = spread.name;
   elements.readingQuestion.textContent = reading.question;
   elements.readingMeta.textContent = `${spread.positions.length} cards · ${countReversed(reading.draws)} reversed`;
+  elements.readingGuideText.textContent = buildReadingGuide(spread);
   elements.readingSummary.innerHTML = `
     <h2>${overallInsight.headline}</h2>
     <p class="mb-0">${overallInsight.summary}</p>
@@ -671,7 +691,12 @@ function renderReadingView() {
   elements.positionTimeline.innerHTML = reading.draws
     .map(
       (draw, index) => `
-        <div class="timeline-card">
+        <button
+          type="button"
+          class="timeline-card timeline-card--button"
+          data-card-index="${index}"
+          aria-controls="reading-collapse-${index}"
+        >
           <div class="timeline-thumb ${draw.isReversed ? "timeline-thumb--reversed" : ""}">
             <img src="${draw.artUri}" alt="${draw.name} tarot card art" loading="lazy" />
           </div>
@@ -680,7 +705,7 @@ function renderReadingView() {
             <div class="timeline-title">${spread.positions[index].title}</div>
             <p class="timeline-meta mb-0">${draw.name} · ${draw.isReversed ? "Reversed" : "Upright"}</p>
           </div>
-        </div>
+        </button>
       `
     )
     .join("");
@@ -688,6 +713,8 @@ function renderReadingView() {
   elements.cardsAccordion.innerHTML = reading.draws
     .map((draw, index) => renderAccordionItem(draw, spread.positions[index], index))
     .join("");
+
+  bindTimelineJumpButtons();
 
   elements.readingTakeaways.innerHTML = `
     <h2 class="takeaways-title">What to carry forward</h2>
@@ -765,6 +792,14 @@ function buildCardInterpretation(draw, position) {
     : "Its upright orientation suggests the energy is available and easier to act on directly.";
 
   return `In the ${position.title.toLowerCase()} position, ${realmSentence.toLowerCase()} ${orientationSentence}`;
+}
+
+function buildReadingGuide(spread) {
+  if (spread.positions.length === 1) {
+    return "Start with the open card below, then read the takeaway as your clearest next step.";
+  }
+
+  return "The first card opens automatically. After that, tap any position in the spread map to jump straight to its meaning and move through the reading in the order that helps most.";
 }
 
 function buildOverallInsight(spread, question, draws) {
@@ -864,6 +899,64 @@ function showView(viewName) {
   elements.readingView.hidden = viewName !== "reading";
   elements.appMain.scrollTo({ top: 0, behavior: "auto" });
   updateProgress();
+}
+
+function updateComposerState() {
+  const spread = getSelectedSpread();
+  const typedLength = elements.questionInput.value.length;
+  const hasQuestion = Boolean(appState.currentQuestion);
+
+  elements.questionCounter.textContent = `${typedLength} / 240`;
+  elements.drawButton.disabled = !hasQuestion;
+  elements.drawButton.innerHTML = hasQuestion
+    ? `<i class="bi bi-stars me-2"></i>Reveal ${spread.shortLabel} reading`
+    : `<i class="bi bi-stars me-2"></i>Write a question to continue`;
+  elements.drawReadiness.textContent = hasQuestion
+    ? typedLength < 24
+      ? `Ready to draw your ${spread.shortLabel} reading. A little more detail can make the interpretation sharper.`
+      : `Ready to draw your ${spread.shortLabel} reading.`
+    : "Write one clear question to unlock the reading.";
+  elements.drawReadiness.classList.toggle("is-ready", hasQuestion);
+}
+
+function renderSessionStatus() {
+  const spread = getSelectedSpread();
+  let status = "Setup";
+  let description = `Choose a spread and write one clear question to prepare your ${spread.shortLabel} reading.`;
+
+  if (appState.currentQuestion && !appState.currentReading) {
+    status = "Ready";
+    description = `Everything is set. You can reveal a ${spread.positions.length}-card ${spread.name.toLowerCase()} reading now.`;
+  }
+
+  if (appState.currentReading) {
+    status = "Live";
+    description = `This ${spread.positions.length}-card reading is based on your current question and ready to explore.`;
+  }
+
+  elements.sessionStatusBadge.textContent = status;
+  elements.sessionStatusBadge.dataset.state = status.toLowerCase();
+  elements.sessionStatusText.textContent = description;
+}
+
+function bindTimelineJumpButtons() {
+  elements.positionTimeline.querySelectorAll("[data-card-index]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openReadingCard(Number(button.dataset.cardIndex));
+    });
+  });
+}
+
+function openReadingCard(index) {
+  const collapseElement = document.querySelector(`#reading-collapse-${index}`);
+
+  if (!collapseElement || typeof bootstrap === "undefined") {
+    return;
+  }
+
+  const collapse = bootstrap.Collapse.getOrCreateInstance(collapseElement, { toggle: false });
+  collapse.show();
+  collapseElement.closest(".accordion-item")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function updateProgress() {
