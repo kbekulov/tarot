@@ -807,7 +807,7 @@ function renderSetupStage() {
       ? "Choose between one, two, or three pages."
       : "Five layouts. One tap chooses.";
     elements.mysteryCardName.textContent = isOracleMode ? "Pages whisper" : "The deck is turning";
-    elements.mysteryCardPrompt.textContent = isOracleMode ? "Choose pages" : "Pick a layout";
+    elements.mysteryCardPrompt.textContent = isOracleMode ? "Choose them" : "Pick a layout";
     return;
   }
 
