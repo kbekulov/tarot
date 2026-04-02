@@ -1359,7 +1359,7 @@ function buildOracleOverallInsight(config, draws) {
 
 function buildOraclePageArt(page, config, index) {
   const titleLines = wrapOracleText(page.title, 13, 2);
-  const phraseLines = wrapOracleText(page.phrase, 20, 6);
+  const phraseLines = wrapOracleText(page.phrase, 21, 6);
   const label = `Page ${index + 1}`;
   const svgTitleLines = titleLines
     .map(
@@ -1408,7 +1408,7 @@ function buildOraclePageArt(page, config, index) {
 }
 
 function wrapOracleText(text, maxCharacters, maxLines) {
-  const words = text.replace(/\.$/, "").replace(/;/g, "").split(" ");
+  const words = text.trim().split(/\s+/);
   const lines = [];
   let currentLine = "";
 
