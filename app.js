@@ -700,8 +700,11 @@ function renderSpreadPicker() {
   }
 
   elements.spreadPicker.innerHTML = catalog
-    .map(
-      (spread) => `
+    .map((spread) => {
+      const secondaryCopy =
+        appState.currentMode === "oracle" ? spread.description : spread.compactHint;
+
+      return `
         <button
           type="button"
           class="spread-choice"
@@ -710,10 +713,10 @@ function renderSpreadPicker() {
         >
           <span class="spread-choice__meta">${spread.shortLabel}</span>
           <span class="spread-choice__title">${spread.name}</span>
-          <span class="spread-choice__hint">${spread.compactHint}</span>
+          <span class="spread-choice__hint">${secondaryCopy}</span>
         </button>
       `
-    )
+    })
     .join("");
 
   elements.spreadPicker.querySelectorAll("[data-spread-id]").forEach((button) => {
