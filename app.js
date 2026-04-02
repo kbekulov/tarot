@@ -1017,6 +1017,7 @@ function showView(viewName) {
   appState.currentView = viewName;
   elements.setupView.hidden = viewName !== "setup";
   elements.readingView.hidden = viewName !== "reading";
+  elements.appMain.classList.toggle("is-reading", viewName === "reading");
   elements.appMain.scrollTo({ top: 0, behavior: "auto" });
 }
 
