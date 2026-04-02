@@ -1855,15 +1855,20 @@ function openReadingCard(index) {
   unlockReadingScroll();
 
   if (!collapseElement || typeof bootstrap === "undefined") {
+    scrollSheetIntoView();
     return;
   }
 
   const collapse = bootstrap.Collapse.getOrCreateInstance(collapseElement, { toggle: false });
   collapse.show();
+  window.setTimeout(() => {
+    collapseElement.closest(".accordion-item")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 180);
 }
 
 function toggleSheet() {
   unlockReadingScroll();
+  scrollSheetIntoView();
 }
 
 function setReadingScrollUnlocked(unlocked) {
@@ -1889,21 +1894,21 @@ function setReadingScrollUnlocked(unlocked) {
 function getSlipLabels() {
   if (appState.currentReading?.mode === "oracle") {
     return {
-      locked: "Unlock pages below",
-      unlocked: "Scroll below"
+      locked: "Read pages below",
+      unlocked: "Jump to pages"
     };
   }
 
   if (appState.currentReading?.mode === "archetype") {
     return {
-      locked: "Unlock reflection",
-      unlocked: "Scroll below"
+      locked: "Read reflection below",
+      unlocked: "Jump to reflection"
     };
   }
 
   return {
-    locked: "Unlock interpretation",
-    unlocked: "Scroll below"
+    locked: "Read interpretation below",
+    unlocked: "Jump to interpretation"
   };
 }
 
@@ -1911,6 +1916,12 @@ function unlockReadingScroll() {
   if (!appState.readingScrollUnlocked) {
     setReadingScrollUnlocked(true);
   }
+}
+
+function scrollSheetIntoView() {
+  window.requestAnimationFrame(() => {
+    elements.readingSheet?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }
 
 function resetExperience() {

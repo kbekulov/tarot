@@ -1437,6 +1437,11 @@ body::before {
   padding-bottom: 0.95rem;
 }
 
+.reading-stage.is-scroll-unlocked.reading-stage--oracle .reading-stage__board {
+  height: clamp(20rem, calc(100dvh - 11.5rem), 33rem);
+  min-height: 0;
+}
+
 .reading-stage--oracle .reading-stage__board {
   display: block;
   min-height: 100%;
@@ -2485,6 +2490,10 @@ body::before {
       clamp(6.9rem, 20vh, 7.5rem)
       0.7rem
       clamp(1rem, 4vh, 1.5rem);
+  }
+
+  .reading-stage.is-scroll-unlocked.reading-stage--oracle .reading-stage__board {
+    height: clamp(18rem, calc(100dvh - 10.8rem), 28rem);
   }
 
   .oracle-layout--1 {
