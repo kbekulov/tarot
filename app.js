@@ -649,12 +649,19 @@ function buildDeck() {
 function buildOracleDeck() {
   const source = Array.isArray(window.ORACLE_PHRASES) ? window.ORACLE_PHRASES : [];
 
-  return source.map((phrase, index) => ({
-    id: `oracle-${index + 1}`,
-    kind: "oracle",
-    name: phrase,
-    phrase
-  }));
+  return source.map((entry, index) => {
+    const phrase = typeof entry === "string" ? entry : entry.phrase;
+    const title = typeof entry === "string" ? `Oracle Page ${index + 1}` : entry.title;
+
+    return {
+      id: `oracle-${index + 1}`,
+      kind: "oracle",
+      name: title,
+      title,
+      phrase,
+      theme: typeof entry === "string" ? "Oracle" : entry.theme
+    };
+  });
 }
 
 function renderModeSwitch() {
@@ -953,7 +960,7 @@ function drawOraclePages(count, config) {
 
   return shuffled.slice(0, count).map((page, index) => ({
     ...page,
-    artUri: buildOraclePageArt(page.phrase, config, index)
+    artUri: buildOraclePageArt(page, config, index)
   }));
 }
 
@@ -1094,8 +1101,13 @@ function renderReadingPosition(draw, position, index, options = {}) {
   const { extraClasses = "", hideCaption = false, interactive = true } = options;
   const className = ["reading-position", extraClasses].filter(Boolean).join(" ");
   const descriptor =
-    draw.kind === "oracle" ? draw.phrase : draw.isReversed ? "Reversed" : "Upright";
-  const artAlt = draw.kind === "oracle" ? `${draw.phrase} oracle page` : `${draw.name} tarot card art`;
+    draw.kind === "oracle"
+      ? `${draw.title}. ${draw.phrase}`
+      : draw.isReversed
+        ? "Reversed"
+        : "Upright";
+  const artAlt =
+    draw.kind === "oracle" ? `${draw.title} oracle page` : `${draw.name} tarot card art`;
   const tagName = interactive ? "button" : "article";
   const interactiveAttributes = interactive
     ? `type="button" data-card-index="${index}" aria-controls="reading-collapse-${index}"`
@@ -1201,8 +1213,8 @@ function renderOracleAccordionItem(draw, position, index, config) {
         >
           <div class="accordion-button__content">
             <div class="accordion-step">${position.title}</div>
-            <div class="accordion-title">${draw.phrase}</div>
-            <p class="accordion-summary">${position.summary} · Oracle page ${index + 1}</p>
+            <div class="accordion-title">${draw.title}</div>
+            <p class="accordion-summary">${position.summary} · ${draw.theme}</p>
           </div>
         </button>
       </h2>
@@ -1226,6 +1238,7 @@ function renderOracleAccordionItem(draw, position, index, config) {
             <div>
               <div class="accordion-step">${position.title}</div>
               <p class="accordion-copy mb-0">${position.purpose}</p>
+              <p class="accordion-copy mb-0"><strong>${draw.title}</strong></p>
               <blockquote class="oracle-quote">${draw.phrase}</blockquote>
               <p class="accordion-copy mb-0">${buildOracleInterpretation(draw, position, index)}</p>
             </div>
@@ -1256,7 +1269,7 @@ function buildOracleInterpretation(draw, position, index) {
     "Treat it as the sentence most likely to become useful in the next real-world step."
   ];
 
-  return `In the ${position.title.toLowerCase()} page, the oracle says "${draw.phrase}" ${placementNotes[index] || "Let the sentence stay with you for the rest of the day and notice which word continues to echo."}`;
+  return `In the ${position.title.toLowerCase()} page, "${draw.title}" says "${draw.phrase}" ${placementNotes[index] || "Let the sentence stay with you for the rest of the day and notice which word continues to echo."}`;
 }
 
 function buildReadingGuide(mode, config) {
@@ -1320,8 +1333,8 @@ function buildOracleOverallInsight(config, draws) {
   const firstPage = draws[0];
   if (draws.length === 1) {
     return {
-      headline: firstPage.phrase,
-      summary: `This single page answer opens directly on "${firstPage.phrase}" The oracle is not asking for a long interpretation here. It is offering one sentence to trust before you add more noise.`,
+      headline: firstPage.title,
+      summary: `This single page answer opens on "${firstPage.title}" and speaks plainly: "${firstPage.phrase}" The oracle is not asking for a long interpretation here. It is offering one clean sentence to trust before you add more noise.`,
       takeaways: [
         `Take the message literally first: ${firstPage.phrase}`,
         "Resist the urge to overcomplicate it. The value of a one-page answer is its clean direction.",
@@ -1334,8 +1347,8 @@ function buildOracleOverallInsight(config, draws) {
   const finalPage = draws[draws.length - 1];
 
   return {
-    headline: firstPage.phrase,
-    summary: `This ${config.name.toLowerCase()} opens with "${firstPage.phrase}" The middle page turns the message toward "${secondPage.phrase}" The final page closes on "${finalPage.phrase}" Read together, the oracle is asking for reflection before force and a simpler trust in what is already forming.`,
+    headline: firstPage.title,
+    summary: `This ${config.name.toLowerCase()} opens with "${firstPage.title}" and the line "${firstPage.phrase}" The next page turns the reading toward "${secondPage.title}" and "${secondPage.phrase}" The final page closes on "${finalPage.title}" and "${finalPage.phrase}" Read together, the oracle is asking for reflection before force and a simpler trust in what is already forming.`,
     takeaways: [
       `Start with ${config.positions[0].title.toLowerCase()}: ${firstPage.phrase}`,
       `Let the middle page change the tone of the reading: ${secondPage.phrase}`,
@@ -1344,13 +1357,20 @@ function buildOracleOverallInsight(config, draws) {
   };
 }
 
-function buildOraclePageArt(phrase, config, index) {
-  const lines = wrapOraclePhrase(phrase, 16);
+function buildOraclePageArt(page, config, index) {
+  const titleLines = wrapOracleText(page.title, 13, 2);
+  const phraseLines = wrapOracleText(page.phrase, 20, 6);
   const label = `Page ${index + 1}`;
-  const svgLines = lines
+  const svgTitleLines = titleLines
     .map(
       (line, lineIndex) =>
-        `<tspan x="95" dy="${lineIndex === 0 ? 0 : 22}">${escapeSvgText(line)}</tspan>`
+        `<tspan x="95" dy="${lineIndex === 0 ? 0 : 16}">${escapeSvgText(line)}</tspan>`
+    )
+    .join("");
+  const svgPhraseLines = phraseLines
+    .map(
+      (line, lineIndex) =>
+        `<tspan x="95" dy="${lineIndex === 0 ? 0 : 16}">${escapeSvgText(line)}</tspan>`
     )
     .join("");
 
@@ -1372,11 +1392,14 @@ function buildOraclePageArt(phrase, config, index) {
       <path d="M44 52h102" stroke="${config.palette.accent}" stroke-width="2.4" stroke-linecap="round" opacity="0.85"/>
       <circle cx="95" cy="52" r="5" fill="${config.palette.accent}" opacity="0.92"/>
       <text x="95" y="86" text-anchor="middle" font-size="12" letter-spacing="3.2" fill="${config.palette.accent}" font-family="Georgia, serif">${label}</text>
-      <text x="95" y="136" text-anchor="middle" font-size="20" fill="${config.palette.ink}" font-family="Georgia, serif">
-        ${svgLines}
+      <text x="95" y="114" text-anchor="middle" font-size="12.5" letter-spacing="1.5" fill="${config.palette.accent}" font-family="Arial, sans-serif">
+        ${svgTitleLines}
+      </text>
+      <text x="95" y="150" text-anchor="middle" font-size="14.5" fill="${config.palette.ink}" font-family="Georgia, serif">
+        ${svgPhraseLines}
       </text>
       <text x="95" y="264" text-anchor="middle" font-size="11" letter-spacing="2.8" fill="${config.palette.accent}" font-family="Arial, sans-serif">${escapeSvgText(
-        config.compactHint.toUpperCase()
+        page.theme.toUpperCase()
       )}</text>
     </svg>
   `;
@@ -1384,8 +1407,8 @@ function buildOraclePageArt(phrase, config, index) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg.trim())}`;
 }
 
-function wrapOraclePhrase(phrase, maxCharacters) {
-  const words = phrase.replace(/\.$/, "").split(" ");
+function wrapOracleText(text, maxCharacters, maxLines) {
+  const words = text.replace(/\.$/, "").replace(/;/g, "").split(" ");
   const lines = [];
   let currentLine = "";
 
@@ -1405,7 +1428,7 @@ function wrapOraclePhrase(phrase, maxCharacters) {
     lines.push(currentLine);
   }
 
-  return lines.slice(0, 5);
+  return lines.slice(0, maxLines);
 }
 
 function escapeSvgText(text) {
