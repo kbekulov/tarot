@@ -438,64 +438,63 @@ const rankDefinitions = [
 
 const elements = {
   appMain: document.querySelector(".app-main"),
+  mysteryCardButton: document.querySelector("#mysteryCardButton"),
+  mysteryCardName: document.querySelector(".mystery-card__name"),
+  mysteryCardPrompt: document.querySelector(".mystery-card__prompt"),
+  setupStepLabel: document.querySelector("#setupStepLabel"),
+  setupTitle: document.querySelector("#setupTitle"),
+  setupBody: document.querySelector("#setupBody"),
+  spreadChoicePanel: document.querySelector("#spreadChoicePanel"),
   spreadPicker: document.querySelector("#spreadPicker"),
-  spreadPreviewTitle: document.querySelector("#spreadPreviewTitle"),
-  spreadPreviewCount: document.querySelector("#spreadPreviewCount"),
-  spreadPreviewDescription: document.querySelector("#spreadPreviewDescription"),
-  spreadPreviewPositions: document.querySelector("#spreadPreviewPositions"),
-  questionPreview: document.querySelector("#questionPreview"),
-  questionCounter: document.querySelector("#questionCounter"),
-  drawReadiness: document.querySelector("#drawReadiness"),
-  sessionStatusBadge: document.querySelector("#sessionStatusBadge"),
-  sessionStatusText: document.querySelector("#sessionStatusText"),
-  setupSpreadName: document.querySelector("#setupSpreadName"),
-  setupSpreadMeta: document.querySelector("#setupSpreadMeta"),
-  questionInput: document.querySelector("#questionInput"),
-  drawButton: document.querySelector("#drawButton"),
-  backButton: document.querySelector("#backButton"),
-  redrawButton: document.querySelector("#redrawButton"),
-  resetButton: document.querySelector("#resetButton"),
+  focusPanel: document.querySelector("#focusPanel"),
+  focusRing: document.querySelector("#focusRing"),
+  focusTimerValue: document.querySelector("#focusTimerValue"),
+  focusSpreadName: document.querySelector("#focusSpreadName"),
+  focusCountdownText: document.querySelector("#focusCountdownText"),
+  setupFootnote: document.querySelector("#setupFootnote"),
   setupView: document.querySelector("#setupView"),
   readingView: document.querySelector("#readingView"),
   readingTitle: document.querySelector("#readingTitle"),
-  readingQuestion: document.querySelector("#readingQuestion"),
-  readingMeta: document.querySelector("#readingMeta"),
+  readingHeadline: document.querySelector("#readingHeadline"),
   readingSummary: document.querySelector("#readingSummary"),
   readingGuideText: document.querySelector("#readingGuideText"),
-  positionTimeline: document.querySelector("#positionTimeline"),
+  readingMeta: document.querySelector("#readingMeta"),
+  readingBoard: document.querySelector("#readingBoard"),
+  readingSheet: document.querySelector("#readingSheet"),
+  sheetToggle: document.querySelector("#sheetToggle"),
+  sheetToggleLabel: document.querySelector("#sheetToggleLabel"),
   cardsAccordion: document.querySelector("#cardsAccordion"),
   readingTakeaways: document.querySelector("#readingTakeaways"),
-  progressItems: Array.from(document.querySelectorAll("[data-progress-step]")),
-  questionSuggestionButtons: Array.from(document.querySelectorAll("[data-question-suggestion]"))
+  redrawButton: document.querySelector("#redrawButton"),
+  backButton: document.querySelector("#backButton"),
+  resetButton: document.querySelector("#resetButton")
 };
 
 const tarotDeck = buildDeck();
 const appState = {
-  selectedSpreadId: "three",
+  selectedSpreadId: null,
   currentView: "setup",
-  currentQuestion: "",
+  currentStage: "invite",
   currentReading: null,
   artworkDeck: null,
-  artworkSeed: ""
+  artworkSeed: "",
+  focusCountdown: 10,
+  focusTimerId: null,
+  sheetExpanded: false
 };
 
 initialize();
 
 function initialize() {
   renderSpreadPicker();
-  renderSidebar();
-  renderSetupContext();
-  updateProgress();
+  renderSetupStage();
   showView("setup");
 
-  elements.questionInput.addEventListener("input", handleQuestionInput);
-  elements.questionSuggestionButtons.forEach((button) => {
-    button.addEventListener("click", () => applyQuestionSuggestion(button.dataset.questionSuggestion));
-  });
-  elements.drawButton.addEventListener("click", handleDraw);
-  elements.backButton.addEventListener("click", () => showView("setup"));
+  elements.mysteryCardButton.addEventListener("click", activateDeck);
+  elements.sheetToggle.addEventListener("click", toggleSheet);
   elements.redrawButton.addEventListener("click", redrawReading);
-  elements.resetButton.addEventListener("click", resetReading);
+  elements.backButton.addEventListener("click", resetExperience);
+  elements.resetButton.addEventListener("click", resetExperience);
 }
 
 function buildDeck() {
@@ -538,103 +537,153 @@ function renderSpreadPicker() {
   elements.spreadPicker.innerHTML = spreadCatalog
     .map(
       (spread) => `
-        <div class="col-12">
-          <button
-            type="button"
-            class="spread-choice ${spread.id === appState.selectedSpreadId ? "is-active" : ""}"
-            data-spread-id="${spread.id}"
-            aria-pressed="${spread.id === appState.selectedSpreadId ? "true" : "false"}"
-          >
-            <div class="spread-choice__top">
-              <span class="spread-choice__meta">${spread.shortLabel}</span>
-              <span class="spread-choice__icon">
-                <i class="bi ${spread.id === appState.selectedSpreadId ? "bi-check2" : "bi-chevron-right"}"></i>
-              </span>
+        <button
+          type="button"
+          class="spread-choice"
+          data-spread-id="${spread.id}"
+          aria-label="${spread.name}, ${spread.positions.length} positions"
+        >
+          <div class="spread-choice__row">
+            <div>
+              <div class="spread-choice__title">${spread.name}</div>
+              <p class="spread-choice__description">${spread.description}</p>
             </div>
-            <div class="spread-choice__title">${spread.name}</div>
-            <p class="spread-choice__description">${spread.description}</p>
-            <div class="spread-choice__footer">
-              <span>${spread.positions.length} positions</span>
-              <span>${spread.id === appState.selectedSpreadId ? "Selected" : "Tap to choose"}</span>
-            </div>
-          </button>
-        </div>
+            <span class="spread-choice__meta">${spread.shortLabel}</span>
+          </div>
+        </button>
       `
     )
     .join("");
 
   elements.spreadPicker.querySelectorAll("[data-spread-id]").forEach((button) => {
     button.addEventListener("click", () => {
-      appState.selectedSpreadId = button.dataset.spreadId;
-      appState.currentReading = null;
-      renderSpreadPicker();
-      renderSidebar();
-      renderSetupContext();
-      updateProgress();
+      selectSpread(button.dataset.spreadId);
     });
   });
 }
 
-function renderSidebar() {
-  const spread = getSelectedSpread();
-  elements.spreadPreviewTitle.textContent = spread.name;
-  elements.spreadPreviewCount.textContent = `${spread.positions.length} cards`;
-  elements.spreadPreviewDescription.textContent = spread.description;
-  elements.spreadPreviewPositions.innerHTML = spread.positions
-    .map((position, index) => `<span class="position-pill">${index + 1}. ${position.title}</span>`)
-    .join("");
-  elements.questionPreview.textContent = appState.currentQuestion
-    ? appState.currentQuestion
-    : "Your question will appear here once you start typing.";
-  renderSessionStatus();
-}
-
-function renderSetupContext() {
-  const spread = getSelectedSpread();
-  elements.setupSpreadName.textContent = spread.name;
-  elements.setupSpreadMeta.textContent = `${spread.positions.length} cards. ${spread.description}`;
-  updateComposerState();
-}
-
-function handleQuestionInput() {
-  elements.questionInput.classList.remove("is-invalid");
-  const nextQuestion = elements.questionInput.value.trim();
-
-  if (nextQuestion !== appState.artworkSeed) {
-    disposeArtworkDeck();
-  }
-
-  appState.currentQuestion = nextQuestion;
-  appState.currentReading = null;
-  renderSidebar();
-  updateComposerState();
-  updateProgress();
-}
-
-function applyQuestionSuggestion(suggestion) {
-  elements.questionInput.value = suggestion;
-  handleQuestionInput();
-  elements.questionInput.focus();
-  elements.questionInput.setSelectionRange(suggestion.length, suggestion.length);
-}
-
-function handleDraw() {
-  const question = elements.questionInput.value.trim();
-
-  if (!question) {
-    elements.questionInput.classList.add("is-invalid");
-    elements.questionInput.focus();
+function activateDeck() {
+  if (appState.currentStage !== "invite") {
     return;
   }
 
-  appState.currentQuestion = question;
-  renderSidebar();
+  appState.currentStage = "spreads";
+  renderSetupStage();
+}
+
+function selectSpread(spreadId) {
+  appState.selectedSpreadId = spreadId;
+  appState.currentReading = null;
+  startFocusCountdown();
+}
+
+function startFocusCountdown() {
+  clearFocusCountdown();
+  appState.currentStage = "focus";
+  appState.focusCountdown = 10;
+  renderSetupStage();
+
+  appState.focusTimerId = window.setInterval(() => {
+    appState.focusCountdown -= 1;
+    updateFocusCountdown();
+
+    if (appState.focusCountdown <= 0) {
+      clearFocusCountdown();
+      revealReading();
+    }
+  }, 1000);
+}
+
+function clearFocusCountdown() {
+  if (appState.focusTimerId) {
+    window.clearInterval(appState.focusTimerId);
+    appState.focusTimerId = null;
+  }
+}
+
+function renderSetupStage() {
+  const spread = getSelectedSpread();
+
+  elements.mysteryCardButton.classList.toggle("is-spinning", appState.currentStage !== "invite");
+  elements.spreadChoicePanel.hidden = appState.currentStage !== "spreads";
+  elements.focusPanel.hidden = appState.currentStage !== "focus";
+
+  if (appState.currentStage === "invite") {
+    elements.setupStepLabel.textContent = "Step 1";
+    elements.setupTitle.textContent = "Tap the covered card to wake the deck.";
+    elements.setupBody.textContent =
+      "The card stays mysterious at first. Once you touch it, the ritual begins and the deck starts spinning.";
+    elements.setupFootnote.textContent = "No question yet. Just start the ritual.";
+    elements.mysteryCardName.textContent = "The deck is hidden";
+    elements.mysteryCardPrompt.textContent = "Tap to begin";
+    return;
+  }
+
+  if (appState.currentStage === "spreads") {
+    elements.setupStepLabel.textContent = "Step 2";
+    elements.setupTitle.textContent = "Choose the type of reading you want.";
+    elements.setupBody.textContent =
+      "While the card spins, choose how much guidance you want from the deck.";
+    elements.setupFootnote.textContent = "One spread will shape the whole reading.";
+    elements.mysteryCardName.textContent = "The deck is turning";
+    elements.mysteryCardPrompt.textContent = "Choose a spread below";
+    return;
+  }
+
+  if (appState.currentStage === "focus" && spread) {
+    elements.setupStepLabel.textContent = "Step 3";
+    elements.setupTitle.textContent = "Hold your question in mind for ten slow seconds.";
+    elements.setupBody.textContent =
+      "No typing now. Keep the question private, stay with it quietly, and let the spread settle around it.";
+    elements.setupFootnote.textContent = `Preparing a ${spread.name.toLowerCase()} reading.`;
+    elements.mysteryCardName.textContent = "The question is settling";
+    elements.mysteryCardPrompt.textContent = "The reveal is close";
+    updateFocusCountdown();
+  }
+}
+
+function updateFocusCountdown() {
+  const spread = getSelectedSpread();
+  const progress = (Math.max(appState.focusCountdown, 0) / 10) * 100;
+
+  elements.focusRing.style.setProperty("--countdown-progress", progress);
+  elements.focusTimerValue.textContent = String(Math.max(appState.focusCountdown, 0));
+  elements.focusSpreadName.textContent = spread ? spread.name : "";
+
+  if (appState.focusCountdown > 1) {
+    elements.focusCountdownText.textContent = `${appState.focusCountdown} seconds remaining. Keep the question quietly in mind.`;
+    return;
+  }
+
+  if (appState.focusCountdown === 1) {
+    elements.focusCountdownText.textContent = "1 second remaining. Let the spread settle.";
+    return;
+  }
+
+  elements.focusCountdownText.textContent = "Revealing the spread now.";
+}
+
+function revealReading() {
   createReading();
+  showView("reading");
+  elements.readingSheet.classList.remove("is-visible", "is-expanded");
+  setSheetExpanded(false);
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      elements.readingSheet.classList.add("is-visible");
+    });
+  });
 }
 
 function createReading() {
   const spread = getSelectedSpread();
-  const artworkDeck = getArtworkDeck(appState.currentQuestion);
+
+  if (!spread) {
+    return;
+  }
+
+  const artworkDeck = getArtworkDeck(buildReadingSeed());
   const draws = drawCards(spread.positions.length).map((draw) => ({
     ...draw,
     artUri: artworkDeck.getCardUrl(draw.artIndex)
@@ -642,21 +691,23 @@ function createReading() {
 
   appState.currentReading = {
     spreadId: spread.id,
-    question: appState.currentQuestion,
     draws
   };
 
   renderReadingView();
-  showView("reading");
 }
 
 function redrawReading() {
-  if (!appState.currentQuestion) {
+  if (!appState.selectedSpreadId) {
     showView("setup");
     return;
   }
 
-  createReading();
+  revealReading();
+}
+
+function buildReadingSeed() {
+  return `${appState.selectedSpreadId}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function drawCards(count) {
@@ -676,52 +727,56 @@ function drawCards(count) {
 function renderReadingView() {
   const reading = appState.currentReading;
   const spread = spreadCatalog.find((item) => item.id === reading.spreadId);
-  const overallInsight = buildOverallInsight(spread, reading.question, reading.draws);
+  const overallInsight = buildOverallInsight(spread, reading.draws);
 
-  renderSessionStatus();
   elements.readingTitle.textContent = spread.name;
-  elements.readingQuestion.textContent = reading.question;
-  elements.readingMeta.textContent = `${spread.positions.length} cards · ${countReversed(reading.draws)} reversed`;
+  elements.readingHeadline.textContent = overallInsight.headline;
+  elements.readingSummary.textContent = overallInsight.summary;
   elements.readingGuideText.textContent = buildReadingGuide(spread);
-  elements.readingSummary.innerHTML = `
-    <h2>${overallInsight.headline}</h2>
-    <p class="mb-0">${overallInsight.summary}</p>
-  `;
+  elements.readingMeta.textContent = `${spread.positions.length} cards · ${countReversed(reading.draws)} reversed`;
 
-  elements.positionTimeline.innerHTML = reading.draws
+  renderReadingBoard(spread, reading.draws);
+
+  elements.cardsAccordion.innerHTML = reading.draws
+    .map((draw, index) => renderAccordionItem(draw, spread.positions[index], index))
+    .join("");
+
+  elements.readingTakeaways.innerHTML = `
+    <h2 class="takeaways-title">Text Reading</h2>
+    <ul>
+      ${overallInsight.takeaways.map((item) => `<li>${item}</li>`).join("")}
+    </ul>
+  `;
+}
+
+function renderReadingBoard(spread, draws) {
+  elements.readingBoard.className = `reading-board ${spread.layoutClass}`;
+  elements.readingBoard.innerHTML = draws
     .map(
       (draw, index) => `
         <button
           type="button"
-          class="timeline-card timeline-card--button"
+          class="reading-position"
           data-card-index="${index}"
           aria-controls="reading-collapse-${index}"
         >
-          <div class="timeline-thumb ${draw.isReversed ? "timeline-thumb--reversed" : ""}">
+          <div class="reading-position__card ${draw.isReversed ? "reading-position__card--reversed" : ""}">
             <img src="${draw.artUri}" alt="${draw.name} tarot card art" loading="lazy" />
           </div>
-          <div class="timeline-card__body">
-            <div class="timeline-step">Position ${index + 1}</div>
-            <div class="timeline-title">${spread.positions[index].title}</div>
-            <p class="timeline-meta mb-0">${draw.name} · ${draw.isReversed ? "Reversed" : "Upright"}</p>
+          <div class="reading-position__caption">
+            <span class="reading-position__step">${index + 1}</span>
+            <span class="reading-position__title">${spread.positions[index].title}</span>
           </div>
         </button>
       `
     )
     .join("");
 
-  elements.cardsAccordion.innerHTML = reading.draws
-    .map((draw, index) => renderAccordionItem(draw, spread.positions[index], index))
-    .join("");
-
-  bindTimelineJumpButtons();
-
-  elements.readingTakeaways.innerHTML = `
-    <h2 class="takeaways-title">What to carry forward</h2>
-    <ul>
-      ${overallInsight.takeaways.map((item) => `<li>${item}</li>`).join("")}
-    </ul>
-  `;
+  elements.readingBoard.querySelectorAll("[data-card-index]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openReadingCard(Number(button.dataset.cardIndex));
+    });
+  });
 }
 
 function renderAccordionItem(draw, position, index) {
@@ -796,13 +851,13 @@ function buildCardInterpretation(draw, position) {
 
 function buildReadingGuide(spread) {
   if (spread.positions.length === 1) {
-    return "Start with the open card below, then read the takeaway as your clearest next step.";
+    return "The interpretation window starts in peek mode. Pull it higher or tap the card if you want the full reading.";
   }
 
-  return "The first card opens automatically. After that, tap any position in the spread map to jump straight to its meaning and move through the reading in the order that helps most.";
+  return "Tap any card above to open that part of the spread, or pull the interpretation window higher for the full reading.";
 }
 
-function buildOverallInsight(spread, question, draws) {
+function buildOverallInsight(spread, draws) {
   const majorCount = draws.filter((draw) => draw.kind === "major").length;
   const reversedCount = countReversed(draws);
   const leadingSuitKey = getLeadingSuit(draws);
@@ -819,11 +874,10 @@ function buildOverallInsight(spread, question, draws) {
       ? "Many reversed cards are present, so patience and internal honesty matter before decisive action."
       : "More upright than reversed cards appear, so the reading favors visible movement and usable next steps.";
   const closingMessage = finalDraw.isReversed ? finalDraw.reversed : finalDraw.upright;
-  const escapedQuestion = escapeHtml(question);
 
   return {
     headline: createHeadline(spread, draws),
-    summary: `For the question "${escapedQuestion}," this ${spread.name.toLowerCase()} is shaped by ${leadingSuitText.toLowerCase()} ${majorText} ${reversalText} The reading closes with ${finalDraw.name} in the ${spread.positions[spread.positions.length - 1].title.toLowerCase()} position, suggesting that ${closingMessage.toLowerCase()}`,
+    summary: `This ${spread.name.toLowerCase()} settles around ${leadingSuitText.toLowerCase()} ${majorText} ${reversalText} It closes with ${finalDraw.name} in the ${spread.positions[spread.positions.length - 1].title.toLowerCase()} position, suggesting that ${closingMessage.toLowerCase()}`,
     takeaways: [
       leadingSuitKey
         ? `Give extra attention to ${suitDefinitions[leadingSuitKey].realm}, because that is where the spread is concentrating its energy.`
@@ -898,53 +952,6 @@ function showView(viewName) {
   elements.setupView.hidden = viewName !== "setup";
   elements.readingView.hidden = viewName !== "reading";
   elements.appMain.scrollTo({ top: 0, behavior: "auto" });
-  updateProgress();
-}
-
-function updateComposerState() {
-  const spread = getSelectedSpread();
-  const typedLength = elements.questionInput.value.length;
-  const hasQuestion = Boolean(appState.currentQuestion);
-
-  elements.questionCounter.textContent = `${typedLength} / 240`;
-  elements.drawButton.disabled = !hasQuestion;
-  elements.drawButton.innerHTML = hasQuestion
-    ? `<i class="bi bi-stars me-2"></i>Reveal ${spread.shortLabel} reading`
-    : `<i class="bi bi-stars me-2"></i>Write a question to continue`;
-  elements.drawReadiness.textContent = hasQuestion
-    ? typedLength < 24
-      ? `Ready to draw your ${spread.shortLabel} reading. A little more detail can make the interpretation sharper.`
-      : `Ready to draw your ${spread.shortLabel} reading.`
-    : "Write one clear question to unlock the reading.";
-  elements.drawReadiness.classList.toggle("is-ready", hasQuestion);
-}
-
-function renderSessionStatus() {
-  const spread = getSelectedSpread();
-  let status = "Setup";
-  let description = `Choose a spread and write one clear question to prepare your ${spread.shortLabel} reading.`;
-
-  if (appState.currentQuestion && !appState.currentReading) {
-    status = "Ready";
-    description = `Everything is set. You can reveal a ${spread.positions.length}-card ${spread.name.toLowerCase()} reading now.`;
-  }
-
-  if (appState.currentReading) {
-    status = "Live";
-    description = `This ${spread.positions.length}-card reading is based on your current question and ready to explore.`;
-  }
-
-  elements.sessionStatusBadge.textContent = status;
-  elements.sessionStatusBadge.dataset.state = status.toLowerCase();
-  elements.sessionStatusText.textContent = description;
-}
-
-function bindTimelineJumpButtons() {
-  elements.positionTimeline.querySelectorAll("[data-card-index]").forEach((button) => {
-    button.addEventListener("click", () => {
-      openReadingCard(Number(button.dataset.cardIndex));
-    });
-  });
 }
 
 function openReadingCard(index) {
@@ -954,62 +961,47 @@ function openReadingCard(index) {
     return;
   }
 
+  if (!elements.readingSheet.classList.contains("is-visible")) {
+    elements.readingSheet.classList.add("is-visible");
+  }
+
+  setSheetExpanded(true);
   const collapse = bootstrap.Collapse.getOrCreateInstance(collapseElement, { toggle: false });
   collapse.show();
-  collapseElement.closest(".accordion-item")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.setTimeout(() => {
+    collapseElement.closest(".accordion-item")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 180);
 }
 
-function updateProgress() {
-  const questionReady = Boolean(appState.currentQuestion);
-  const readingReady = Boolean(appState.currentReading);
+function toggleSheet() {
+  if (!elements.readingSheet.classList.contains("is-visible")) {
+    elements.readingSheet.classList.add("is-visible");
+  }
 
-  elements.progressItems.forEach((item) => {
-    const step = item.dataset.progressStep;
-    item.classList.remove("is-active", "is-complete");
-
-    if (step === "spread") {
-      item.classList.add("is-complete");
-      if (appState.currentView === "setup" && !questionReady) {
-        item.classList.add("is-active");
-      }
-    }
-
-    if (step === "question") {
-      if (questionReady) {
-        item.classList.add("is-complete");
-      }
-
-      if (appState.currentView === "setup" && questionReady) {
-        item.classList.add("is-active");
-      }
-    }
-
-    if (step === "reading") {
-      if (readingReady) {
-        item.classList.add("is-complete");
-      }
-
-      if (appState.currentView === "reading") {
-        item.classList.add("is-active");
-      }
-    }
-  });
+  setSheetExpanded(!appState.sheetExpanded);
 }
 
-function resetReading() {
-  appState.currentQuestion = "";
-  appState.currentReading = null;
+function setSheetExpanded(expanded) {
+  appState.sheetExpanded = expanded;
+  elements.readingSheet.classList.toggle("is-expanded", expanded);
+  elements.sheetToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+  elements.sheetToggleLabel.textContent = expanded ? "Close interpretation" : "Open interpretation";
+}
+
+function resetExperience() {
+  clearFocusCountdown();
   disposeArtworkDeck();
-  elements.questionInput.value = "";
-  elements.questionInput.classList.remove("is-invalid");
-  elements.readingSummary.innerHTML = "";
-  elements.positionTimeline.innerHTML = "";
+  appState.selectedSpreadId = null;
+  appState.currentStage = "invite";
+  appState.currentReading = null;
+  appState.sheetExpanded = false;
+  elements.readingSheet.classList.remove("is-visible", "is-expanded");
+  elements.readingBoard.innerHTML = "";
   elements.cardsAccordion.innerHTML = "";
   elements.readingTakeaways.innerHTML = "";
-  renderSidebar();
-  renderSetupContext();
+  renderSpreadPicker();
+  renderSetupStage();
   showView("setup");
-  elements.questionInput.focus();
 }
 
 function getArtworkDeck(seedText) {
@@ -1032,13 +1024,4 @@ function disposeArtworkDeck() {
 
   appState.artworkDeck = null;
   appState.artworkSeed = "";
-}
-
-function escapeHtml(value) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
 }
