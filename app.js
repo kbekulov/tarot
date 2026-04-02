@@ -168,6 +168,27 @@ const spreadCatalog = [
 
 const oracleCatalog = [
   {
+    id: "answer",
+    name: "Single Page Answer",
+    shortLabel: "1 page",
+    compactHint: "Straight answer",
+    description: "One clear oracle page when you want the simplest direct message.",
+    layoutClass: "spread-layout-oracle",
+    palette: {
+      paper: "#fff7ed",
+      ink: "#3b2f2d",
+      accent: "#c58047",
+      border: "#ead5be"
+    },
+    positions: [
+      {
+        title: "Direct Answer",
+        summary: "The clearest page the oracle can open right now.",
+        purpose: "This page offers one direct sentence to hold onto when you do not need a longer chapter."
+      }
+    ]
+  },
+  {
     id: "path",
     name: "Hidden Path Oracle",
     shortLabel: "3 pages",
@@ -811,15 +832,17 @@ function clearFocusCountdown() {
 function renderSetupStage() {
   const selection = getSelectedReadingConfig();
   const isOracleMode = appState.currentMode === "oracle";
+  const shouldAnimate = appState.currentStage !== "invite";
 
   elements.setupStage.classList.toggle("setup-stage--invite", appState.currentStage === "invite");
   elements.setupStage.classList.toggle("setup-stage--spreads", appState.currentStage === "spreads");
   elements.setupStage.classList.toggle("setup-stage--focus", appState.currentStage === "focus");
   elements.setupStage.classList.toggle("setup-stage--oracle", isOracleMode);
-  elements.mysteryCardButton.classList.toggle("is-spinning", appState.currentStage !== "invite");
+  elements.mysteryCardButton.classList.toggle("is-spinning", shouldAnimate && !isOracleMode);
+  elements.mysteryCardButton.classList.toggle("is-flipping", shouldAnimate && isOracleMode);
   elements.spreadChoicePanel.hidden = appState.currentStage !== "spreads";
   elements.focusPanel.hidden = appState.currentStage !== "focus";
-  elements.choiceSectionLabel.textContent = isOracleMode ? "Choose the oracle chapter" : "Choose the reading type";
+  elements.choiceSectionLabel.textContent = isOracleMode ? "Choose the oracle form" : "Choose the reading type";
   elements.mysteryCardCrest.innerHTML = isOracleMode
     ? '<i class="bi bi-journal-bookmark-fill"></i>'
     : '<i class="bi bi-stars"></i>';
@@ -841,16 +864,16 @@ function renderSetupStage() {
   if (appState.currentStage === "spreads") {
     elements.setupStepLabel.textContent = "Step 2";
     elements.setupTitle.textContent = isOracleMode
-      ? "Choose the oracle chapter."
+      ? "Choose your oracle."
       : "Choose your reading.";
     elements.setupBody.textContent = isOracleMode
-      ? "While the cover stirs, choose the kind of page wisdom you want to open."
+      ? "While the cover stirs, choose a single-page answer or a deeper chapter of page wisdom."
       : "Pick the shape of the reveal while the deck keeps turning.";
     elements.setupFootnote.textContent = isOracleMode
-      ? "Five chapters. Three pages will open from the one you choose."
+      ? "Start with one page for a direct answer, or open a three-page chapter for depth."
       : "Five layouts. One tap chooses.";
     elements.mysteryCardName.textContent = isOracleMode ? "The pages are whispering" : "The deck is turning";
-    elements.mysteryCardPrompt.textContent = isOracleMode ? "Pick a chapter" : "Pick a layout";
+    elements.mysteryCardPrompt.textContent = isOracleMode ? "Pick a form" : "Pick a layout";
     return;
   }
 
@@ -1271,6 +1294,10 @@ function buildOracleInterpretation(draw, position, index) {
 
 function buildReadingGuide(mode, config) {
   if (mode === "oracle") {
+    if (config.positions.length === 1) {
+      return "The interpretation window starts in peek mode. Tap the page or pull the note higher for the full oracle answer.";
+    }
+
     return "Tap any page above to open that oracle note, or pull the interpretation window higher for the full chapter.";
   }
 
@@ -1324,6 +1351,18 @@ function buildTarotOverallInsight(spread, draws) {
 
 function buildOracleOverallInsight(config, draws) {
   const firstPage = draws[0];
+  if (draws.length === 1) {
+    return {
+      headline: firstPage.phrase,
+      summary: `This single page answer opens directly on "${firstPage.phrase}" The oracle is not asking for a long interpretation here. It is offering one sentence to trust before you add more noise.`,
+      takeaways: [
+        `Take the message literally first: ${firstPage.phrase}`,
+        "Resist the urge to overcomplicate it. The value of a one-page answer is its clean direction.",
+        "Let the sentence stay with you for the rest of the day and notice which word keeps returning."
+      ]
+    };
+  }
+
   const secondPage = draws[1];
   const finalPage = draws[draws.length - 1];
 
