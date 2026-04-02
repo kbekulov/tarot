@@ -337,8 +337,8 @@ body::after {
   height: 100%;
   background:
     linear-gradient(180deg, rgba(28, 42, 64, 0.9), rgba(104, 125, 158, 0.72));
-  -webkit-mask-image: url("img/logo.png");
-  mask-image: url("img/logo.png");
+  -webkit-mask-image: url("img/key.png");
+  mask-image: url("img/key.png");
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
