@@ -756,32 +756,93 @@ function renderReadingView() {
 
 function renderReadingBoard(spread, draws) {
   elements.readingBoard.className = `reading-board ${spread.layoutClass}`;
-  elements.readingBoard.innerHTML = draws
-    .map(
-      (draw, index) => `
-        <button
-          type="button"
-          class="reading-position"
-          data-card-index="${index}"
-          aria-controls="reading-collapse-${index}"
-        >
-          <div class="reading-position__card ${draw.isReversed ? "reading-position__card--reversed" : ""}">
-            <img src="${draw.artUri}" alt="${draw.name} tarot card art" loading="lazy" />
-          </div>
-          <div class="reading-position__caption">
-            <span class="reading-position__step">${index + 1}</span>
-            <span class="reading-position__title">${spread.positions[index].title}</span>
-          </div>
-        </button>
-      `
-    )
-    .join("");
+
+  if (spread.layoutClass === "spread-layout-celtic") {
+    elements.readingBoard.innerHTML = renderCelticBoard(spread, draws);
+  } else {
+    elements.readingBoard.innerHTML = draws
+      .map((draw, index) => renderReadingPosition(draw, spread.positions[index], index))
+      .join("");
+  }
 
   elements.readingBoard.querySelectorAll("[data-card-index]").forEach((button) => {
     button.addEventListener("click", () => {
       openReadingCard(Number(button.dataset.cardIndex));
     });
   });
+}
+
+function renderCelticBoard(spread, draws) {
+  return `
+    <div class="celtic-cross-layout">
+      <div class="celtic-cross-layout__top">
+        ${renderReadingPosition(draws[4], spread.positions[4], 4, {
+          extraClasses: "reading-position--celtic"
+        })}
+      </div>
+      <div class="celtic-cross-layout__left">
+        ${renderReadingPosition(draws[3], spread.positions[3], 3, {
+          extraClasses: "reading-position--celtic"
+        })}
+      </div>
+      <div class="celtic-cross-layout__center">
+        ${renderReadingPosition(draws[0], spread.positions[0], 0, {
+          extraClasses: "reading-position--celtic reading-position--celtic-core"
+        })}
+        ${renderReadingPosition(draws[1], spread.positions[1], 1, {
+          extraClasses: "reading-position--celtic reading-position--celtic-crossing",
+          hideCaption: true
+        })}
+      </div>
+      <div class="celtic-cross-layout__right">
+        ${renderReadingPosition(draws[5], spread.positions[5], 5, {
+          extraClasses: "reading-position--celtic"
+        })}
+      </div>
+      <div class="celtic-cross-layout__bottom">
+        ${renderReadingPosition(draws[2], spread.positions[2], 2, {
+          extraClasses: "reading-position--celtic"
+        })}
+      </div>
+    </div>
+    <div class="celtic-staff">
+      ${[6, 7, 8, 9]
+        .map((index) =>
+          renderReadingPosition(draws[index], spread.positions[index], index, {
+            extraClasses: "reading-position--celtic reading-position--celtic-staff"
+          })
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderReadingPosition(draw, position, index, options = {}) {
+  const { extraClasses = "", hideCaption = false } = options;
+  const className = ["reading-position", extraClasses].filter(Boolean).join(" ");
+  const orientationLabel = draw.isReversed ? "Reversed" : "Upright";
+
+  return `
+    <button
+      type="button"
+      class="${className}"
+      data-card-index="${index}"
+      aria-controls="reading-collapse-${index}"
+      aria-label="${index + 1}. ${position.title}. ${draw.name}. ${orientationLabel}"
+    >
+      <div class="reading-position__card ${draw.isReversed ? "reading-position__card--reversed" : ""}">
+        <img src="${draw.artUri}" alt="${draw.name} tarot card art" loading="lazy" />
+      </div>
+      ${
+        hideCaption
+          ? `<span class="reading-position__badge">${index + 1}</span>`
+          : `<div class="reading-position__caption">
+              <span class="reading-position__step">${index + 1}</span>
+              <span class="reading-position__title">${position.title}</span>
+            </div>`
+      }
+    </button>
+  `;
 }
 
 function renderAccordionItem(draw, position, index) {

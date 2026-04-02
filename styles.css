@@ -657,6 +657,7 @@ body::before {
   align-content: start;
   gap: 0.75rem;
   --card-width: 92px;
+  --card-height: calc(var(--card-width) * 1.6685);
 }
 
 .reading-board.spread-layout-single {
@@ -684,63 +685,18 @@ body::before {
 }
 
 .reading-board.spread-layout-celtic {
-  --card-width: 70px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.55rem 0.3rem;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(1) {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(2) {
-  grid-column: 3;
-  grid-row: 2;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(3) {
-  grid-column: 2;
-  grid-row: 3;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(4) {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(5) {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(6) {
-  grid-column: 3;
-  grid-row: 3;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(7) {
-  grid-column: 4;
-  grid-row: 1;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(8) {
-  grid-column: 4;
-  grid-row: 2;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(9) {
-  grid-column: 4;
-  grid-row: 3;
-}
-
-.reading-board.spread-layout-celtic .reading-position:nth-child(10) {
-  grid-column: 4;
-  grid-row: 4;
+  --card-width: 58px;
+  --card-height: calc(var(--card-width) * 1.6685);
+  --cross-width: calc(var(--card-height) + 0.15rem);
+  grid-template-columns: max-content var(--card-width);
+  gap: 0.35rem 0.9rem;
+  justify-content: center;
+  align-items: start;
 }
 
 .reading-position {
   appearance: none;
+  position: relative;
   width: min(100%, var(--card-width));
   padding: 0;
   border: 0;
@@ -799,6 +755,115 @@ body::before {
 .reading-position__title {
   font-size: 0.79rem;
   line-height: 1.2;
+}
+
+.reading-position__badge {
+  position: absolute;
+  right: -0.15rem;
+  bottom: 0.2rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--accent-strong);
+  font-size: 0.7rem;
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
+}
+
+.celtic-cross-layout {
+  display: grid;
+  grid-template-areas:
+    ". top ."
+    "left center right"
+    ". bottom .";
+  grid-template-columns: var(--card-width) var(--cross-width) var(--card-width);
+  gap: 0.38rem 0.42rem;
+  align-items: center;
+  justify-items: center;
+}
+
+.celtic-cross-layout__top {
+  grid-area: top;
+}
+
+.celtic-cross-layout__left {
+  grid-area: left;
+}
+
+.celtic-cross-layout__center {
+  grid-area: center;
+  position: relative;
+  width: var(--cross-width);
+  min-height: calc(var(--card-height) + 1.95rem);
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  overflow: visible;
+}
+
+.celtic-cross-layout__right {
+  grid-area: right;
+}
+
+.celtic-cross-layout__bottom {
+  grid-area: bottom;
+}
+
+.celtic-staff {
+  display: grid;
+  gap: 0.42rem;
+  justify-items: center;
+}
+
+.reading-position--celtic {
+  width: var(--card-width);
+  gap: 0.28rem;
+}
+
+.reading-position--celtic .reading-position__caption {
+  gap: 0.08rem;
+}
+
+.reading-position--celtic .reading-position__step {
+  font-size: 0.64rem;
+}
+
+.reading-position--celtic .reading-position__title {
+  font-size: 0.68rem;
+  line-height: 1.12;
+}
+
+.reading-position--celtic-crossing {
+  position: absolute;
+  top: 0.15rem;
+  left: 50%;
+  width: var(--cross-width);
+  min-height: var(--card-height);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.reading-position--celtic-crossing:hover,
+.reading-position--celtic-crossing:focus {
+  transform: translate(-50%, -2px);
+}
+
+.reading-position--celtic-crossing .reading-position__card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--card-width);
+  transform: translateX(-50%) rotate(90deg);
+}
+
+.reading-position--celtic-core {
+  position: relative;
+  z-index: 1;
 }
 
 .reading-sheet {
@@ -1127,7 +1192,8 @@ body::before {
   }
 
   .reading-board.spread-layout-celtic {
-    --card-width: 66px;
+    --card-width: 54px;
+    gap: 0.28rem 0.72rem;
   }
 
   .accordion-detail {
