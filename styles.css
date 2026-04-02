@@ -47,14 +47,20 @@ body::before {
 .app-shell {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
+  padding: 1rem 0;
+}
+
+.app-shell__container {
+  height: calc(100vh - 2rem);
+  height: calc(100dvh - 2rem);
 }
 
 .app-frame {
   position: relative;
   display: grid;
   grid-template-columns: 330px minmax(0, 1fr);
-  min-height: calc(100vh - 3rem);
-  max-height: calc(100vh - 3rem);
+  height: 100%;
   border: 1px solid var(--line);
   border-radius: 1.75rem;
   overflow: hidden;
@@ -67,6 +73,7 @@ body::before {
 
 .app-rail,
 .app-main {
+  min-height: 0;
   overflow: auto;
 }
 
@@ -641,10 +648,18 @@ body::before {
 }
 
 @media (max-width: 991.98px) {
+  .app-shell {
+    padding: 0.75rem 0;
+  }
+
+  .app-shell__container {
+    height: auto;
+  }
+
   .app-frame {
     grid-template-columns: 1fr;
     min-height: auto;
-    max-height: none;
+    height: auto;
   }
 
   .app-rail {
