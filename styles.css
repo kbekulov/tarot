@@ -1438,8 +1438,9 @@ body::before {
 }
 
 .reading-stage.is-scroll-unlocked.reading-stage--oracle .reading-stage__board {
-  height: clamp(20rem, calc(100dvh - 11.5rem), 33rem);
+  height: clamp(22rem, calc(100dvh - 10.7rem), 35rem);
   min-height: 0;
+  padding-bottom: 1.2rem;
 }
 
 .reading-stage--oracle .reading-stage__board {
@@ -1646,7 +1647,7 @@ body::before {
 
 .reading-board--oracle-stage {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .oracle-layout {
@@ -1655,6 +1656,7 @@ body::before {
   height: 100%;
   max-height: 33rem;
   margin: 0 auto;
+  overflow: visible;
 }
 
 .oracle-layout__item {
@@ -2493,7 +2495,8 @@ body::before {
   }
 
   .reading-stage.is-scroll-unlocked.reading-stage--oracle .reading-stage__board {
-    height: clamp(18rem, calc(100dvh - 10.8rem), 28rem);
+    height: clamp(19.5rem, calc(100dvh - 10.1rem), 29.5rem);
+    padding-bottom: 1rem;
   }
 
   .oracle-layout--1 {
