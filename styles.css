@@ -1145,9 +1145,9 @@ body::before {
 .reading-board--oracle-3 {
   --card-width: clamp(82px, 24vw, 108px);
   --oracle-gap: clamp(0.3rem, 1.8vw, 0.6rem);
-  width: min(100%, calc(var(--card-width) * 3 + var(--oracle-gap) * 2));
-  max-width: calc(var(--card-width) * 3 + var(--oracle-gap) * 2);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: auto;
+  max-width: 100%;
+  grid-template-columns: repeat(3, var(--card-width));
   gap: var(--oracle-gap);
   justify-content: center;
   align-items: end;
@@ -1156,9 +1156,9 @@ body::before {
 .reading-board--oracle-2 {
   --card-width: clamp(114px, 34vw, 136px);
   --oracle-gap: clamp(0.5rem, 2.3vw, 0.85rem);
-  width: min(100%, calc(var(--card-width) * 2 + var(--oracle-gap)));
-  max-width: calc(var(--card-width) * 2 + var(--oracle-gap));
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: auto;
+  max-width: 100%;
+  grid-template-columns: repeat(2, var(--card-width));
   gap: var(--oracle-gap);
   justify-content: center;
   align-items: end;
@@ -1166,9 +1166,9 @@ body::before {
 
 .reading-board--oracle-1 {
   --card-width: clamp(154px, 52vw, 186px);
-  width: min(100%, var(--card-width));
-  max-width: var(--card-width);
-  grid-template-columns: minmax(0, 1fr);
+  width: auto;
+  max-width: 100%;
+  grid-template-columns: var(--card-width);
   gap: 0.5rem;
   justify-content: center;
 }
@@ -1280,9 +1280,11 @@ body::before {
 }
 
 .reading-stage--oracle .reading-board {
-  height: 100%;
+  height: auto;
   min-height: 0;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
   align-content: center;
   justify-content: center;
   perspective: 1200px;
@@ -1291,28 +1293,28 @@ body::before {
 .reading-board--oracle-3 .reading-position--oracle,
 .reading-board--oracle-2 .reading-position--oracle,
 .reading-board--oracle-1 .reading-position--oracle {
-  width: 100%;
+  width: var(--card-width);
   max-width: var(--card-width);
 }
 
 .reading-board--oracle-3 .reading-position--oracle:nth-child(1) .reading-position__card {
-  transform: rotate(-8deg) translateY(0.35rem);
+  transform: rotate(-6deg) translateY(0.22rem);
 }
 
 .reading-board--oracle-3 .reading-position--oracle:nth-child(2) .reading-position__card {
-  transform: translateY(-0.55rem);
+  transform: translateY(-0.38rem);
 }
 
 .reading-board--oracle-3 .reading-position--oracle:nth-child(3) .reading-position__card {
-  transform: rotate(8deg) translateY(0.35rem);
+  transform: rotate(6deg) translateY(0.22rem);
 }
 
 .reading-board--oracle-2 .reading-position--oracle:nth-child(1) .reading-position__card {
-  transform: rotate(-8deg) translateY(0.15rem);
+  transform: rotate(-6deg) translateY(0.08rem);
 }
 
 .reading-board--oracle-2 .reading-position--oracle:nth-child(2) .reading-position__card {
-  transform: rotate(8deg) translateY(0.15rem);
+  transform: rotate(6deg) translateY(0.08rem);
 }
 
 .reading-board--oracle-1 .reading-position--oracle .reading-position__card {
