@@ -247,6 +247,31 @@ const oracleCatalog = [
   }
 ];
 
+const diceCatalog = [
+  {
+    id: "double-dice",
+    name: "Dice Cast",
+    shortLabel: "2 dice",
+    compactHint: "Yes / Maybe / No",
+    description: "Two dice are thrown together for a direct total and a yes, maybe, or no.",
+    layoutClass: "spread-layout-dice",
+    positions: [
+      {
+        id: "left-die",
+        title: "Left Die",
+        summary: "The first die in the cast.",
+        purpose: "This die is part of the total that shapes the answer."
+      },
+      {
+        id: "right-die",
+        title: "Right Die",
+        summary: "The second die in the cast.",
+        purpose: "This die completes the total and final answer."
+      }
+    ]
+  }
+];
+
 const archetypeMirrorData = window.ARCHETYPE_MIRROR || { spreads: [], archetypes: [] };
 const archetypeCatalog = Array.isArray(archetypeMirrorData.spreads)
   ? archetypeMirrorData.spreads
@@ -716,11 +741,19 @@ function startModeFlow(mode) {
   disposeArtworkDeck();
   clearReadingSurface();
   appState.currentMode = mode;
-  appState.selectedSpreadId = null;
-  appState.currentStage = "spreads";
+  appState.selectedSpreadId = mode === "dice" ? diceCatalog[0]?.id || null : null;
+  appState.currentStage = mode === "dice" ? "result" : "spreads";
   appState.currentReading = null;
   appState.readingScrollUnlocked = false;
   renderModeSwitch();
+
+  if (mode === "dice") {
+    showView("reading");
+    createReading();
+    setReadingScrollUnlocked(false);
+    return;
+  }
+
   renderSpreadPicker();
   renderSetupStage();
   showView("setup");
@@ -854,7 +887,7 @@ function renderSetupStage() {
     elements.setupStepLabel.textContent = "Step 1";
     elements.setupTitle.textContent = "Choose your lens.";
     elements.setupBody.textContent =
-      "Tarot reads symbols. Oracle offers concise page-like guidance. Archetype Mirror reflects inner patterns and integration.";
+      "Tarot reads symbols. Oracle opens pages. Archetype Mirror reflects inner patterns. Dice gives a direct total and a yes, maybe, or no.";
     elements.setupFootnote.textContent = "Choose one to begin.";
     return;
   }
@@ -961,6 +994,12 @@ function createReading() {
 
   if (!selection) {
     return false;
+  }
+
+  if (appState.currentMode === "dice") {
+    appState.currentReading = buildDiceReading(selection);
+    renderReadingView();
+    return true;
   }
 
   if (appState.currentMode === "oracle") {
@@ -1083,6 +1122,80 @@ function drawArchetypes(count, config) {
   return draws;
 }
 
+function buildDiceReading(config) {
+  const leftValue = rollDieValue();
+  const rightValue = rollDieValue();
+  const total = leftValue + rightValue;
+  const verdict = getDiceVerdict(total);
+
+  return {
+    mode: "dice",
+    configId: config.id,
+    draws: [
+      {
+        kind: "dice",
+        id: "die-left",
+        value: leftValue,
+        angle: randomBetween(-14, 8),
+        startX: "-4.6rem",
+        startY: "-4.8rem",
+        startRotate: `${randomBetween(-260, -170)}deg`,
+        endX: "-0.85rem",
+        endY: "0.2rem"
+      },
+      {
+        kind: "dice",
+        id: "die-right",
+        value: rightValue,
+        angle: randomBetween(8, 18),
+        startX: "4.9rem",
+        startY: "-4.2rem",
+        startRotate: `${randomBetween(175, 255)}deg`,
+        endX: "0.95rem",
+        endY: "0.1rem"
+      }
+    ],
+    result: {
+      total,
+      answer: verdict.answer,
+      answerTone: verdict.tone,
+      explanation: verdict.explanation
+    }
+  };
+}
+
+function rollDieValue() {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+function getDiceVerdict(total) {
+  if (total <= 4) {
+    return {
+      answer: "No",
+      tone: "no",
+      explanation: "The cast closes this one down for now."
+    };
+  }
+
+  if (total <= 8) {
+    return {
+      answer: "Maybe",
+      tone: "maybe",
+      explanation: "The cast stays open, but it is not settled yet."
+    };
+  }
+
+  return {
+    answer: "Yes",
+    tone: "yes",
+    explanation: "The cast lands on a clear opening."
+  };
+}
+
+function randomBetween(minimum, maximum) {
+  return Math.round(Math.random() * (maximum - minimum) + minimum);
+}
+
 function renderReadingView() {
   const reading = appState.currentReading;
 
@@ -1098,47 +1211,75 @@ function renderReadingView() {
 
   const isOracle = reading.mode === "oracle";
   const isArchetype = reading.mode === "archetype";
+  const isDice = reading.mode === "dice";
   const overallInsight = isOracle ? null : buildOverallInsight(reading.mode, config, reading.draws);
 
-  elements.readingKicker.textContent = isArchetype ? "Mirror revealed" : "Reading revealed";
-  elements.readingSurfaceKicker.textContent = isOracle ? "Pages" : isArchetype ? "Reflection" : "Interpretation";
+  elements.readingKicker.textContent = isDice
+    ? "Dice cast"
+    : isArchetype
+      ? "Mirror revealed"
+      : "Reading revealed";
+  elements.readingSurfaceKicker.textContent = isDice
+    ? "Result"
+    : isOracle
+      ? "Pages"
+      : isArchetype
+        ? "Reflection"
+        : "Interpretation";
   elements.readingTitle.textContent = config.name;
   elements.readingStage.classList.toggle("reading-stage--oracle", isOracle);
   elements.readingStage.classList.toggle("reading-stage--archetype", isArchetype);
+  elements.readingStage.classList.toggle("reading-stage--dice", isDice);
   elements.readingStage.classList.remove("is-scroll-unlocked");
-  elements.readingSheet.hidden = false;
-  elements.redrawTopButton.hidden = !isOracle;
+  elements.readingSheet.hidden = isDice;
+  elements.redrawTopButton.hidden = !(isOracle || isDice);
+  elements.redrawTopButton.setAttribute(
+    "aria-label",
+    isDice ? "Roll the dice again" : "Open a new oracle reading"
+  );
   elements.readingHeadline.textContent = isOracle
     ? drawsLabel(reading.draws.length, "Opened page", "Opened pages")
+    : isDice
+      ? `Total ${reading.result.total}`
     : overallInsight
       ? overallInsight.headline
       : "";
   elements.readingSummary.textContent = isOracle
     ? drawsLabel(reading.draws.length, "One oracle page is ready below.", `${reading.draws.length} oracle pages are ready below.`)
+    : isDice
+      ? reading.result.explanation
     : overallInsight
       ? overallInsight.summary
       : "";
-  elements.readingGuideText.textContent = buildReadingGuide(reading.mode, config);
+  elements.readingGuideText.textContent = isDice ? "" : buildReadingGuide(reading.mode, config);
   elements.readingMeta.textContent = isOracle
     ? `${config.positions.length} page${config.positions.length === 1 ? "" : "s"} · oracle`
+    : isDice
+      ? `${reading.draws[0].value} + ${reading.draws[1].value} · ${reading.result.answer.toLowerCase()}`
     : isArchetype
       ? `${config.positions.length} positions · inner reflection`
       : `${config.positions.length} cards · ${countReversed(reading.draws)} reversed`;
   elements.redrawButton.textContent = isOracle
     ? "Open new pages"
+    : isDice
+      ? "Roll again"
     : isArchetype
       ? "Generate again"
       : "Draw again";
 
   renderReadingBoard(config, reading.draws, reading.mode);
 
-  elements.cardsAccordion.innerHTML = reading.draws
-    .map((draw, index) => renderAccordionItem(draw, config.positions[index], index, config))
-    .join("");
+  elements.cardsAccordion.innerHTML = isDice
+    ? ""
+    : reading.draws
+        .map((draw, index) => renderAccordionItem(draw, config.positions[index], index, config))
+        .join("");
 
-  elements.readingTakeaways.hidden = isOracle;
+  elements.readingTakeaways.hidden = isOracle || isDice;
   elements.readingTakeaways.innerHTML = isOracle
     ? ""
+    : isDice
+      ? ""
     : `
         <h2 class="takeaways-title">${isArchetype ? "Reflection Notes" : "Text Reading"}</h2>
         <ul>
@@ -1148,7 +1289,11 @@ function renderReadingView() {
 }
 
 function renderReadingBoard(config, draws, mode) {
-  if (mode === "oracle") {
+  if (mode === "dice") {
+    elements.readingBoard.className = "reading-board reading-board--dice-stage";
+    elements.readingBoard.innerHTML = renderDiceBoard(appState.currentReading);
+    elements.readingBoard.querySelector("#diceRollButton")?.addEventListener("click", redrawReading);
+  } else if (mode === "oracle") {
     elements.readingBoard.className = "reading-board reading-board--oracle-stage";
     elements.readingBoard.innerHTML = renderOracleBoard(config, draws);
   } else if (config.layoutClass === "spread-layout-celtic") {
@@ -1170,6 +1315,68 @@ function renderReadingBoard(config, draws, mode) {
       openReadingCard(Number(button.dataset.cardIndex));
     });
   });
+}
+
+function renderDiceBoard(reading) {
+  const [leftDie, rightDie] = reading.draws;
+  const result = reading.result;
+
+  return `
+    <div class="dice-cast" aria-live="polite">
+      <div class="dice-cast__stage" aria-hidden="true">
+        ${renderDiceDie(leftDie, "dice-cast__die--left")}
+        ${renderDiceDie(rightDie, "dice-cast__die--right")}
+      </div>
+      <div class="dice-cast__result dice-cast__result--${result.answerTone}">
+        <div class="dice-cast__answer">${result.answer}</div>
+        <div class="dice-cast__total">Total ${result.total}</div>
+        <p class="dice-cast__copy">${result.explanation}</p>
+        <p class="dice-cast__scale">2-4 = No · 5-8 = Maybe · 9-12 = Yes</p>
+        <button id="diceRollButton" class="btn btn-ios btn-ios--secondary" type="button">
+          Roll again
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderDiceDie(die, extraClass = "") {
+  const activePips = getDicePipMap(die.value);
+
+  return `
+    <div
+      class="dice-cast__die ${extraClass}"
+      style="
+        --dice-end-x: ${die.endX};
+        --dice-end-y: ${die.endY};
+        --dice-end-rotate: ${die.angle}deg;
+        --dice-start-x: ${die.startX};
+        --dice-start-y: ${die.startY};
+        --dice-start-rotate: ${die.startRotate};
+      "
+    >
+      <div class="dice-cast__face" aria-label="${die.value}">
+        ${Array.from({ length: 9 }, (_, index) => {
+          const pipIndex = index + 1;
+          return `<span class="dice-cast__pip ${activePips.includes(pipIndex) ? "is-active" : ""}"></span>`;
+        }).join("")}
+      </div>
+      <div class="dice-cast__value">${die.value}</div>
+    </div>
+  `;
+}
+
+function getDicePipMap(value) {
+  const pipMap = {
+    1: [5],
+    2: [1, 9],
+    3: [1, 5, 9],
+    4: [1, 3, 7, 9],
+    5: [1, 3, 5, 7, 9],
+    6: [1, 3, 4, 6, 7, 9]
+  };
+
+  return pipMap[value] || [5];
 }
 
 function renderCelticBoard(spread, draws) {
@@ -1498,6 +1705,10 @@ function buildArchetypeReflectionPrompt(draw, position) {
 }
 
 function buildReadingGuide(mode, config) {
+  if (mode === "dice") {
+    return "";
+  }
+
   if (mode === "oracle") {
     if (config.positions.length === 1) {
       return "Tap the page or use the slip below to unlock scrolling and read the opened page in full.";
@@ -1518,6 +1729,10 @@ function buildReadingGuide(mode, config) {
 }
 
 function buildOverallInsight(mode, config, draws) {
+  if (mode === "dice") {
+    return null;
+  }
+
   if (mode === "oracle") {
     return buildOracleOverallInsight(config, draws);
   }
@@ -1820,6 +2035,10 @@ function getActiveCatalog() {
 }
 
 function getCatalogForMode(mode) {
+  if (mode === "dice") {
+    return diceCatalog;
+  }
+
   if (mode === "oracle") {
     return oracleCatalog;
   }
@@ -1899,6 +2118,13 @@ function setReadingScrollUnlocked(unlocked) {
 }
 
 function getSlipLabels() {
+  if (appState.currentReading?.mode === "dice") {
+    return {
+      locked: "Dice result",
+      unlocked: "Dice result"
+    };
+  }
+
   if (appState.currentReading?.mode === "oracle") {
     return {
       locked: "Read pages below",
@@ -1950,6 +2176,7 @@ function clearReadingSurface() {
   setReadingScrollUnlocked(false);
   elements.readingStage.classList.remove("reading-stage--oracle");
   elements.readingStage.classList.remove("reading-stage--archetype");
+  elements.readingStage.classList.remove("reading-stage--dice");
   elements.readingStage.classList.remove("is-scroll-unlocked");
   elements.readingSheet.hidden = false;
   elements.redrawTopButton.hidden = true;
