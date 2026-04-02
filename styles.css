@@ -495,6 +495,8 @@ body::before {
 }
 
 .mode-choice__artifact--archetype {
+  overflow: hidden;
+  isolation: isolate;
   border-radius: 1.18rem;
   background:
     radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.42), transparent 26%),
@@ -528,10 +530,47 @@ body::before {
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph {
+  overflow: hidden;
+  isolation: isolate;
   color: #f4fbff;
 }
 
+.mode-choice__artifact--archetype .mode-choice__glyph::before,
+.mode-choice__artifact--archetype .mode-choice__glyph::after {
+  content: "";
+  position: absolute;
+  left: 15%;
+  width: 70%;
+  height: 34%;
+  border-radius: 999px;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(243, 250, 255, 0.06) 16%,
+      rgba(243, 250, 255, 0.72) 50%,
+      rgba(243, 250, 255, 0.08) 84%,
+      transparent 100%
+    );
+  filter: blur(8px);
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.mode-choice__artifact--archetype .mode-choice__glyph::before {
+  top: 100%;
+  animation: mirror-streak-up 2.8s ease-in-out infinite;
+}
+
+.mode-choice__artifact--archetype .mode-choice__glyph::after {
+  top: -34%;
+  animation: mirror-streak-down 2.8s ease-in-out infinite 1.4s;
+}
+
 .mode-choice__artifact--archetype .mode-choice__glyph i {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -643,6 +682,13 @@ body::before {
   font-size: 1.05rem;
 }
 
+.mystery-card__crest,
+.mystery-card__name,
+.mystery-card__prompt {
+  position: relative;
+  z-index: 2;
+}
+
 .mystery-card__name,
 .mystery-card__prompt {
   display: block;
@@ -739,6 +785,7 @@ body::before {
 }
 
 .app-shell[data-mode="archetype"] .mystery-card {
+  overflow: hidden;
   background:
     radial-gradient(circle at center, rgba(230, 242, 250, 0.18), transparent 50%),
     linear-gradient(160deg, #334758 0%, #425b6e 55%, #607b90 100%);
@@ -760,6 +807,44 @@ body::before {
 
 .app-shell[data-mode="archetype"] .mystery-card__crest {
   background: rgba(226, 238, 248, 0.12);
+}
+
+.app-shell[data-mode="archetype"] .mystery-card__inner {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.app-shell[data-mode="archetype"] .mystery-card__inner::before,
+.app-shell[data-mode="archetype"] .mystery-card__inner::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  width: 68%;
+  height: 28%;
+  border-radius: 999px;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(243, 250, 255, 0.05) 14%,
+      rgba(243, 250, 255, 0.68) 50%,
+      rgba(243, 250, 255, 0.08) 86%,
+      transparent 100%
+    );
+  filter: blur(11px);
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.app-shell[data-mode="archetype"] .mystery-card__inner::before {
+  top: 104%;
+  animation: mirror-streak-up 3s ease-in-out infinite;
+}
+
+.app-shell[data-mode="archetype"] .mystery-card__inner::after {
+  top: -30%;
+  animation: mirror-streak-down 3s ease-in-out infinite 1.5s;
 }
 
 .app-shell[data-mode="archetype"] .mystery-card.is-mirroring {
@@ -2079,6 +2164,50 @@ body::before {
 
   50% {
     transform: translateY(-2px) rotate(0.45deg);
+  }
+}
+
+@keyframes mirror-streak-up {
+  0%,
+  12% {
+    transform: translateY(110%);
+    opacity: 0;
+  }
+
+  22% {
+    opacity: 0.78;
+  }
+
+  42% {
+    opacity: 0.18;
+  }
+
+  54%,
+  100% {
+    transform: translateY(-145%);
+    opacity: 0;
+  }
+}
+
+@keyframes mirror-streak-down {
+  0%,
+  12% {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+
+  22% {
+    opacity: 0.74;
+  }
+
+  42% {
+    opacity: 0.16;
+  }
+
+  54%,
+  100% {
+    transform: translateY(145%);
+    opacity: 0;
   }
 }
 
