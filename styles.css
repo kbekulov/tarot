@@ -541,8 +541,9 @@ body::before {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 132%;
+  width: 182%;
   height: 38%;
+  border-radius: 999px;
   pointer-events: none;
   background:
     linear-gradient(
@@ -563,11 +564,11 @@ body::before {
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph::before {
-  animation: mirror-streak-down 3.2s ease-in-out infinite;
+  animation: mirror-streak-down 9.6s ease-in-out infinite;
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph::after {
-  animation: mirror-streak-down 3.2s ease-in-out infinite 1.6s;
+  animation: mirror-streak-down 9.6s ease-in-out infinite 4.8s;
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph i {
@@ -822,8 +823,9 @@ body::before {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 142%;
+  width: 192%;
   height: 34%;
+  border-radius: 999px;
   pointer-events: none;
   background:
     linear-gradient(
@@ -844,11 +846,11 @@ body::before {
 }
 
 .app-shell[data-mode="archetype"] .mystery-card__inner::before {
-  animation: mirror-streak-down 3.4s ease-in-out infinite;
+  animation: mirror-streak-down 10.2s ease-in-out infinite;
 }
 
 .app-shell[data-mode="archetype"] .mystery-card__inner::after {
-  animation: mirror-streak-down 3.4s ease-in-out infinite 1.7s;
+  animation: mirror-streak-down 10.2s ease-in-out infinite 5.1s;
 }
 
 .app-shell[data-mode="archetype"] .mystery-card.is-mirroring {
