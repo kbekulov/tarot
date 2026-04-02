@@ -539,28 +539,23 @@ body::before {
 .mode-choice__artifact--archetype .mode-choice__glyph::after {
   content: "";
   position: absolute;
-  left: 15%;
-  width: 70%;
-  height: 34%;
+  top: 50%;
+  left: 50%;
+  width: 132%;
+  height: 38%;
   pointer-events: none;
   background:
     linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(243, 250, 255, 0.14) 14%,
-      rgba(243, 250, 255, 0.98) 50%,
-      rgba(243, 250, 255, 0.14) 86%,
-      transparent 100%
-    ),
-    linear-gradient(
       180deg,
       transparent 0%,
-      transparent calc(50% - 2px),
-      rgba(243, 250, 255, 0.18) calc(50% - 2px),
-      rgba(243, 250, 255, 0.98) calc(50% - 1px),
-      rgba(243, 250, 255, 0.98) calc(50% + 1px),
-      rgba(243, 250, 255, 0.18) calc(50% + 2px),
-      transparent calc(50% + 2px),
+      transparent 14%,
+      rgba(247, 252, 255, 0.92) 14%,
+      rgba(247, 252, 255, 0.92) 26%,
+      transparent 26%,
+      transparent 56%,
+      rgba(247, 252, 255, 0.48) 56%,
+      rgba(247, 252, 255, 0.48) 64%,
+      transparent 64%,
       transparent 100%
     );
   opacity: 0;
@@ -568,13 +563,11 @@ body::before {
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph::before {
-  top: 100%;
-  animation: mirror-streak-up 2.8s ease-in-out infinite;
+  animation: mirror-streak-up 3s ease-in-out infinite;
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph::after {
-  top: -34%;
-  animation: mirror-streak-down 2.8s ease-in-out infinite 1.4s;
+  animation: mirror-streak-down 3s ease-in-out infinite 1.5s;
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph i {
@@ -827,28 +820,23 @@ body::before {
 .app-shell[data-mode="archetype"] .mystery-card__inner::after {
   content: "";
   position: absolute;
-  left: 16%;
-  width: 68%;
-  height: 28%;
+  top: 50%;
+  left: 50%;
+  width: 142%;
+  height: 34%;
   pointer-events: none;
   background:
     linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(243, 250, 255, 0.16) 12%,
-      rgba(243, 250, 255, 1) 50%,
-      rgba(243, 250, 255, 0.16) 88%,
-      transparent 100%
-    ),
-    linear-gradient(
       180deg,
       transparent 0%,
-      transparent calc(50% - 2.5px),
-      rgba(243, 250, 255, 0.2) calc(50% - 2.5px),
-      rgba(243, 250, 255, 1) calc(50% - 1px),
-      rgba(243, 250, 255, 1) calc(50% + 1px),
-      rgba(243, 250, 255, 0.2) calc(50% + 2.5px),
-      transparent calc(50% + 2.5px),
+      transparent 13%,
+      rgba(247, 252, 255, 0.96) 13%,
+      rgba(247, 252, 255, 0.96) 27%,
+      transparent 27%,
+      transparent 58%,
+      rgba(247, 252, 255, 0.5) 58%,
+      rgba(247, 252, 255, 0.5) 66%,
+      transparent 66%,
       transparent 100%
     );
   opacity: 0;
@@ -856,12 +844,10 @@ body::before {
 }
 
 .app-shell[data-mode="archetype"] .mystery-card__inner::before {
-  top: 104%;
   animation: mirror-streak-up 3s ease-in-out infinite;
 }
 
 .app-shell[data-mode="archetype"] .mystery-card__inner::after {
-  top: -30%;
   animation: mirror-streak-down 3s ease-in-out infinite 1.5s;
 }
 
@@ -2188,7 +2174,29 @@ body::before {
 @keyframes mirror-streak-up {
   0%,
   12% {
-    transform: translateY(110%);
+    transform: translate(-50%, 155%) rotate(-33deg);
+    opacity: 0;
+  }
+
+  22% {
+    opacity: 0.82;
+  }
+
+  42% {
+    opacity: 0.56;
+  }
+
+  54%,
+  100% {
+    transform: translate(-50%, -185%) rotate(-33deg);
+    opacity: 0;
+  }
+}
+
+@keyframes mirror-streak-down {
+  0%,
+  12% {
+    transform: translate(-50%, -185%) rotate(-33deg);
     opacity: 0;
   }
 
@@ -2197,34 +2205,12 @@ body::before {
   }
 
   42% {
-    opacity: 0.18;
+    opacity: 0.52;
   }
 
   54%,
   100% {
-    transform: translateY(-145%);
-    opacity: 0;
-  }
-}
-
-@keyframes mirror-streak-down {
-  0%,
-  12% {
-    transform: translateY(-110%);
-    opacity: 0;
-  }
-
-  22% {
-    opacity: 0.74;
-  }
-
-  42% {
-    opacity: 0.16;
-  }
-
-  54%,
-  100% {
-    transform: translateY(145%);
+    transform: translate(-50%, 155%) rotate(-33deg);
     opacity: 0;
   }
 }
