@@ -251,6 +251,10 @@ body::after {
   margin-inline: auto;
 }
 
+.app-main.is-mode-select .brand-mark__icon {
+  display: none;
+}
+
 .mode-switch {
   display: inline-grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
