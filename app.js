@@ -442,31 +442,48 @@ const elements = {
   spreadPreviewCount: document.querySelector("#spreadPreviewCount"),
   spreadPreviewDescription: document.querySelector("#spreadPreviewDescription"),
   spreadPreviewPositions: document.querySelector("#spreadPreviewPositions"),
+  questionPreview: document.querySelector("#questionPreview"),
+  setupSpreadName: document.querySelector("#setupSpreadName"),
+  setupSpreadMeta: document.querySelector("#setupSpreadMeta"),
   questionInput: document.querySelector("#questionInput"),
   drawButton: document.querySelector("#drawButton"),
+  backButton: document.querySelector("#backButton"),
+  redrawButton: document.querySelector("#redrawButton"),
   resetButton: document.querySelector("#resetButton"),
-  resultsSection: document.querySelector("#readingResults"),
+  setupView: document.querySelector("#setupView"),
+  readingView: document.querySelector("#readingView"),
   readingTitle: document.querySelector("#readingTitle"),
   readingQuestion: document.querySelector("#readingQuestion"),
   readingMeta: document.querySelector("#readingMeta"),
   readingSummary: document.querySelector("#readingSummary"),
-  cardsContainer: document.querySelector("#cardsContainer"),
-  readingTakeaways: document.querySelector("#readingTakeaways")
+  positionTimeline: document.querySelector("#positionTimeline"),
+  cardsAccordion: document.querySelector("#cardsAccordion"),
+  readingTakeaways: document.querySelector("#readingTakeaways"),
+  progressItems: Array.from(document.querySelectorAll("[data-progress-step]"))
 };
 
 const tarotDeck = buildDeck();
-let selectedSpreadId = "three";
+const appState = {
+  selectedSpreadId: "three",
+  currentView: "setup",
+  currentQuestion: "",
+  currentReading: null
+};
 
 initialize();
 
 function initialize() {
   renderSpreadPicker();
-  renderSpreadPreview();
+  renderSidebar();
+  renderSetupContext();
+  updateProgress();
+  showView("setup");
+
+  elements.questionInput.addEventListener("input", handleQuestionInput);
   elements.drawButton.addEventListener("click", handleDraw);
+  elements.backButton.addEventListener("click", () => showView("setup"));
+  elements.redrawButton.addEventListener("click", redrawReading);
   elements.resetButton.addEventListener("click", resetReading);
-  elements.questionInput.addEventListener("input", () => {
-    elements.questionInput.classList.remove("is-invalid");
-  });
 }
 
 function buildDeck() {
@@ -503,12 +520,12 @@ function renderSpreadPicker() {
         <div class="col-md-6">
           <button
             type="button"
-            class="spread-choice ${spread.id === selectedSpreadId ? "is-active" : ""}"
+            class="spread-choice ${spread.id === appState.selectedSpreadId ? "is-active" : ""}"
             data-spread-id="${spread.id}"
-            aria-pressed="${spread.id === selectedSpreadId ? "true" : "false"}"
+            aria-pressed="${spread.id === appState.selectedSpreadId ? "true" : "false"}"
           >
-            <div class="spread-choice__eyebrow">
-              <span>${spread.shortLabel}</span>
+            <div class="spread-choice__top">
+              <span class="spread-choice__meta">${spread.shortLabel}</span>
               <i class="bi bi-sparkles"></i>
             </div>
             <div class="spread-choice__title">${spread.name}</div>
@@ -521,31 +538,42 @@ function renderSpreadPicker() {
 
   elements.spreadPicker.querySelectorAll("[data-spread-id]").forEach((button) => {
     button.addEventListener("click", () => {
-      selectedSpreadId = button.dataset.spreadId;
+      appState.selectedSpreadId = button.dataset.spreadId;
+      appState.currentReading = null;
       renderSpreadPicker();
-      renderSpreadPreview();
+      renderSidebar();
+      renderSetupContext();
+      updateProgress();
     });
   });
 }
 
-function renderSpreadPreview() {
+function renderSidebar() {
   const spread = getSelectedSpread();
   elements.spreadPreviewTitle.textContent = spread.name;
   elements.spreadPreviewCount.textContent = `${spread.positions.length} cards`;
   elements.spreadPreviewDescription.textContent = spread.description;
   elements.spreadPreviewPositions.innerHTML = spread.positions
-    .map(
-      (position, index) => `
-        <div class="col-md-6">
-          <div class="spread-position-preview">
-            <div class="spread-position-preview__index">${index + 1}</div>
-            <div class="spread-position-preview__title">${position.title}</div>
-            <p class="spread-position-preview__copy">${position.summary}</p>
-          </div>
-        </div>
-      `
-    )
+    .map((position, index) => `<span class="position-pill">${index + 1}. ${position.title}</span>`)
     .join("");
+  elements.questionPreview.textContent = appState.currentQuestion
+    ? appState.currentQuestion
+    : "Your question will appear here once you start typing.";
+}
+
+function renderSetupContext() {
+  const spread = getSelectedSpread();
+  elements.setupSpreadName.textContent = spread.name;
+  elements.setupSpreadMeta.textContent = `${spread.positions.length} cards. ${spread.description}`;
+  elements.drawButton.innerHTML = `<i class="bi bi-stars me-2"></i>Reveal ${spread.shortLabel} reading`;
+}
+
+function handleQuestionInput() {
+  elements.questionInput.classList.remove("is-invalid");
+  appState.currentQuestion = elements.questionInput.value.trim();
+  appState.currentReading = null;
+  renderSidebar();
+  updateProgress();
 }
 
 function handleDraw() {
@@ -557,9 +585,32 @@ function handleDraw() {
     return;
   }
 
+  appState.currentQuestion = question;
+  renderSidebar();
+  createReading();
+}
+
+function createReading() {
   const spread = getSelectedSpread();
   const draws = drawCards(spread.positions.length);
-  renderReading(spread, question, draws);
+
+  appState.currentReading = {
+    spreadId: spread.id,
+    question: appState.currentQuestion,
+    draws
+  };
+
+  renderReadingView();
+  showView("reading");
+}
+
+function redrawReading() {
+  if (!appState.currentQuestion) {
+    showView("setup");
+    return;
+  }
+
+  createReading();
 }
 
 function drawCards(count) {
@@ -576,91 +627,113 @@ function drawCards(count) {
   }));
 }
 
-function renderReading(spread, question, draws) {
-  elements.resultsSection.hidden = false;
-  elements.readingTitle.textContent = spread.name;
-  elements.readingQuestion.textContent = question;
-  elements.readingMeta.textContent = `${spread.positions.length} cards · ${countReversed(draws)} reversed`;
-  elements.cardsContainer.className = `cards-container ${spread.layoutClass}`;
+function renderReadingView() {
+  const reading = appState.currentReading;
+  const spread = spreadCatalog.find((item) => item.id === reading.spreadId);
+  const overallInsight = buildOverallInsight(spread, reading.question, reading.draws);
 
-  const overallInsight = buildOverallInsight(spread, question, draws);
+  elements.readingTitle.textContent = spread.name;
+  elements.readingQuestion.textContent = reading.question;
+  elements.readingMeta.textContent = `${spread.positions.length} cards · ${countReversed(reading.draws)} reversed`;
   elements.readingSummary.innerHTML = `
-    <h3>${overallInsight.headline}</h3>
+    <h2>${overallInsight.headline}</h2>
     <p class="mb-0">${overallInsight.summary}</p>
   `;
 
-  elements.cardsContainer.innerHTML = draws
-    .map((draw, index) => renderReadingCard(draw, spread.positions[index]))
+  elements.positionTimeline.innerHTML = reading.draws
+    .map(
+      (draw, index) => `
+        <div class="timeline-card">
+          <div class="timeline-step">Position ${index + 1}</div>
+          <div class="timeline-title">${spread.positions[index].title}</div>
+          <p class="timeline-meta mb-0">${draw.name} · ${draw.isReversed ? "Reversed" : "Upright"}</p>
+        </div>
+      `
+    )
+    .join("");
+
+  elements.cardsAccordion.innerHTML = reading.draws
+    .map((draw, index) => renderAccordionItem(draw, spread.positions[index], index))
     .join("");
 
   elements.readingTakeaways.innerHTML = `
-    <h3 class="takeaways-title">What to carry forward</h3>
-    <ul class="takeaways-list">
+    <h2 class="takeaways-title">What to carry forward</h2>
+    <ul>
       ${overallInsight.takeaways.map((item) => `<li>${item}</li>`).join("")}
     </ul>
   `;
-
-  elements.resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function renderReadingCard(draw, position) {
+function renderAccordionItem(draw, position, index) {
+  const isFirst = index === 0;
+  const headingId = `reading-heading-${index}`;
+  const collapseId = `reading-collapse-${index}`;
   const meaning = draw.isReversed ? draw.reversed : draw.upright;
-  const interpretation = buildCardInterpretation(draw, position);
   const orientationLabel = draw.isReversed ? "Reversed" : "Upright";
 
   return `
-    <article class="reading-card">
-      <div class="reading-card__inner">
-        <div class="reading-card__header">
-          <div>
-            <div class="reading-card__position">${position.title}</div>
-            <div class="reading-card__orientation">${orientationLabel}</div>
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="${headingId}">
+        <button
+          class="accordion-button ${isFirst ? "" : "collapsed"}"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#${collapseId}"
+          aria-expanded="${isFirst ? "true" : "false"}"
+          aria-controls="${collapseId}"
+        >
+          <div class="accordion-button__content">
+            <div class="accordion-step">${position.title}</div>
+            <div class="accordion-title">${draw.name}</div>
+            <p class="accordion-summary">${position.summary} · ${orientationLabel}</p>
           </div>
-          <span class="reading-card__orientation">Position ${getSelectedSpread().positions.indexOf(position) + 1}</span>
-        </div>
+        </button>
+      </h2>
+      <div
+        id="${collapseId}"
+        class="accordion-collapse collapse ${isFirst ? "show" : ""}"
+        aria-labelledby="${headingId}"
+      >
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            <div class="card-face-mini ${draw.isReversed ? "card-face-mini--reversed" : ""}">
+              <div class="card-face-mini__top">
+                <span class="card-face-mini__icon"><i class="bi ${draw.icon}"></i></span>
+                <span class="card-face-mini__meta">${orientationLabel}</span>
+              </div>
+              <div class="card-face-mini__title">${draw.name}</div>
+              <div class="card-face-mini__bottom">
+                <span class="card-face-mini__meta">${draw.suit}</span>
+                <span class="card-face-mini__meta">${draw.kind === "major" ? "Major" : "Minor"}</span>
+              </div>
+            </div>
 
-        <div class="reading-card__deck">
-          <div class="card-face ${draw.isReversed ? "card-face--reversed" : ""}">
-            <div class="card-face__top">
-              <span class="card-face__icon"><i class="bi ${draw.icon}"></i></span>
-              <span class="card-face__subtitle">${orientationLabel}</span>
+            <div>
+              <div class="accordion-step">Position ${index + 1}</div>
+              <p class="accordion-copy mb-0">${position.purpose}</p>
+              <div class="keyword-pills">
+                ${draw.keywords.map((keyword) => `<span>${keyword}</span>`).join("")}
+              </div>
+              <p class="accordion-copy mb-0">${meaning} ${buildCardInterpretation(draw, position)}</p>
             </div>
-            <div class="card-face__middle">
-              <div class="card-face__title">${draw.name}</div>
-            </div>
-            <div class="card-face__bottom">
-              <span class="card-face__subtitle">${draw.suit}</span>
-              <span class="card-face__subtitle">${draw.kind === "major" ? "Major" : "Minor"}</span>
-            </div>
-          </div>
-
-          <div>
-            <h3 class="reading-card__title">${draw.name}</h3>
-            <div class="reading-card__subtitle">${position.summary}</div>
-            <div class="reading-card__keywords">
-              ${draw.keywords.map((keyword) => `<span>${keyword}</span>`).join("")}
-            </div>
-            <p class="reading-card__text">
-              ${meaning} ${interpretation}
-            </p>
           </div>
         </div>
       </div>
-    </article>
+    </div>
   `;
 }
 
 function buildCardInterpretation(draw, position) {
   const realmSentence =
     draw.kind === "major"
-      ? "Because this is a major arcana card, the message has extra weight and likely touches a larger turning point."
+      ? "Because this is a major arcana card, the message carries broader turning-point energy."
       : `As a ${draw.suit.toLowerCase()} card, it especially emphasizes ${suitDefinitions[draw.suitKey].realm}.`;
 
   const orientationSentence = draw.isReversed
-    ? "Its reversed position suggests the work is more internal, delayed, or tangled than it first appears."
-    : "Its upright position suggests the energy is available and easier to work with directly.";
+    ? "Its reversed orientation suggests the work is more internal, delayed, or tangled than it first appears."
+    : "Its upright orientation suggests the energy is available and easier to act on directly.";
 
-  return `${position.purpose} ${realmSentence} ${orientationSentence}`;
+  return `In the ${position.title.toLowerCase()} position, ${realmSentence.toLowerCase()} ${orientationSentence}`;
 }
 
 function buildOverallInsight(spread, question, draws) {
@@ -670,29 +743,29 @@ function buildOverallInsight(spread, question, draws) {
   const finalDraw = draws[draws.length - 1];
   const leadingSuitText = leadingSuitKey
     ? `${suitDefinitions[leadingSuitKey].label} dominate the reading, bringing ${suitDefinitions[leadingSuitKey].realm} to the foreground.`
-    : "The reading is evenly mixed, which suggests the question touches several areas of life at once.";
+    : "The reading is evenly mixed, which suggests the question touches several parts of life at once.";
   const majorText =
     majorCount >= Math.ceil(draws.length / 3)
-      ? "Several major arcana cards are present, so this feels less like a passing mood and more like a meaningful turning point."
-      : "Most of the spread lives in the minor arcana, which points toward practical choices, habits, and day-to-day dynamics.";
+      ? "Several major arcana cards are present, so this feels like a meaningful turning point rather than a passing mood."
+      : "Most of the spread lives in the minor arcana, which points toward practical choices, habits, and everyday dynamics.";
   const reversalText =
     reversedCount >= Math.ceil(draws.length / 2)
-      ? "With many reversed cards, the reading asks for honesty, patience, and internal course correction before big action."
-      : "With more upright than reversed cards, the reading favors visible movement and clearer next steps.";
+      ? "Many reversed cards are present, so patience and internal honesty matter before decisive action."
+      : "More upright than reversed cards appear, so the reading favors visible movement and usable next steps.";
   const closingMessage = finalDraw.isReversed ? finalDraw.reversed : finalDraw.upright;
   const escapedQuestion = escapeHtml(question);
 
   return {
     headline: createHeadline(spread, draws),
-    summary: `For the question "${escapedQuestion}", this ${spread.name.toLowerCase()} points to a reading shaped by ${leadingSuitText.toLowerCase()} ${majorText} ${reversalText} The spread closes with ${finalDraw.name} in the ${spread.positions[spread.positions.length - 1].title.toLowerCase()} position, suggesting that ${closingMessage.toLowerCase()}`,
+    summary: `For the question "${escapedQuestion}," this ${spread.name.toLowerCase()} is shaped by ${leadingSuitText.toLowerCase()} ${majorText} ${reversalText} The reading closes with ${finalDraw.name} in the ${spread.positions[spread.positions.length - 1].title.toLowerCase()} position, suggesting that ${closingMessage.toLowerCase()}`,
     takeaways: [
       leadingSuitKey
-        ? `Give extra attention to ${suitDefinitions[leadingSuitKey].realm}, because that is where the reading is concentrating its energy.`
-        : "Treat this as a whole-life reading and notice which part of the spread stirred the strongest reaction in you.",
+        ? `Give extra attention to ${suitDefinitions[leadingSuitKey].realm}, because that is where the spread is concentrating its energy.`
+        : "Treat this as a whole-picture reading and notice which position stirred the strongest response in you.",
       reversedCount > 0
-        ? "Do not rush past the reversed cards. They usually mark the places where your real work is quieter, more private, or not yet fully named."
-        : "Use the momentum in the upright cards quickly so the reading becomes action instead of only reflection.",
-      `Anchor your next step in the final position, ${spread.positions[spread.positions.length - 1].title}, by asking how ${finalDraw.name} wants to be expressed in real life.`
+        ? "Do not skip past the reversed cards. They point toward the parts of the story that need reflection before action."
+        : "Use the momentum in the upright cards soon so the reading becomes movement instead of only contemplation.",
+      `Use the final position, ${spread.positions[spread.positions.length - 1].title}, as your next-step compass and ask how ${finalDraw.name} wants to be lived out in real life.`
     ]
   };
 }
@@ -751,17 +824,66 @@ function countReversed(draws) {
 }
 
 function getSelectedSpread() {
-  return spreadCatalog.find((spread) => spread.id === selectedSpreadId);
+  return spreadCatalog.find((spread) => spread.id === appState.selectedSpreadId);
+}
+
+function showView(viewName) {
+  appState.currentView = viewName;
+  elements.setupView.hidden = viewName !== "setup";
+  elements.readingView.hidden = viewName !== "reading";
+  updateProgress();
+}
+
+function updateProgress() {
+  const questionReady = Boolean(appState.currentQuestion);
+  const readingReady = Boolean(appState.currentReading);
+
+  elements.progressItems.forEach((item) => {
+    const step = item.dataset.progressStep;
+    item.classList.remove("is-active", "is-complete");
+
+    if (step === "spread") {
+      item.classList.add("is-complete");
+      if (appState.currentView === "setup" && !questionReady) {
+        item.classList.add("is-active");
+      }
+    }
+
+    if (step === "question") {
+      if (questionReady) {
+        item.classList.add("is-complete");
+      }
+
+      if (appState.currentView === "setup" && questionReady) {
+        item.classList.add("is-active");
+      }
+    }
+
+    if (step === "reading") {
+      if (readingReady) {
+        item.classList.add("is-complete");
+      }
+
+      if (appState.currentView === "reading") {
+        item.classList.add("is-active");
+      }
+    }
+  });
 }
 
 function resetReading() {
+  appState.currentQuestion = "";
+  appState.currentReading = null;
   elements.questionInput.value = "";
   elements.questionInput.classList.remove("is-invalid");
-  elements.resultsSection.hidden = true;
   elements.readingSummary.innerHTML = "";
-  elements.cardsContainer.innerHTML = "";
+  elements.positionTimeline.innerHTML = "";
+  elements.cardsAccordion.innerHTML = "";
   elements.readingTakeaways.innerHTML = "";
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  renderSidebar();
+  renderSetupContext();
+  showView("setup");
+  elements.questionInput.focus();
 }
 
 function escapeHtml(value) {

@@ -1,6 +1,6 @@
 # Tarot Atlas
 
-Tarot Atlas is a Bootstrap-based single-page tarot website where a visitor can:
+Tarot Atlas is a Bootstrap-based tarot web app with a compact, single-screen flow where a visitor can:
 
 - choose from popular tarot spread styles
 - ask a question
