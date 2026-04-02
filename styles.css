@@ -2910,10 +2910,6 @@ body::after {
     width: 4.95rem;
   }
 
-  .mode-choice__artifact--dice {
-    width: 5.15rem;
-  }
-
   .mode-choice__text {
     font-size: 0.75rem;
   }
