@@ -1288,7 +1288,7 @@ body::before {
   align-content: center;
   justify-content: center;
   perspective: 1200px;
-  transform: translateY(calc(-1 * clamp(0.7rem, 3.4vh, 1.4rem)));
+  transform: translateY(calc(-1 * clamp(2.2rem, 8vh, 3.8rem)));
 }
 
 .reading-board--oracle-3 .reading-position--oracle,
