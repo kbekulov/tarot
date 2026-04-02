@@ -571,6 +571,7 @@ const elements = {
   readingSheet: document.querySelector("#readingSheet"),
   sheetToggle: document.querySelector("#sheetToggle"),
   sheetToggleLabel: document.querySelector("#sheetToggleLabel"),
+  readingSheetInner: document.querySelector(".reading-sheet__inner"),
   readingSurfaceKicker: document.querySelector("#readingSurfaceKicker"),
   cardsAccordion: document.querySelector("#cardsAccordion"),
   readingTakeaways: document.querySelector("#readingTakeaways"),
@@ -593,7 +594,7 @@ const appState = {
   artworkSeed: "",
   focusCountdown: 10,
   focusTimerId: null,
-  sheetExpanded: false
+  readingScrollUnlocked: false
 };
 
 initialize();
@@ -718,7 +719,7 @@ function startModeFlow(mode) {
   appState.selectedSpreadId = null;
   appState.currentStage = "spreads";
   appState.currentReading = null;
-  appState.sheetExpanded = false;
+  appState.readingScrollUnlocked = false;
   renderModeSwitch();
   renderSpreadPicker();
   renderSetupStage();
@@ -952,18 +953,7 @@ function revealReading() {
   }
 
   showView("reading");
-  elements.readingSheet.classList.remove("is-visible", "is-expanded");
-  setSheetExpanded(false);
-
-  if (appState.currentReading?.mode === "oracle") {
-    return;
-  }
-
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      elements.readingSheet.classList.add("is-visible");
-    });
-  });
+  setReadingScrollUnlocked(false);
 }
 
 function createReading() {
@@ -1111,17 +1101,26 @@ function renderReadingView() {
   const overallInsight = isOracle ? null : buildOverallInsight(reading.mode, config, reading.draws);
 
   elements.readingKicker.textContent = isArchetype ? "Mirror revealed" : "Reading revealed";
-  elements.readingSurfaceKicker.textContent = isArchetype ? "Reflection" : "Interpretation";
+  elements.readingSurfaceKicker.textContent = isOracle ? "Pages" : isArchetype ? "Reflection" : "Interpretation";
   elements.readingTitle.textContent = config.name;
   elements.readingStage.classList.toggle("reading-stage--oracle", isOracle);
   elements.readingStage.classList.toggle("reading-stage--archetype", isArchetype);
-  elements.readingSheet.hidden = isOracle;
+  elements.readingStage.classList.remove("is-scroll-unlocked");
+  elements.readingSheet.hidden = false;
   elements.redrawTopButton.hidden = !isOracle;
-  elements.readingHeadline.textContent = overallInsight ? overallInsight.headline : "";
-  elements.readingSummary.textContent = overallInsight ? overallInsight.summary : "";
-  elements.readingGuideText.textContent = overallInsight ? buildReadingGuide(reading.mode, config) : "";
+  elements.readingHeadline.textContent = isOracle
+    ? drawsLabel(reading.draws.length, "Opened page", "Opened pages")
+    : overallInsight
+      ? overallInsight.headline
+      : "";
+  elements.readingSummary.textContent = isOracle
+    ? drawsLabel(reading.draws.length, "One oracle page is ready below.", `${reading.draws.length} oracle pages are ready below.`)
+    : overallInsight
+      ? overallInsight.summary
+      : "";
+  elements.readingGuideText.textContent = buildReadingGuide(reading.mode, config);
   elements.readingMeta.textContent = isOracle
-    ? ""
+    ? `${config.positions.length} page${config.positions.length === 1 ? "" : "s"} · oracle`
     : isArchetype
       ? `${config.positions.length} positions · inner reflection`
       : `${config.positions.length} cards · ${countReversed(reading.draws)} reversed`;
@@ -1133,12 +1132,11 @@ function renderReadingView() {
 
   renderReadingBoard(config, reading.draws, reading.mode);
 
-  elements.cardsAccordion.innerHTML = isOracle
-    ? ""
-    : reading.draws
-        .map((draw, index) => renderAccordionItem(draw, config.positions[index], index, config))
-        .join("");
+  elements.cardsAccordion.innerHTML = reading.draws
+    .map((draw, index) => renderAccordionItem(draw, config.positions[index], index, config))
+    .join("");
 
+  elements.readingTakeaways.hidden = isOracle;
   elements.readingTakeaways.innerHTML = isOracle
     ? ""
     : `
@@ -1228,7 +1226,7 @@ function renderOracleBoard(config, draws) {
             extraClasses: `reading-position--oracle oracle-layout__item oracle-layout__item--${
               index + 1
             }`,
-            interactive: false
+            interactive: true
           })
         )
         .join("")}
@@ -1389,7 +1387,6 @@ function renderOracleAccordionItem(draw, position, index, config) {
               <p class="accordion-copy mb-0">${position.purpose}</p>
               <p class="accordion-copy mb-0"><strong>${draw.title}</strong></p>
               <blockquote class="oracle-quote">${draw.phrase}</blockquote>
-              <p class="accordion-copy mb-0">${buildOracleInterpretation(draw, position, index)}</p>
             </div>
           </div>
         </div>
@@ -1503,21 +1500,21 @@ function buildArchetypeReflectionPrompt(draw, position) {
 function buildReadingGuide(mode, config) {
   if (mode === "oracle") {
     if (config.positions.length === 1) {
-      return "The interpretation window starts in peek mode. Tap the page or pull the note higher for the full oracle answer.";
+      return "Tap the page or use the slip below to unlock scrolling and read the opened page in full.";
     }
 
-    return "Tap any page above to open that oracle note, or pull the interpretation window higher for the full page set.";
+    return "Tap any page above or use the slip below to unlock scrolling and move through the full page set.";
   }
 
   if (mode === "archetype") {
-    return "Tap any archetype card above to open that position, or pull the reflection sheet upward to read the whole mirror.";
+    return "Tap any archetype card above or use the slip below to unlock scrolling and read the whole mirror.";
   }
 
   if (config.positions.length === 1) {
-    return "The interpretation window starts in peek mode. Pull it higher or tap the card if you want the full reading.";
+    return "Tap the card or use the slip below to unlock scrolling and read the full interpretation.";
   }
 
-  return "Tap any card above to open that part of the spread, or pull the interpretation window higher for the full reading.";
+  return "Tap any card above or use the slip below to unlock scrolling and move through the full reading.";
 }
 
 function buildOverallInsight(mode, config, draws) {
@@ -1844,6 +1841,10 @@ function showView(viewName) {
   elements.setupView.hidden = viewName !== "setup";
   elements.readingView.hidden = viewName !== "reading";
   elements.appMain.classList.toggle("is-reading", viewName === "reading");
+  elements.appMain.classList.toggle(
+    "is-reading-scrollable",
+    viewName === "reading" && appState.readingScrollUnlocked
+  );
   elements.appMain.classList.toggle("is-mode-select", viewName === "setup" && appState.currentStage === "mode");
   elements.appMain.scrollTo({ top: 0, behavior: "auto" });
 }
@@ -1851,15 +1852,13 @@ function showView(viewName) {
 function openReadingCard(index) {
   const collapseElement = document.querySelector(`#reading-collapse-${index}`);
 
+  unlockReadingScroll();
+
   if (!collapseElement || typeof bootstrap === "undefined") {
+    scrollSheetIntoView();
     return;
   }
 
-  if (!elements.readingSheet.classList.contains("is-visible")) {
-    elements.readingSheet.classList.add("is-visible");
-  }
-
-  setSheetExpanded(true);
   const collapse = bootstrap.Collapse.getOrCreateInstance(collapseElement, { toggle: false });
   collapse.show();
   window.setTimeout(() => {
@@ -1868,33 +1867,61 @@ function openReadingCard(index) {
 }
 
 function toggleSheet() {
-  if (!elements.readingSheet.classList.contains("is-visible")) {
-    elements.readingSheet.classList.add("is-visible");
+  unlockReadingScroll();
+  scrollSheetIntoView();
+}
+
+function setReadingScrollUnlocked(unlocked) {
+  appState.readingScrollUnlocked = unlocked;
+  elements.readingStage.classList.toggle("is-scroll-unlocked", unlocked);
+  elements.appMain.classList.toggle(
+    "is-reading-scrollable",
+    appState.currentView === "reading" && unlocked
+  );
+  elements.sheetToggle.setAttribute("aria-expanded", unlocked ? "true" : "false");
+  const labels = getSlipLabels();
+  elements.sheetToggleLabel.textContent = unlocked ? labels.unlocked : labels.locked;
+
+  if (elements.readingSheetInner) {
+    elements.readingSheetInner.setAttribute("aria-hidden", unlocked ? "false" : "true");
+
+    if ("inert" in elements.readingSheetInner) {
+      elements.readingSheetInner.inert = !unlocked;
+    }
+  }
+}
+
+function getSlipLabels() {
+  if (appState.currentReading?.mode === "oracle") {
+    return {
+      locked: "Read pages below",
+      unlocked: "Jump to pages"
+    };
   }
 
-  setSheetExpanded(!appState.sheetExpanded);
-}
-
-function setSheetExpanded(expanded) {
-  appState.sheetExpanded = expanded;
-  elements.readingSheet.classList.toggle("is-expanded", expanded);
-  elements.sheetToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
-  const labels = getSheetLabels();
-  elements.sheetToggleLabel.textContent = expanded ? labels.expanded : labels.collapsed;
-}
-
-function getSheetLabels() {
   if (appState.currentReading?.mode === "archetype") {
     return {
-      collapsed: "Open reflection",
-      expanded: "Close reflection"
+      locked: "Read reflection below",
+      unlocked: "Jump to reflection"
     };
   }
 
   return {
-    collapsed: "Open interpretation",
-    expanded: "Close interpretation"
+    locked: "Read interpretation below",
+    unlocked: "Jump to interpretation"
   };
+}
+
+function unlockReadingScroll() {
+  if (!appState.readingScrollUnlocked) {
+    setReadingScrollUnlocked(true);
+  }
+}
+
+function scrollSheetIntoView() {
+  window.requestAnimationFrame(() => {
+    elements.readingSheet?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }
 
 function resetExperience() {
@@ -1904,7 +1931,7 @@ function resetExperience() {
   appState.selectedSpreadId = null;
   appState.currentStage = "mode";
   appState.currentReading = null;
-  appState.sheetExpanded = false;
+  appState.readingScrollUnlocked = false;
   clearReadingSurface();
   renderModeSwitch();
   renderSpreadPicker();
@@ -1913,15 +1940,20 @@ function resetExperience() {
 }
 
 function clearReadingSurface() {
-  setSheetExpanded(false);
+  setReadingScrollUnlocked(false);
   elements.readingStage.classList.remove("reading-stage--oracle");
   elements.readingStage.classList.remove("reading-stage--archetype");
+  elements.readingStage.classList.remove("is-scroll-unlocked");
   elements.readingSheet.hidden = false;
   elements.redrawTopButton.hidden = true;
-  elements.readingSheet.classList.remove("is-visible", "is-expanded");
   elements.readingBoard.innerHTML = "";
   elements.cardsAccordion.innerHTML = "";
+  elements.readingTakeaways.hidden = false;
   elements.readingTakeaways.innerHTML = "";
+}
+
+function drawsLabel(count, singular, plural) {
+  return count === 1 ? singular : plural;
 }
 
 function getArtworkDeck(seedText) {
