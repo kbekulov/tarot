@@ -847,10 +847,10 @@ function renderSetupStage() {
 
   if (isModeStage) {
     elements.setupStepLabel.textContent = "Step 1";
-    elements.setupTitle.textContent = "Choose Tarot, Oracle, or Archetype Mirror.";
+    elements.setupTitle.textContent = "Choose your lens.";
     elements.setupBody.textContent =
-      "Tarot gives you symbolic spreads. Oracle gives you short page-like messages. Archetype Mirror reflects inner patterns, defenses, and integration without trying to predict the future.";
-    elements.setupFootnote.textContent = "Choose one to move straight into the ritual.";
+      "Tarot reads symbols. Oracle offers concise page-like guidance. Archetype Mirror reflects inner patterns and integration.";
+    elements.setupFootnote.textContent = "Choose one to begin.";
     return;
   }
 
