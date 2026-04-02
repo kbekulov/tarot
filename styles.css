@@ -48,7 +48,29 @@ body::before {
   pointer-events: none;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 18%),
-    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.3), transparent 20%);
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.3), transparent 20%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 150'%3E%3Cg fill='none' stroke='%239ab8d8' stroke-width='1.4' stroke-linecap='round' opacity='0.55'%3E%3Cpath d='M0 38C44 20 88 20 132 38S220 56 264 38S352 20 396 38S484 56 528 38S596 22 640 38'/%3E%3Cpath d='M0 74C44 56 88 56 132 74S220 92 264 74S352 56 396 74S484 92 528 74S596 58 640 74'/%3E%3Cpath d='M0 110C44 92 88 92 132 110S220 128 264 110S352 92 396 110S484 128 528 110S596 94 640 110'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat, repeat-x;
+  background-size: auto, auto, 40rem 7.8rem;
+  background-position:
+    0 0,
+    12% 18%,
+    0 34%;
+  animation: wave-drift-right 88s linear infinite;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 170'%3E%3Cg fill='none' stroke='%23b7cce1' stroke-width='1.6' stroke-linecap='round' opacity='0.48'%3E%3Cpath d='M0 52C52 30 104 30 156 52S260 74 312 52S416 30 468 52S572 74 624 52S676 36 700 52'/%3E%3Cpath d='M0 96C52 74 104 74 156 96S260 118 312 96S416 74 468 96S572 118 624 96S676 80 700 96'/%3E%3Cpath d='M0 140C52 118 104 118 156 140S260 162 312 140S416 118 468 140S572 162 624 140S676 124 700 140'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 44rem 8.6rem;
+  background-position: 0 74%;
+  opacity: 0.88;
+  animation: wave-drift-left 104s linear infinite;
 }
 
 .app-shell {
@@ -2313,6 +2335,39 @@ body::before {
   100% {
     transform: translate(-32%, 150%) rotate(23deg);
     opacity: 0;
+  }
+}
+
+@keyframes wave-drift-right {
+  0% {
+    background-position:
+      0 0,
+      12% 18%,
+      0 34%;
+  }
+
+  100% {
+    background-position:
+      0 0,
+      12% 18%,
+      40rem 34%;
+  }
+}
+
+@keyframes wave-drift-left {
+  0% {
+    background-position: 0 74%;
+  }
+
+  100% {
+    background-position: -44rem 74%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none;
   }
 }
 
