@@ -1004,23 +1004,24 @@ function renderReadingView() {
 }
 
 function renderReadingBoard(config, draws, mode) {
-  elements.readingBoard.className = `reading-board ${config.layoutClass}${
-    mode === "oracle" ? ` reading-board--oracle-${draws.length}` : ""
-  }`;
-
-  if (mode === "tarot" && config.layoutClass === "spread-layout-celtic") {
+  if (mode === "oracle") {
+    elements.readingBoard.className = "reading-board reading-board--oracle-stage";
+    elements.readingBoard.innerHTML = renderOracleBoard(config, draws);
+  } else if (config.layoutClass === "spread-layout-celtic") {
+    elements.readingBoard.className = `reading-board ${config.layoutClass}`;
     elements.readingBoard.innerHTML = renderCelticBoard(config, draws);
   } else {
+    elements.readingBoard.className = `reading-board ${config.layoutClass}`;
     elements.readingBoard.innerHTML = draws
       .map((draw, index) =>
         renderReadingPosition(draw, config.positions[index], index, {
-          extraClasses: mode === "oracle" ? "reading-position--oracle" : ""
+          extraClasses: ""
         })
       )
       .join("");
   }
 
-  elements.readingBoard.querySelectorAll("[data-card-index]").forEach((button) => {
+  elements.readingBoard.querySelectorAll("button[data-card-index]").forEach((button) => {
     button.addEventListener("click", () => {
       openReadingCard(Number(button.dataset.cardIndex));
     });
@@ -1072,19 +1073,38 @@ function renderCelticBoard(spread, draws) {
   `;
 }
 
+function renderOracleBoard(config, draws) {
+  return `
+    <div class="oracle-layout oracle-layout--${draws.length}">
+      ${draws
+        .map((draw, index) =>
+          renderReadingPosition(draw, config.positions[index], index, {
+            extraClasses: `reading-position--oracle oracle-layout__item oracle-layout__item--${
+              index + 1
+            }`,
+            interactive: false
+          })
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function renderReadingPosition(draw, position, index, options = {}) {
-  const { extraClasses = "", hideCaption = false } = options;
+  const { extraClasses = "", hideCaption = false, interactive = true } = options;
   const className = ["reading-position", extraClasses].filter(Boolean).join(" ");
   const descriptor =
     draw.kind === "oracle" ? draw.phrase : draw.isReversed ? "Reversed" : "Upright";
   const artAlt = draw.kind === "oracle" ? `${draw.phrase} oracle page` : `${draw.name} tarot card art`;
+  const tagName = interactive ? "button" : "article";
+  const interactiveAttributes = interactive
+    ? `type="button" data-card-index="${index}" aria-controls="reading-collapse-${index}"`
+    : `role="group"`;
 
   return `
-    <button
-      type="button"
+    <${tagName}
       class="${className}"
-      data-card-index="${index}"
-      aria-controls="reading-collapse-${index}"
+      ${interactiveAttributes}
       aria-label="${index + 1}. ${position.title}. ${descriptor}"
     >
       <div class="reading-position__card ${draw.isReversed ? "reading-position__card--reversed" : ""}">
@@ -1098,7 +1118,7 @@ function renderReadingPosition(draw, position, index, options = {}) {
               <span class="reading-position__title">${position.title}</span>
             </div>`
       }
-    </button>
+    </${tagName}>
   `;
 }
 
