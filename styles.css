@@ -763,6 +763,12 @@ body::before {
   gap: 0.75rem;
 }
 
+.reading-stage__top-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
 .icon-button {
   appearance: none;
   width: 2.5rem;
@@ -796,6 +802,10 @@ body::before {
   align-items: start;
   padding-top: 0.2rem;
   padding-bottom: calc(var(--sheet-peek) + 0.55rem);
+}
+
+.reading-stage--oracle .reading-stage__board {
+  padding-bottom: 1rem;
 }
 
 .reading-board {
@@ -832,15 +842,25 @@ body::before {
   grid-column: 1 / -1;
 }
 
-.reading-board.spread-layout-oracle {
+.reading-board.spread-layout-oracle,
+.reading-board--oracle-3 {
   --card-width: 104px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.4rem;
   align-items: end;
 }
 
-.reading-board.spread-layout-oracle .reading-position:only-child {
-  grid-column: 2;
+.reading-board--oracle-2 {
+  --card-width: 112px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.reading-board--oracle-1 {
+  --card-width: 152px;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
 }
 
 .reading-board.spread-layout-celtic {
@@ -916,19 +936,27 @@ body::before {
   line-height: 1.2;
 }
 
-.reading-position--oracle:nth-child(1) {
+.reading-board--oracle-3 .reading-position--oracle:nth-child(1) {
   padding-bottom: 0.9rem;
 }
 
-.reading-position--oracle:nth-child(2) {
+.reading-board--oracle-3 .reading-position--oracle:nth-child(2) {
   padding-bottom: 0.2rem;
 }
 
-.reading-position--oracle:nth-child(3) {
+.reading-board--oracle-3 .reading-position--oracle:nth-child(3) {
   padding-bottom: 1.1rem;
 }
 
-.reading-position--oracle:only-child {
+.reading-board--oracle-2 .reading-position--oracle:nth-child(1) {
+  padding-bottom: 0.6rem;
+}
+
+.reading-board--oracle-2 .reading-position--oracle:nth-child(2) {
+  padding-bottom: 0.15rem;
+}
+
+.reading-board--oracle-1 .reading-position--oracle {
   padding-bottom: 0;
 }
 
@@ -941,19 +969,27 @@ body::before {
     0 12px 24px rgba(97, 78, 54, 0.14);
 }
 
-.reading-position--oracle:nth-child(1) .reading-position__card {
+.reading-board--oracle-3 .reading-position--oracle:nth-child(1) .reading-position__card {
   transform: rotate(-4deg);
 }
 
-.reading-position--oracle:nth-child(2) .reading-position__card {
+.reading-board--oracle-3 .reading-position--oracle:nth-child(2) .reading-position__card {
   transform: translateY(-0.2rem);
 }
 
-.reading-position--oracle:nth-child(3) .reading-position__card {
+.reading-board--oracle-3 .reading-position--oracle:nth-child(3) .reading-position__card {
   transform: rotate(4deg);
 }
 
-.reading-position--oracle:only-child .reading-position__card {
+.reading-board--oracle-2 .reading-position--oracle:nth-child(1) .reading-position__card {
+  transform: rotate(-3deg);
+}
+
+.reading-board--oracle-2 .reading-position--oracle:nth-child(2) .reading-position__card {
+  transform: rotate(3deg);
+}
+
+.reading-board--oracle-1 .reading-position--oracle .reading-position__card {
   transform: none;
 }
 
@@ -1458,9 +1494,19 @@ body::before {
     width: 9.8rem;
   }
 
-  .reading-board.spread-layout-oracle {
+  .reading-board.spread-layout-oracle,
+  .reading-board--oracle-3 {
     --card-width: 92px;
     gap: 0.32rem;
+  }
+
+  .reading-board--oracle-2 {
+    --card-width: 98px;
+    gap: 0.42rem;
+  }
+
+  .reading-board--oracle-1 {
+    --card-width: 138px;
   }
 
   .setup-stage--spreads {

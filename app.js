@@ -169,7 +169,7 @@ const spreadCatalog = [
 const oracleCatalog = [
   {
     id: "answer",
-    name: "Single Page Answer",
+    name: "Straight Answer",
     shortLabel: "1 page",
     compactHint: "Straight answer",
     description: "One clear oracle page when you want the simplest direct message.",
@@ -184,47 +184,16 @@ const oracleCatalog = [
       {
         title: "Direct Answer",
         summary: "The clearest page the oracle can open right now.",
-        purpose: "This page offers one direct sentence to hold onto when you do not need a longer chapter."
+        purpose: "This page offers one direct sentence to hold onto when you do not need anything more elaborate."
       }
     ]
   },
   {
-    id: "path",
-    name: "Hidden Path Oracle",
-    shortLabel: "3 pages",
-    compactHint: "Direction",
-    description: "Three pages for direction when the road feels difficult to read.",
-    layoutClass: "spread-layout-oracle",
-    palette: {
-      paper: "#fff8ef",
-      ink: "#2f3040",
-      accent: "#d4934f",
-      border: "#ead8bf"
-    },
-    positions: [
-      {
-        title: "Veiled Path",
-        summary: "What is present but still hard to see clearly.",
-        purpose: "This page reveals the part of the road that is shaping you before it fully makes sense."
-      },
-      {
-        title: "Lantern",
-        summary: "What helps you see with more honesty.",
-        purpose: "This page names the attitude or insight that makes the hidden path easier to walk."
-      },
-      {
-        title: "Next Footstep",
-        summary: "What opens with one grounded move.",
-        purpose: "This page points to the next step that becomes possible without forcing the whole journey."
-      }
-    ]
-  },
-  {
-    id: "timing",
-    name: "Timing Oracle",
-    shortLabel: "3 pages",
-    compactHint: "Timing",
-    description: "Three pages for ripeness, delay, and the right hour.",
+    id: "now-then",
+    name: "Now and Then",
+    shortLabel: "2 pages",
+    compactHint: "Shift in time",
+    description: "Two pages for what is true now and what it may become next.",
     layoutClass: "spread-layout-oracle",
     palette: {
       paper: "#fbf7ef",
@@ -234,90 +203,23 @@ const oracleCatalog = [
     },
     positions: [
       {
-        title: "Present Weather",
-        summary: "The pace surrounding the situation now.",
-        purpose: "This page shows the current tempo so you do not mistake pressure for readiness."
+        title: "Now",
+        summary: "What is most true in the present moment.",
+        purpose: "This page names the clearest truth active around you right now."
       },
       {
-        title: "Ripening Point",
-        summary: "What still needs time, heat, or quiet.",
-        purpose: "This page reveals what must mature before the moment becomes easier to trust."
-      },
-      {
-        title: "Right Hour",
-        summary: "The kind of timing that serves the truth.",
-        purpose: "This page hints at the timing quality that makes the next move feel clean instead of rushed."
+        title: "Then",
+        summary: "What the situation is becoming next.",
+        purpose: "This page points to the next state, mood, or lesson that follows from the present one."
       }
     ]
   },
   {
-    id: "heart",
-    name: "Heart Oracle",
+    id: "ppf",
+    name: "Past, Present, Future",
     shortLabel: "3 pages",
-    compactHint: "Feeling",
-    description: "Three pages for tenderness, emotion, and what wants a softer truth.",
-    layoutClass: "spread-layout-oracle",
-    palette: {
-      paper: "#fff5f4",
-      ink: "#46363d",
-      accent: "#d1797f",
-      border: "#ead2d7"
-    },
-    positions: [
-      {
-        title: "Undercurrent",
-        summary: "What the heart is holding underneath the surface.",
-        purpose: "This page names the feeling that may be quieter than the story you are telling yourself."
-      },
-      {
-        title: "Tender Truth",
-        summary: "The emotional truth asking to be respected.",
-        purpose: "This page shows the softer truth that becomes clear when defensiveness drops."
-      },
-      {
-        title: "Kind Response",
-        summary: "What compassion would do next.",
-        purpose: "This page points toward the most caring next response to what you are feeling."
-      }
-    ]
-  },
-  {
-    id: "threshold",
-    name: "Threshold Oracle",
-    shortLabel: "3 pages",
-    compactHint: "Crossing",
-    description: "Three pages for endings, beginnings, and what must be carried across.",
-    layoutClass: "spread-layout-oracle",
-    palette: {
-      paper: "#f7f4fb",
-      ink: "#37324c",
-      accent: "#8a7bc9",
-      border: "#ddd7ef"
-    },
-    positions: [
-      {
-        title: "What Is Closing",
-        summary: "The part of the old chapter that is ending.",
-        purpose: "This page reveals the pattern, role, or expectation that is no longer meant to keep leading."
-      },
-      {
-        title: "Threshold",
-        summary: "The living edge between old and new.",
-        purpose: "This page describes the threshold itself and the kind of presence it asks from you."
-      },
-      {
-        title: "What Must Be Carried",
-        summary: "The truth that deserves to cross with you.",
-        purpose: "This page names the wisdom or value that belongs in the next chapter, not the last one."
-      }
-    ]
-  },
-  {
-    id: "quiet",
-    name: "Quiet Truth Oracle",
-    shortLabel: "3 pages",
-    compactHint: "Clarity",
-    description: "Three pages for clearing noise and trusting the truest signal.",
+    compactHint: "Timeline",
+    description: "Three pages for the story behind you, around you, and ahead of you.",
     layoutClass: "spread-layout-oracle",
     palette: {
       paper: "#f3f8fb",
@@ -327,19 +229,19 @@ const oracleCatalog = [
     },
     positions: [
       {
-        title: "Noise on Top",
-        summary: "What is loud but not necessarily true.",
-        purpose: "This page shows the surface noise that can confuse the inner signal if you let it lead."
+        title: "Past",
+        summary: "What shaped the path into this moment.",
+        purpose: "This page reveals the influence that still echoes behind the present."
       },
       {
-        title: "Quiet Below",
-        summary: "What stays true underneath the noise.",
-        purpose: "This page reveals the quieter knowing that remains steady after the first reaction passes."
+        title: "Present",
+        summary: "What is most alive now.",
+        purpose: "This page names the truest condition surrounding the situation in the present tense."
       },
       {
-        title: "Trusted Signal",
-        summary: "What deserves to guide your next move.",
-        purpose: "This page points toward the clearest signal to follow once the static has settled."
+        title: "Future",
+        summary: "Where the current story is pointing next.",
+        purpose: "This page points toward the likely next direction if the present energy continues."
       }
     ]
   }
@@ -643,6 +545,7 @@ const elements = {
   setupFootnote: document.querySelector("#setupFootnote"),
   setupView: document.querySelector("#setupView"),
   readingView: document.querySelector("#readingView"),
+  readingStage: document.querySelector(".reading-stage"),
   readingTitle: document.querySelector("#readingTitle"),
   readingHeadline: document.querySelector("#readingHeadline"),
   readingSummary: document.querySelector("#readingSummary"),
@@ -655,6 +558,7 @@ const elements = {
   cardsAccordion: document.querySelector("#cardsAccordion"),
   readingTakeaways: document.querySelector("#readingTakeaways"),
   redrawButton: document.querySelector("#redrawButton"),
+  redrawTopButton: document.querySelector("#redrawTopButton"),
   backButton: document.querySelector("#backButton"),
   resetButton: document.querySelector("#resetButton")
 };
@@ -690,6 +594,7 @@ function initialize() {
   elements.mysteryCardButton.addEventListener("click", activateDeck);
   elements.sheetToggle.addEventListener("click", toggleSheet);
   elements.redrawButton.addEventListener("click", redrawReading);
+  elements.redrawTopButton.addEventListener("click", redrawReading);
   elements.backButton.addEventListener("click", resetExperience);
   elements.resetButton.addEventListener("click", resetExperience);
 }
@@ -864,13 +769,13 @@ function renderSetupStage() {
   if (appState.currentStage === "spreads") {
     elements.setupStepLabel.textContent = "Step 2";
     elements.setupTitle.textContent = isOracleMode
-      ? "Choose your oracle."
+      ? "Choose your pages."
       : "Choose your reading.";
     elements.setupBody.textContent = isOracleMode
-      ? "While the cover stirs, choose a single-page answer or a deeper chapter of page wisdom."
+      ? "While the book opens, choose a straight answer, a now-and-then pair, or a past-present-future path."
       : "Pick the shape of the reveal while the deck keeps turning.";
     elements.setupFootnote.textContent = isOracleMode
-      ? "Start with one page for a direct answer, or open a three-page chapter for depth."
+      ? "Choose between one, two, or three pages."
       : "Five layouts. One tap chooses.";
     elements.mysteryCardName.textContent = isOracleMode ? "The pages are whispering" : "The deck is turning";
     elements.mysteryCardPrompt.textContent = isOracleMode ? "Pick a form" : "Pick a layout";
@@ -884,7 +789,7 @@ function renderSetupStage() {
       ? "No typing now. Keep the feeling simple and let the right page rise from the book."
       : "No typing now. Keep the question private, stay with it quietly, and let the spread settle around it.";
     elements.setupFootnote.textContent = isOracleMode
-      ? `Opening a ${selection.name.toLowerCase()} chapter.`
+      ? `Opening ${selection.positions.length} oracle page${selection.positions.length === 1 ? "" : "s"}.`
       : `Preparing a ${selection.name.toLowerCase()} reading.`;
     elements.mysteryCardName.textContent = isOracleMode
       ? "The book is opening"
@@ -930,6 +835,10 @@ function revealReading() {
   showView("reading");
   elements.readingSheet.classList.remove("is-visible", "is-expanded");
   setSheetExpanded(false);
+
+  if (appState.currentReading?.mode === "oracle") {
+    return;
+  }
 
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
@@ -1032,34 +941,43 @@ function renderReadingView() {
     return;
   }
 
-  const overallInsight = buildOverallInsight(reading.mode, config, reading.draws);
+  const isOracle = reading.mode === "oracle";
+  const overallInsight = isOracle ? null : buildOverallInsight(reading.mode, config, reading.draws);
 
   elements.readingTitle.textContent = config.name;
-  elements.readingHeadline.textContent = overallInsight.headline;
-  elements.readingSummary.textContent = overallInsight.summary;
-  elements.readingGuideText.textContent = buildReadingGuide(reading.mode, config);
-  elements.readingMeta.textContent =
-    reading.mode === "oracle"
-      ? `${config.positions.length} pages · oracle book`
-      : `${config.positions.length} cards · ${countReversed(reading.draws)} reversed`;
-  elements.redrawButton.textContent = reading.mode === "oracle" ? "Open new pages" : "Draw again";
+  elements.readingStage.classList.toggle("reading-stage--oracle", isOracle);
+  elements.readingSheet.hidden = isOracle;
+  elements.redrawTopButton.hidden = !isOracle;
+  elements.readingHeadline.textContent = overallInsight ? overallInsight.headline : "";
+  elements.readingSummary.textContent = overallInsight ? overallInsight.summary : "";
+  elements.readingGuideText.textContent = overallInsight ? buildReadingGuide(reading.mode, config) : "";
+  elements.readingMeta.textContent = isOracle
+    ? ""
+    : `${config.positions.length} cards · ${countReversed(reading.draws)} reversed`;
+  elements.redrawButton.textContent = isOracle ? "Open new pages" : "Draw again";
 
   renderReadingBoard(config, reading.draws, reading.mode);
 
-  elements.cardsAccordion.innerHTML = reading.draws
-    .map((draw, index) => renderAccordionItem(draw, config.positions[index], index, config))
-    .join("");
+  elements.cardsAccordion.innerHTML = isOracle
+    ? ""
+    : reading.draws
+        .map((draw, index) => renderAccordionItem(draw, config.positions[index], index, config))
+        .join("");
 
-  elements.readingTakeaways.innerHTML = `
-    <h2 class="takeaways-title">${reading.mode === "oracle" ? "Oracle Notes" : "Text Reading"}</h2>
-    <ul>
-      ${overallInsight.takeaways.map((item) => `<li>${item}</li>`).join("")}
-    </ul>
-  `;
+  elements.readingTakeaways.innerHTML = isOracle
+    ? ""
+    : `
+        <h2 class="takeaways-title">Text Reading</h2>
+        <ul>
+          ${overallInsight.takeaways.map((item) => `<li>${item}</li>`).join("")}
+        </ul>
+      `;
 }
 
 function renderReadingBoard(config, draws, mode) {
-  elements.readingBoard.className = `reading-board ${config.layoutClass}`;
+  elements.readingBoard.className = `reading-board ${config.layoutClass}${
+    mode === "oracle" ? ` reading-board--oracle-${draws.length}` : ""
+  }`;
 
   if (mode === "tarot" && config.layoutClass === "spread-layout-celtic") {
     elements.readingBoard.innerHTML = renderCelticBoard(config, draws);
@@ -1298,7 +1216,7 @@ function buildReadingGuide(mode, config) {
       return "The interpretation window starts in peek mode. Tap the page or pull the note higher for the full oracle answer.";
     }
 
-    return "Tap any page above to open that oracle note, or pull the interpretation window higher for the full chapter.";
+    return "Tap any page above to open that oracle note, or pull the interpretation window higher for the full page set.";
   }
 
   if (config.positions.length === 1) {
@@ -1368,7 +1286,7 @@ function buildOracleOverallInsight(config, draws) {
 
   return {
     headline: firstPage.phrase,
-    summary: `This ${config.name.toLowerCase()} opens with "${firstPage.phrase}" The middle page turns the chapter toward "${secondPage.phrase}" The final page closes on "${finalPage.phrase}" Read together, the oracle is asking for reflection before force and a simpler trust in what is already forming.`,
+    summary: `This ${config.name.toLowerCase()} opens with "${firstPage.phrase}" The middle page turns the message toward "${secondPage.phrase}" The final page closes on "${finalPage.phrase}" Read together, the oracle is asking for reflection before force and a simpler trust in what is already forming.`,
     takeaways: [
       `Start with ${config.positions[0].title.toLowerCase()}: ${firstPage.phrase}`,
       `Let the middle page change the tone of the reading: ${secondPage.phrase}`,
@@ -1564,6 +1482,9 @@ function resetExperience() {
   appState.currentStage = "invite";
   appState.currentReading = null;
   appState.sheetExpanded = false;
+  elements.readingStage.classList.remove("reading-stage--oracle");
+  elements.readingSheet.hidden = false;
+  elements.redrawTopButton.hidden = true;
   elements.readingSheet.classList.remove("is-visible", "is-expanded");
   elements.readingBoard.innerHTML = "";
   elements.cardsAccordion.innerHTML = "";
