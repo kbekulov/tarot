@@ -101,6 +101,10 @@ body::before {
   pointer-events: none;
 }
 
+.app-frame--browser::before {
+  display: none;
+}
+
 .device-statusbar {
   position: absolute;
   inset: 0 auto auto 0;
@@ -130,6 +134,10 @@ body::before {
     calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
+.app-main--browser {
+  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+}
+
 .app-main__inner {
   height: 100%;
   display: grid;
@@ -142,6 +150,10 @@ body::before {
   justify-content: space-between;
   align-items: center;
   gap: 0.75rem;
+}
+
+.app-shell--browser .app-topbar {
+  padding-top: 0.1rem;
 }
 
 .brand-mark {
@@ -1155,6 +1167,10 @@ body::before {
   .app-main {
     padding-left: 0.95rem;
     padding-right: 0.95rem;
+  }
+
+  .app-main--browser {
+    padding-top: calc(0.95rem + env(safe-area-inset-top, 0px));
   }
 
   .mystery-card {

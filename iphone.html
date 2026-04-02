@@ -20,10 +20,19 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app-shell app-shell--browser">
-      <div class="container app-shell__container app-shell__container--browser">
-        <div class="app-frame app-frame--browser">
-          <main class="app-main app-main--browser">
+    <div class="app-shell">
+      <div class="container app-shell__container">
+        <div class="app-frame">
+          <div class="device-statusbar" aria-hidden="true">
+            <span class="device-statusbar__time">9:41</span>
+            <div class="device-statusbar__icons">
+              <i class="bi bi-reception-4"></i>
+              <i class="bi bi-wifi"></i>
+              <i class="bi bi-battery-full"></i>
+            </div>
+          </div>
+
+          <main class="app-main">
             <div class="app-main__inner">
               <div class="app-topbar">
                 <a class="brand-mark text-decoration-none" href="#">
