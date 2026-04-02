@@ -39,8 +39,25 @@
                   <span class="brand-mark__icon"><i class="bi bi-stars"></i></span>
                   <span>Tarot Atlas</span>
                 </a>
-                <div class="app-topbar__badge">
-                  <i class="bi bi-stars me-2"></i>Ritual mode
+                <div class="mode-switch" role="group" aria-label="Reading mode">
+                  <button
+                    type="button"
+                    class="mode-switch__option is-active"
+                    data-app-mode="tarot"
+                    aria-pressed="true"
+                  >
+                    <i class="bi bi-stars"></i>
+                    <span>Tarot</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="mode-switch__option"
+                    data-app-mode="oracle"
+                    aria-pressed="false"
+                  >
+                    <i class="bi bi-journal-bookmark"></i>
+                    <span>Oracle</span>
+                  </button>
                 </div>
               </div>
 
@@ -66,7 +83,7 @@
                     </p>
 
                     <div id="spreadChoicePanel" class="stage-section" hidden>
-                      <div class="stage-section__label">Choose the reading type</div>
+                      <div id="choiceSectionLabel" class="stage-section__label">Choose the reading type</div>
                       <div id="spreadPicker" class="spread-list"></div>
                     </div>
 
@@ -161,6 +178,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="vendor/browser-sibyl.js" defer></script>
     <script src="tarot-art.js" defer></script>
+    <script src="oracle-phrases.js" defer></script>
     <script src="app.js" defer></script>
   </body>
 </html>

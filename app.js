@@ -166,6 +166,164 @@ const spreadCatalog = [
   }
 ];
 
+const oracleCatalog = [
+  {
+    id: "path",
+    name: "Hidden Path Oracle",
+    shortLabel: "3 pages",
+    compactHint: "Direction",
+    description: "Three pages for direction when the road feels difficult to read.",
+    layoutClass: "spread-layout-oracle",
+    palette: {
+      paper: "#fff8ef",
+      ink: "#2f3040",
+      accent: "#d4934f",
+      border: "#ead8bf"
+    },
+    positions: [
+      {
+        title: "Veiled Path",
+        summary: "What is present but still hard to see clearly.",
+        purpose: "This page reveals the part of the road that is shaping you before it fully makes sense."
+      },
+      {
+        title: "Lantern",
+        summary: "What helps you see with more honesty.",
+        purpose: "This page names the attitude or insight that makes the hidden path easier to walk."
+      },
+      {
+        title: "Next Footstep",
+        summary: "What opens with one grounded move.",
+        purpose: "This page points to the next step that becomes possible without forcing the whole journey."
+      }
+    ]
+  },
+  {
+    id: "timing",
+    name: "Timing Oracle",
+    shortLabel: "3 pages",
+    compactHint: "Timing",
+    description: "Three pages for ripeness, delay, and the right hour.",
+    layoutClass: "spread-layout-oracle",
+    palette: {
+      paper: "#fbf7ef",
+      ink: "#384144",
+      accent: "#b58a5a",
+      border: "#e4d8c9"
+    },
+    positions: [
+      {
+        title: "Present Weather",
+        summary: "The pace surrounding the situation now.",
+        purpose: "This page shows the current tempo so you do not mistake pressure for readiness."
+      },
+      {
+        title: "Ripening Point",
+        summary: "What still needs time, heat, or quiet.",
+        purpose: "This page reveals what must mature before the moment becomes easier to trust."
+      },
+      {
+        title: "Right Hour",
+        summary: "The kind of timing that serves the truth.",
+        purpose: "This page hints at the timing quality that makes the next move feel clean instead of rushed."
+      }
+    ]
+  },
+  {
+    id: "heart",
+    name: "Heart Oracle",
+    shortLabel: "3 pages",
+    compactHint: "Feeling",
+    description: "Three pages for tenderness, emotion, and what wants a softer truth.",
+    layoutClass: "spread-layout-oracle",
+    palette: {
+      paper: "#fff5f4",
+      ink: "#46363d",
+      accent: "#d1797f",
+      border: "#ead2d7"
+    },
+    positions: [
+      {
+        title: "Undercurrent",
+        summary: "What the heart is holding underneath the surface.",
+        purpose: "This page names the feeling that may be quieter than the story you are telling yourself."
+      },
+      {
+        title: "Tender Truth",
+        summary: "The emotional truth asking to be respected.",
+        purpose: "This page shows the softer truth that becomes clear when defensiveness drops."
+      },
+      {
+        title: "Kind Response",
+        summary: "What compassion would do next.",
+        purpose: "This page points toward the most caring next response to what you are feeling."
+      }
+    ]
+  },
+  {
+    id: "threshold",
+    name: "Threshold Oracle",
+    shortLabel: "3 pages",
+    compactHint: "Crossing",
+    description: "Three pages for endings, beginnings, and what must be carried across.",
+    layoutClass: "spread-layout-oracle",
+    palette: {
+      paper: "#f7f4fb",
+      ink: "#37324c",
+      accent: "#8a7bc9",
+      border: "#ddd7ef"
+    },
+    positions: [
+      {
+        title: "What Is Closing",
+        summary: "The part of the old chapter that is ending.",
+        purpose: "This page reveals the pattern, role, or expectation that is no longer meant to keep leading."
+      },
+      {
+        title: "Threshold",
+        summary: "The living edge between old and new.",
+        purpose: "This page describes the threshold itself and the kind of presence it asks from you."
+      },
+      {
+        title: "What Must Be Carried",
+        summary: "The truth that deserves to cross with you.",
+        purpose: "This page names the wisdom or value that belongs in the next chapter, not the last one."
+      }
+    ]
+  },
+  {
+    id: "quiet",
+    name: "Quiet Truth Oracle",
+    shortLabel: "3 pages",
+    compactHint: "Clarity",
+    description: "Three pages for clearing noise and trusting the truest signal.",
+    layoutClass: "spread-layout-oracle",
+    palette: {
+      paper: "#f3f8fb",
+      ink: "#304149",
+      accent: "#63a0b3",
+      border: "#d7e5ea"
+    },
+    positions: [
+      {
+        title: "Noise on Top",
+        summary: "What is loud but not necessarily true.",
+        purpose: "This page shows the surface noise that can confuse the inner signal if you let it lead."
+      },
+      {
+        title: "Quiet Below",
+        summary: "What stays true underneath the noise.",
+        purpose: "This page reveals the quieter knowing that remains steady after the first reaction passes."
+      },
+      {
+        title: "Trusted Signal",
+        summary: "What deserves to guide your next move.",
+        purpose: "This page points toward the clearest signal to follow once the static has settled."
+      }
+    ]
+  }
+];
+
 const majorArcana = [
   {
     number: 0,
@@ -442,14 +600,18 @@ const rankDefinitions = [
 ];
 
 const elements = {
+  appShell: document.querySelector(".app-shell"),
   appMain: document.querySelector(".app-main"),
+  modeButtons: Array.from(document.querySelectorAll("[data-app-mode]")),
   setupStage: document.querySelector(".setup-stage"),
   mysteryCardButton: document.querySelector("#mysteryCardButton"),
+  mysteryCardCrest: document.querySelector(".mystery-card__crest"),
   mysteryCardName: document.querySelector(".mystery-card__name"),
   mysteryCardPrompt: document.querySelector(".mystery-card__prompt"),
   setupStepLabel: document.querySelector("#setupStepLabel"),
   setupTitle: document.querySelector("#setupTitle"),
   setupBody: document.querySelector("#setupBody"),
+  choiceSectionLabel: document.querySelector("#choiceSectionLabel"),
   spreadChoicePanel: document.querySelector("#spreadChoicePanel"),
   spreadPicker: document.querySelector("#spreadPicker"),
   focusPanel: document.querySelector("#focusPanel"),
@@ -477,7 +639,9 @@ const elements = {
 };
 
 const tarotDeck = buildDeck();
+const oracleDeck = buildOracleDeck();
 const appState = {
+  currentMode: "tarot",
   selectedSpreadId: null,
   currentView: "setup",
   currentStage: "invite",
@@ -492,10 +656,16 @@ const appState = {
 initialize();
 
 function initialize() {
+  renderModeSwitch();
   renderSpreadPicker();
   renderSetupStage();
   showView("setup");
 
+  elements.modeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      switchMode(button.dataset.appMode);
+    });
+  });
   elements.mysteryCardButton.addEventListener("click", activateDeck);
   elements.sheetToggle.addEventListener("click", toggleSheet);
   elements.redrawButton.addEventListener("click", redrawReading);
@@ -539,15 +709,50 @@ function buildDeck() {
   return [...majorCards, ...minorCards];
 }
 
+function buildOracleDeck() {
+  const source = Array.isArray(window.ORACLE_PHRASES) ? window.ORACLE_PHRASES : [];
+
+  return source.map((phrase, index) => ({
+    id: `oracle-${index + 1}`,
+    kind: "oracle",
+    name: phrase,
+    phrase
+  }));
+}
+
+function renderModeSwitch() {
+  elements.modeButtons.forEach((button) => {
+    const isActive = button.dataset.appMode === appState.currentMode;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+
+  elements.appShell.dataset.mode = appState.currentMode;
+  elements.appMain.dataset.mode = appState.currentMode;
+}
+
+function switchMode(mode) {
+  if (!mode || mode === appState.currentMode) {
+    return;
+  }
+
+  appState.currentMode = mode;
+  renderModeSwitch();
+  resetExperience();
+}
+
 function renderSpreadPicker() {
-  elements.spreadPicker.innerHTML = spreadCatalog
+  const catalog = getActiveCatalog();
+  const choiceUnit = appState.currentMode === "oracle" ? "pages" : "positions";
+
+  elements.spreadPicker.innerHTML = catalog
     .map(
       (spread) => `
         <button
           type="button"
           class="spread-choice"
           data-spread-id="${spread.id}"
-          aria-label="${spread.name}, ${spread.positions.length} positions"
+          aria-label="${spread.name}, ${spread.positions.length} ${choiceUnit}"
         >
           <span class="spread-choice__meta">${spread.shortLabel}</span>
           <span class="spread-choice__title">${spread.name}</span>
@@ -604,72 +809,101 @@ function clearFocusCountdown() {
 }
 
 function renderSetupStage() {
-  const spread = getSelectedSpread();
+  const selection = getSelectedReadingConfig();
+  const isOracleMode = appState.currentMode === "oracle";
 
   elements.setupStage.classList.toggle("setup-stage--invite", appState.currentStage === "invite");
   elements.setupStage.classList.toggle("setup-stage--spreads", appState.currentStage === "spreads");
   elements.setupStage.classList.toggle("setup-stage--focus", appState.currentStage === "focus");
+  elements.setupStage.classList.toggle("setup-stage--oracle", isOracleMode);
   elements.mysteryCardButton.classList.toggle("is-spinning", appState.currentStage !== "invite");
   elements.spreadChoicePanel.hidden = appState.currentStage !== "spreads";
   elements.focusPanel.hidden = appState.currentStage !== "focus";
+  elements.choiceSectionLabel.textContent = isOracleMode ? "Choose the oracle chapter" : "Choose the reading type";
+  elements.mysteryCardCrest.innerHTML = isOracleMode
+    ? '<i class="bi bi-journal-bookmark-fill"></i>'
+    : '<i class="bi bi-stars"></i>';
 
   if (appState.currentStage === "invite") {
     elements.setupStepLabel.textContent = "Step 1";
-    elements.setupTitle.textContent = "Tap the covered card to wake the deck.";
-    elements.setupBody.textContent =
-      "The card stays mysterious at first. Once you touch it, the ritual begins and the deck starts spinning.";
+    elements.setupTitle.textContent = isOracleMode
+      ? "Tap the covered book to wake the oracle."
+      : "Tap the covered card to wake the deck.";
+    elements.setupBody.textContent = isOracleMode
+      ? "The cover stays closed at first. Once you touch it, the oracle begins turning toward the right page."
+      : "The card stays mysterious at first. Once you touch it, the ritual begins and the deck starts spinning.";
     elements.setupFootnote.textContent = "No question yet. Just start the ritual.";
-    elements.mysteryCardName.textContent = "The deck is hidden";
+    elements.mysteryCardName.textContent = isOracleMode ? "The book is closed" : "The deck is hidden";
     elements.mysteryCardPrompt.textContent = "Tap to begin";
     return;
   }
 
   if (appState.currentStage === "spreads") {
     elements.setupStepLabel.textContent = "Step 2";
-    elements.setupTitle.textContent = "Choose your reading.";
-    elements.setupBody.textContent =
-      "Pick the shape of the reveal while the deck keeps turning.";
-    elements.setupFootnote.textContent = "Five layouts. One tap chooses.";
-    elements.mysteryCardName.textContent = "The deck is turning";
-    elements.mysteryCardPrompt.textContent = "Pick a layout";
+    elements.setupTitle.textContent = isOracleMode
+      ? "Choose the oracle chapter."
+      : "Choose your reading.";
+    elements.setupBody.textContent = isOracleMode
+      ? "While the cover stirs, choose the kind of page wisdom you want to open."
+      : "Pick the shape of the reveal while the deck keeps turning.";
+    elements.setupFootnote.textContent = isOracleMode
+      ? "Five chapters. Three pages will open from the one you choose."
+      : "Five layouts. One tap chooses.";
+    elements.mysteryCardName.textContent = isOracleMode ? "The pages are whispering" : "The deck is turning";
+    elements.mysteryCardPrompt.textContent = isOracleMode ? "Pick a chapter" : "Pick a layout";
     return;
   }
 
-  if (appState.currentStage === "focus" && spread) {
+  if (appState.currentStage === "focus" && selection) {
     elements.setupStepLabel.textContent = "Step 3";
     elements.setupTitle.textContent = "Hold your question in mind for ten slow seconds.";
-    elements.setupBody.textContent =
-      "No typing now. Keep the question private, stay with it quietly, and let the spread settle around it.";
-    elements.setupFootnote.textContent = `Preparing a ${spread.name.toLowerCase()} reading.`;
-    elements.mysteryCardName.textContent = "The question is settling";
-    elements.mysteryCardPrompt.textContent = "The reveal is close";
+    elements.setupBody.textContent = isOracleMode
+      ? "No typing now. Keep the feeling simple and let the right page rise from the book."
+      : "No typing now. Keep the question private, stay with it quietly, and let the spread settle around it.";
+    elements.setupFootnote.textContent = isOracleMode
+      ? `Opening a ${selection.name.toLowerCase()} chapter.`
+      : `Preparing a ${selection.name.toLowerCase()} reading.`;
+    elements.mysteryCardName.textContent = isOracleMode
+      ? "The book is opening"
+      : "The question is settling";
+    elements.mysteryCardPrompt.textContent = isOracleMode ? "The page is almost here" : "The reveal is close";
     updateFocusCountdown();
   }
 }
 
 function updateFocusCountdown() {
-  const spread = getSelectedSpread();
+  const selection = getSelectedReadingConfig();
   const progress = (Math.max(appState.focusCountdown, 0) / 10) * 100;
 
   elements.focusRing.style.setProperty("--countdown-progress", progress);
   elements.focusTimerValue.textContent = String(Math.max(appState.focusCountdown, 0));
-  elements.focusSpreadName.textContent = spread ? spread.name : "";
+  elements.focusSpreadName.textContent = selection ? selection.name : "";
 
   if (appState.focusCountdown > 1) {
-    elements.focusCountdownText.textContent = `${appState.focusCountdown} seconds remaining. Keep the question quietly in mind.`;
+    elements.focusCountdownText.textContent =
+      appState.currentMode === "oracle"
+        ? `${appState.focusCountdown} seconds remaining. Let one clear feeling stay with you.`
+        : `${appState.focusCountdown} seconds remaining. Keep the question quietly in mind.`;
     return;
   }
 
   if (appState.focusCountdown === 1) {
-    elements.focusCountdownText.textContent = "1 second remaining. Let the spread settle.";
+    elements.focusCountdownText.textContent =
+      appState.currentMode === "oracle"
+        ? "1 second remaining. Let the page settle."
+        : "1 second remaining. Let the spread settle.";
     return;
   }
 
-  elements.focusCountdownText.textContent = "Revealing the spread now.";
+  elements.focusCountdownText.textContent =
+    appState.currentMode === "oracle" ? "Opening the oracle now." : "Revealing the spread now.";
 }
 
 function revealReading() {
-  createReading();
+  if (!createReading()) {
+    return;
+  }
+
   showView("reading");
   elements.readingSheet.classList.remove("is-visible", "is-expanded");
   setSheetExpanded(false);
@@ -682,24 +916,41 @@ function revealReading() {
 }
 
 function createReading() {
-  const spread = getSelectedSpread();
+  const selection = getSelectedReadingConfig();
 
-  if (!spread) {
-    return;
+  if (!selection) {
+    return false;
+  }
+
+  if (appState.currentMode === "oracle") {
+    if (oracleDeck.length < selection.positions.length) {
+      return false;
+    }
+
+    disposeArtworkDeck();
+    appState.currentReading = {
+      mode: "oracle",
+      configId: selection.id,
+      draws: drawOraclePages(selection.positions.length, selection)
+    };
+    renderReadingView();
+    return true;
   }
 
   const artworkDeck = getArtworkDeck(buildReadingSeed());
-  const draws = drawCards(spread.positions.length).map((draw) => ({
+  const draws = drawCards(selection.positions.length).map((draw) => ({
     ...draw,
     artUri: artworkDeck.getCardUrl(draw.artIndex)
   }));
 
   appState.currentReading = {
-    spreadId: spread.id,
+    mode: "tarot",
+    configId: selection.id,
     draws
   };
 
   renderReadingView();
+  return true;
 }
 
 function redrawReading() {
@@ -712,7 +963,9 @@ function redrawReading() {
 }
 
 function buildReadingSeed() {
-  return `${appState.selectedSpreadId}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return `${appState.currentMode}-${appState.selectedSpreadId}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}`;
 }
 
 function drawCards(count) {
@@ -729,39 +982,71 @@ function drawCards(count) {
   }));
 }
 
+function drawOraclePages(count, config) {
+  const shuffled = [...oracleDeck];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled.slice(0, count).map((page, index) => ({
+    ...page,
+    artUri: buildOraclePageArt(page.phrase, config, index)
+  }));
+}
+
 function renderReadingView() {
   const reading = appState.currentReading;
-  const spread = spreadCatalog.find((item) => item.id === reading.spreadId);
-  const overallInsight = buildOverallInsight(spread, reading.draws);
 
-  elements.readingTitle.textContent = spread.name;
+  if (!reading) {
+    return;
+  }
+
+  const config = getCatalogForMode(reading.mode).find((item) => item.id === reading.configId);
+
+  if (!config) {
+    return;
+  }
+
+  const overallInsight = buildOverallInsight(reading.mode, config, reading.draws);
+
+  elements.readingTitle.textContent = config.name;
   elements.readingHeadline.textContent = overallInsight.headline;
   elements.readingSummary.textContent = overallInsight.summary;
-  elements.readingGuideText.textContent = buildReadingGuide(spread);
-  elements.readingMeta.textContent = `${spread.positions.length} cards · ${countReversed(reading.draws)} reversed`;
+  elements.readingGuideText.textContent = buildReadingGuide(reading.mode, config);
+  elements.readingMeta.textContent =
+    reading.mode === "oracle"
+      ? `${config.positions.length} pages · oracle book`
+      : `${config.positions.length} cards · ${countReversed(reading.draws)} reversed`;
+  elements.redrawButton.textContent = reading.mode === "oracle" ? "Open new pages" : "Draw again";
 
-  renderReadingBoard(spread, reading.draws);
+  renderReadingBoard(config, reading.draws, reading.mode);
 
   elements.cardsAccordion.innerHTML = reading.draws
-    .map((draw, index) => renderAccordionItem(draw, spread.positions[index], index))
+    .map((draw, index) => renderAccordionItem(draw, config.positions[index], index, config))
     .join("");
 
   elements.readingTakeaways.innerHTML = `
-    <h2 class="takeaways-title">Text Reading</h2>
+    <h2 class="takeaways-title">${reading.mode === "oracle" ? "Oracle Notes" : "Text Reading"}</h2>
     <ul>
       ${overallInsight.takeaways.map((item) => `<li>${item}</li>`).join("")}
     </ul>
   `;
 }
 
-function renderReadingBoard(spread, draws) {
-  elements.readingBoard.className = `reading-board ${spread.layoutClass}`;
+function renderReadingBoard(config, draws, mode) {
+  elements.readingBoard.className = `reading-board ${config.layoutClass}`;
 
-  if (spread.layoutClass === "spread-layout-celtic") {
-    elements.readingBoard.innerHTML = renderCelticBoard(spread, draws);
+  if (mode === "tarot" && config.layoutClass === "spread-layout-celtic") {
+    elements.readingBoard.innerHTML = renderCelticBoard(config, draws);
   } else {
     elements.readingBoard.innerHTML = draws
-      .map((draw, index) => renderReadingPosition(draw, spread.positions[index], index))
+      .map((draw, index) =>
+        renderReadingPosition(draw, config.positions[index], index, {
+          extraClasses: mode === "oracle" ? "reading-position--oracle" : ""
+        })
+      )
       .join("");
   }
 
@@ -820,7 +1105,9 @@ function renderCelticBoard(spread, draws) {
 function renderReadingPosition(draw, position, index, options = {}) {
   const { extraClasses = "", hideCaption = false } = options;
   const className = ["reading-position", extraClasses].filter(Boolean).join(" ");
-  const orientationLabel = draw.isReversed ? "Reversed" : "Upright";
+  const descriptor =
+    draw.kind === "oracle" ? draw.phrase : draw.isReversed ? "Reversed" : "Upright";
+  const artAlt = draw.kind === "oracle" ? `${draw.phrase} oracle page` : `${draw.name} tarot card art`;
 
   return `
     <button
@@ -828,10 +1115,10 @@ function renderReadingPosition(draw, position, index, options = {}) {
       class="${className}"
       data-card-index="${index}"
       aria-controls="reading-collapse-${index}"
-      aria-label="${index + 1}. ${position.title}. ${draw.name}. ${orientationLabel}"
+      aria-label="${index + 1}. ${position.title}. ${descriptor}"
     >
       <div class="reading-position__card ${draw.isReversed ? "reading-position__card--reversed" : ""}">
-        <img src="${draw.artUri}" alt="${draw.name} tarot card art" loading="lazy" />
+        <img src="${draw.artUri}" alt="${artAlt}" loading="lazy" />
       </div>
       ${
         hideCaption
@@ -845,7 +1132,11 @@ function renderReadingPosition(draw, position, index, options = {}) {
   `;
 }
 
-function renderAccordionItem(draw, position, index) {
+function renderAccordionItem(draw, position, index, config) {
+  if (draw.kind === "oracle") {
+    return renderOracleAccordionItem(draw, position, index, config);
+  }
+
   const isFirst = index === 0;
   const headingId = `reading-heading-${index}`;
   const collapseId = `reading-collapse-${index}`;
@@ -902,6 +1193,59 @@ function renderAccordionItem(draw, position, index) {
   `;
 }
 
+function renderOracleAccordionItem(draw, position, index, config) {
+  const isFirst = index === 0;
+  const headingId = `reading-heading-${index}`;
+  const collapseId = `reading-collapse-${index}`;
+
+  return `
+    <div class="accordion-item accordion-item--oracle">
+      <h2 class="accordion-header" id="${headingId}">
+        <button
+          class="accordion-button ${isFirst ? "" : "collapsed"}"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#${collapseId}"
+          aria-expanded="${isFirst ? "true" : "false"}"
+          aria-controls="${collapseId}"
+        >
+          <div class="accordion-button__content">
+            <div class="accordion-step">${position.title}</div>
+            <div class="accordion-title">${draw.phrase}</div>
+            <p class="accordion-summary">${position.summary} · Oracle page ${index + 1}</p>
+          </div>
+        </button>
+      </h2>
+      <div
+        id="${collapseId}"
+        class="accordion-collapse collapse ${isFirst ? "show" : ""}"
+        aria-labelledby="${headingId}"
+      >
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            <div class="card-art-panel">
+              <div class="card-art-frame card-art-frame--oracle">
+                <img src="${draw.artUri}" alt="${draw.phrase} oracle page" loading="lazy" />
+              </div>
+              <div class="card-art-meta">
+                <span>Page ${index + 1}</span>
+                <span>${config.compactHint}</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="accordion-step">${position.title}</div>
+              <p class="accordion-copy mb-0">${position.purpose}</p>
+              <blockquote class="oracle-quote">${draw.phrase}</blockquote>
+              <p class="accordion-copy mb-0">${buildOracleInterpretation(draw, position, index)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function buildCardInterpretation(draw, position) {
   const realmSentence =
     draw.kind === "major"
@@ -915,15 +1259,37 @@ function buildCardInterpretation(draw, position) {
   return `In the ${position.title.toLowerCase()} position, ${realmSentence.toLowerCase()} ${orientationSentence}`;
 }
 
-function buildReadingGuide(spread) {
-  if (spread.positions.length === 1) {
+function buildOracleInterpretation(draw, position, index) {
+  const placementNotes = [
+    "Treat it as the sentence that names the atmosphere around the whole question.",
+    "Treat it as the sentence that adjusts your perspective before you force an answer.",
+    "Treat it as the sentence most likely to become useful in the next real-world step."
+  ];
+
+  return `In the ${position.title.toLowerCase()} page, the oracle says "${draw.phrase}" ${placementNotes[index] || "Let the sentence stay with you for the rest of the day and notice which word continues to echo."}`;
+}
+
+function buildReadingGuide(mode, config) {
+  if (mode === "oracle") {
+    return "Tap any page above to open that oracle note, or pull the interpretation window higher for the full chapter.";
+  }
+
+  if (config.positions.length === 1) {
     return "The interpretation window starts in peek mode. Pull it higher or tap the card if you want the full reading.";
   }
 
   return "Tap any card above to open that part of the spread, or pull the interpretation window higher for the full reading.";
 }
 
-function buildOverallInsight(spread, draws) {
+function buildOverallInsight(mode, config, draws) {
+  if (mode === "oracle") {
+    return buildOracleOverallInsight(config, draws);
+  }
+
+  return buildTarotOverallInsight(config, draws);
+}
+
+function buildTarotOverallInsight(spread, draws) {
   const majorCount = draws.filter((draw) => draw.kind === "major").length;
   const reversedCount = countReversed(draws);
   const leadingSuitKey = getLeadingSuit(draws);
@@ -954,6 +1320,95 @@ function buildOverallInsight(spread, draws) {
       `Use the final position, ${spread.positions[spread.positions.length - 1].title}, as your next-step compass and ask how ${finalDraw.name} wants to be lived out in real life.`
     ]
   };
+}
+
+function buildOracleOverallInsight(config, draws) {
+  const firstPage = draws[0];
+  const secondPage = draws[1];
+  const finalPage = draws[draws.length - 1];
+
+  return {
+    headline: firstPage.phrase,
+    summary: `This ${config.name.toLowerCase()} opens with "${firstPage.phrase}" The middle page turns the chapter toward "${secondPage.phrase}" The final page closes on "${finalPage.phrase}" Read together, the oracle is asking for reflection before force and a simpler trust in what is already forming.`,
+    takeaways: [
+      `Start with ${config.positions[0].title.toLowerCase()}: ${firstPage.phrase}`,
+      `Let the middle page change the tone of the reading: ${secondPage.phrase}`,
+      `Carry the closing page into action: ${finalPage.phrase}`
+    ]
+  };
+}
+
+function buildOraclePageArt(phrase, config, index) {
+  const lines = wrapOraclePhrase(phrase, 16);
+  const label = `Page ${index + 1}`;
+  const svgLines = lines
+    .map(
+      (line, lineIndex) =>
+        `<tspan x="95" dy="${lineIndex === 0 ? 0 : 22}">${escapeSvgText(line)}</tspan>`
+    )
+    .join("");
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 317">
+      <defs>
+        <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${config.palette.paper}"/>
+          <stop offset="100%" stop-color="#ffffff"/>
+        </linearGradient>
+        <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.92"/>
+          <stop offset="100%" stop-color="${config.palette.border}" stop-opacity="0.92"/>
+        </linearGradient>
+      </defs>
+      <rect width="190" height="317" rx="30" fill="url(#paper)"/>
+      <rect x="14" y="14" width="162" height="289" rx="24" fill="url(#edge)" stroke="${config.palette.border}" stroke-width="1.4"/>
+      <rect x="28" y="28" width="134" height="261" rx="18" fill="${config.palette.paper}" stroke="${config.palette.border}" stroke-width="1"/>
+      <path d="M44 52h102" stroke="${config.palette.accent}" stroke-width="2.4" stroke-linecap="round" opacity="0.85"/>
+      <circle cx="95" cy="52" r="5" fill="${config.palette.accent}" opacity="0.92"/>
+      <text x="95" y="86" text-anchor="middle" font-size="12" letter-spacing="3.2" fill="${config.palette.accent}" font-family="Georgia, serif">${label}</text>
+      <text x="95" y="136" text-anchor="middle" font-size="20" fill="${config.palette.ink}" font-family="Georgia, serif">
+        ${svgLines}
+      </text>
+      <text x="95" y="264" text-anchor="middle" font-size="11" letter-spacing="2.8" fill="${config.palette.accent}" font-family="Arial, sans-serif">${escapeSvgText(
+        config.compactHint.toUpperCase()
+      )}</text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg.trim())}`;
+}
+
+function wrapOraclePhrase(phrase, maxCharacters) {
+  const words = phrase.replace(/\.$/, "").split(" ");
+  const lines = [];
+  let currentLine = "";
+
+  words.forEach((word) => {
+    const nextLine = currentLine ? `${currentLine} ${word}` : word;
+
+    if (nextLine.length > maxCharacters && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+      return;
+    }
+
+    currentLine = nextLine;
+  });
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines.slice(0, 5);
+}
+
+function escapeSvgText(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 function createHeadline(spread, draws) {
@@ -1009,8 +1464,16 @@ function countReversed(draws) {
   return draws.filter((draw) => draw.isReversed).length;
 }
 
-function getSelectedSpread() {
-  return spreadCatalog.find((spread) => spread.id === appState.selectedSpreadId);
+function getActiveCatalog() {
+  return getCatalogForMode(appState.currentMode);
+}
+
+function getCatalogForMode(mode) {
+  return mode === "oracle" ? oracleCatalog : spreadCatalog;
+}
+
+function getSelectedReadingConfig() {
+  return getActiveCatalog().find((item) => item.id === appState.selectedSpreadId);
 }
 
 function showView(viewName) {
@@ -1066,6 +1529,7 @@ function resetExperience() {
   elements.readingBoard.innerHTML = "";
   elements.cardsAccordion.innerHTML = "";
   elements.readingTakeaways.innerHTML = "";
+  renderModeSwitch();
   renderSpreadPicker();
   renderSetupStage();
   showView("setup");
