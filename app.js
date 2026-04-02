@@ -525,6 +525,7 @@ const rankDefinitions = [
 const elements = {
   appShell: document.querySelector(".app-shell"),
   appMain: document.querySelector(".app-main"),
+  brandLink: document.querySelector(".brand-mark"),
   modeButtons: Array.from(document.querySelectorAll("[data-app-mode]")),
   modeChoiceButtons: Array.from(document.querySelectorAll("[data-select-mode]")),
   modeChoiceGrid: document.querySelector("#modeChoiceGrid"),
@@ -592,6 +593,10 @@ function initialize() {
     button.addEventListener("click", () => {
       switchMode(button.dataset.appMode);
     });
+  });
+  elements.brandLink?.addEventListener("click", (event) => {
+    event.preventDefault();
+    resetExperience();
   });
   elements.modeChoiceButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -801,8 +806,8 @@ function renderSetupStage() {
     elements.setupFootnote.textContent = isOracleMode
       ? "Choose between one, two, or three pages."
       : "Five layouts. One tap chooses.";
-    elements.mysteryCardName.textContent = isOracleMode ? "The pages are whispering" : "The deck is turning";
-    elements.mysteryCardPrompt.textContent = isOracleMode ? "Pick a form" : "Pick a layout";
+    elements.mysteryCardName.textContent = isOracleMode ? "Pages whisper" : "The deck is turning";
+    elements.mysteryCardPrompt.textContent = isOracleMode ? "Choose pages" : "Pick a layout";
     return;
   }
 

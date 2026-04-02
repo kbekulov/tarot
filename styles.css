@@ -381,7 +381,7 @@ body::before {
 
 .mode-choice__artifact--oracle {
   overflow: visible;
-  border-radius: 1.6rem 1rem 1rem 1.6rem;
+  border-radius: 1rem 0.4rem 0.4rem 1rem;
   background: linear-gradient(160deg, #5b402d 0%, #735235 56%, #8d6540 100%);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.12),
@@ -395,7 +395,7 @@ body::before {
   content: "";
   position: absolute;
   inset: 0.56rem 0.62rem 0.56rem 1.18rem;
-  border-radius: 1.28rem 0.86rem 0.86rem 1.28rem;
+  border-radius: 0.72rem 0.26rem 0.26rem 0.72rem;
   background:
     linear-gradient(
       90deg,
@@ -413,7 +413,7 @@ body::before {
   position: absolute;
   inset: 0.8rem 0.74rem 0.8rem 1.42rem;
   z-index: 1;
-  border-radius: 1.06rem 0.72rem 0.72rem 1.06rem;
+  border-radius: 0.58rem 0.18rem 0.18rem 0.58rem;
   background:
     linear-gradient(90deg, rgba(228, 214, 191, 0.9), rgba(255, 252, 246, 0.56)),
     repeating-linear-gradient(
@@ -450,7 +450,7 @@ body::before {
 
 .mode-choice__artifact--oracle .mode-choice__glyph {
   inset: 0.26rem 0.34rem 0.26rem 0.48rem;
-  border-radius: 1.3rem 0.82rem 0.82rem 1.3rem;
+  border-radius: 0.82rem 0.24rem 0.24rem 0.82rem;
   color: #fffaf2;
   background: linear-gradient(160deg, #7a593d 0%, #9d754b 58%, #bc8c58 100%);
   box-shadow:
@@ -600,7 +600,7 @@ body::before {
   overflow: visible;
   background:
     linear-gradient(160deg, #5b402d 0%, #735235 56%, #8d6540 100%);
-  border-radius: 1.9rem 1.2rem 1.2rem 1.9rem;
+  border-radius: 1.08rem 0.42rem 0.42rem 1.08rem;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.12),
     inset 0.8rem 0 0 rgba(59, 40, 23, 0.34),
@@ -610,7 +610,7 @@ body::before {
 
 .app-shell[data-mode="oracle"] .mystery-card::before {
   inset: 0.75rem 0.8rem 0.75rem 1.45rem;
-  border-radius: 1.55rem 1rem 1rem 1.55rem;
+  border-radius: 0.8rem 0.28rem 0.28rem 0.8rem;
   border-color: rgba(120, 89, 54, 0.18);
   background:
     linear-gradient(
@@ -626,7 +626,7 @@ body::before {
 
 .app-shell[data-mode="oracle"] .mystery-card::after {
   inset: 1rem 0.95rem 1rem 1.82rem;
-  border-radius: 1.25rem 0.82rem 0.82rem 1.25rem;
+  border-radius: 0.62rem 0.18rem 0.18rem 0.62rem;
   border: 0;
   background:
     linear-gradient(90deg, rgba(228, 214, 191, 0.9), rgba(255, 252, 246, 0.56)),
@@ -646,7 +646,7 @@ body::before {
 .app-shell[data-mode="oracle"] .mystery-card__inner {
   inset: 0.44rem 0.56rem 0.44rem 0.72rem;
   z-index: 2;
-  border-radius: 1.55rem 1rem 1rem 1.55rem;
+  border-radius: 0.9rem 0.26rem 0.26rem 0.9rem;
   background:
     linear-gradient(160deg, #7a593d 0%, #9d754b 58%, #bc8c58 100%);
   box-shadow:
@@ -841,11 +841,25 @@ body::before {
 
 .setup-stage--spreads .mystery-card__name {
   font-size: 0.9rem;
+  line-height: 1.08;
+  max-width: 5rem;
 }
 
 .setup-stage--spreads .mystery-card__prompt {
   margin-top: 0.3rem;
   font-size: 0.74rem;
+  line-height: 1.08;
+  max-width: 4.8rem;
+}
+
+.app-shell[data-mode="oracle"] .setup-stage--spreads .mystery-card__name {
+  font-size: 0.7rem;
+  max-width: 4rem;
+}
+
+.app-shell[data-mode="oracle"] .setup-stage--spreads .mystery-card__prompt {
+  font-size: 0.62rem;
+  max-width: 3.8rem;
 }
 
 .app-shell[data-mode="oracle"] .setup-stage--spreads .mystery-card__inner {
