@@ -1329,9 +1329,11 @@ function renderDiceBoard(reading) {
       </div>
       <div class="dice-cast__result dice-cast__result--${result.answerTone}">
         <div class="dice-cast__answer">${result.answer}</div>
-        <div class="dice-cast__total">Total ${result.total}</div>
+        <div class="dice-cast__total">
+          <span class="dice-cast__total-label">Total</span>
+          <span class="dice-cast__total-value">${result.total}</span>
+        </div>
         <p class="dice-cast__copy">${result.explanation}</p>
-        <p class="dice-cast__scale">2-4 = No · 5-8 = Maybe · 9-12 = Yes</p>
         <button id="diceRollButton" class="btn btn-ios btn-ios--secondary" type="button">
           Roll again
         </button>
