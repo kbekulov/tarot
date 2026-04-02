@@ -844,8 +844,8 @@ body::after {
   max-width: 9rem;
 }
 
-.mode-choice[data-select-mode="dice"] .mode-choice__title {
-  margin-top: 0.18rem;
+.mode-choice[data-select-mode="dice"] .mode-choice__artifact {
+  margin-bottom: 1.55rem;
 }
 
 .app-shell[data-mode="dice"] .btn-ios--secondary,
