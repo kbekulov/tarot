@@ -1140,8 +1140,8 @@ function buildDiceReading(config) {
         startX: "-4.6rem",
         startY: "-4.8rem",
         startRotate: `${randomBetween(-260, -170)}deg`,
-        endX: "-0.85rem",
-        endY: "0.2rem"
+        endX: "-4.1rem",
+        endY: "0.24rem"
       },
       {
         kind: "dice",
@@ -1151,8 +1151,8 @@ function buildDiceReading(config) {
         startX: "4.9rem",
         startY: "-4.2rem",
         startRotate: `${randomBetween(175, 255)}deg`,
-        endX: "0.95rem",
-        endY: "0.1rem"
+        endX: "3rem",
+        endY: "0rem"
       }
     ],
     result: {
