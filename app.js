@@ -3,6 +3,7 @@ const spreadCatalog = [
     id: "single",
     name: "Single Card Insight",
     shortLabel: "1 card",
+    compactHint: "Quick answer",
     description: "A quick pulse check when you need one clean message.",
     layoutClass: "spread-layout-single",
     positions: [
@@ -17,6 +18,7 @@ const spreadCatalog = [
     id: "three",
     name: "Past, Present, Future",
     shortLabel: "3 cards",
+    compactHint: "Timeline",
     description: "A classic timeline spread for understanding how a situation is moving.",
     layoutClass: "spread-layout-three",
     positions: [
@@ -41,6 +43,7 @@ const spreadCatalog = [
     id: "relationship",
     name: "Relationship Mirror",
     shortLabel: "4 cards",
+    compactHint: "Two-person read",
     description: "Useful for partnerships, dating dynamics, and any two-person connection.",
     layoutClass: "spread-layout-relationship",
     positions: [
@@ -70,6 +73,7 @@ const spreadCatalog = [
     id: "decision",
     name: "Decision Compass",
     shortLabel: "5 cards",
+    compactHint: "Compare paths",
     description: "Compares two paths and highlights what supports a wiser choice.",
     layoutClass: "spread-layout-decision",
     positions: [
@@ -104,6 +108,7 @@ const spreadCatalog = [
     id: "celtic",
     name: "Celtic Cross Classic",
     shortLabel: "10 cards",
+    compactHint: "Deep dive",
     description: "A fuller reading for layered questions, crossroads, and major life turns.",
     layoutClass: "spread-layout-celtic",
     positions: [
@@ -438,6 +443,7 @@ const rankDefinitions = [
 
 const elements = {
   appMain: document.querySelector(".app-main"),
+  setupStage: document.querySelector(".setup-stage"),
   mysteryCardButton: document.querySelector("#mysteryCardButton"),
   mysteryCardName: document.querySelector(".mystery-card__name"),
   mysteryCardPrompt: document.querySelector(".mystery-card__prompt"),
@@ -543,13 +549,9 @@ function renderSpreadPicker() {
           data-spread-id="${spread.id}"
           aria-label="${spread.name}, ${spread.positions.length} positions"
         >
-          <div class="spread-choice__row">
-            <div>
-              <div class="spread-choice__title">${spread.name}</div>
-              <p class="spread-choice__description">${spread.description}</p>
-            </div>
-            <span class="spread-choice__meta">${spread.shortLabel}</span>
-          </div>
+          <span class="spread-choice__meta">${spread.shortLabel}</span>
+          <span class="spread-choice__title">${spread.name}</span>
+          <span class="spread-choice__hint">${spread.compactHint}</span>
         </button>
       `
     )
@@ -604,6 +606,9 @@ function clearFocusCountdown() {
 function renderSetupStage() {
   const spread = getSelectedSpread();
 
+  elements.setupStage.classList.toggle("setup-stage--invite", appState.currentStage === "invite");
+  elements.setupStage.classList.toggle("setup-stage--spreads", appState.currentStage === "spreads");
+  elements.setupStage.classList.toggle("setup-stage--focus", appState.currentStage === "focus");
   elements.mysteryCardButton.classList.toggle("is-spinning", appState.currentStage !== "invite");
   elements.spreadChoicePanel.hidden = appState.currentStage !== "spreads";
   elements.focusPanel.hidden = appState.currentStage !== "focus";
@@ -621,12 +626,12 @@ function renderSetupStage() {
 
   if (appState.currentStage === "spreads") {
     elements.setupStepLabel.textContent = "Step 2";
-    elements.setupTitle.textContent = "Choose the type of reading you want.";
+    elements.setupTitle.textContent = "Choose your reading.";
     elements.setupBody.textContent =
-      "While the card spins, choose how much guidance you want from the deck.";
-    elements.setupFootnote.textContent = "One spread will shape the whole reading.";
+      "Pick the shape of the reveal while the deck keeps turning.";
+    elements.setupFootnote.textContent = "Five layouts. One tap chooses.";
     elements.mysteryCardName.textContent = "The deck is turning";
-    elements.mysteryCardPrompt.textContent = "Choose a spread below";
+    elements.mysteryCardPrompt.textContent = "Pick a layout";
     return;
   }
 
