@@ -1145,7 +1145,9 @@ body::before {
 .reading-board--oracle-3 {
   --card-width: clamp(82px, 24vw, 108px);
   --oracle-gap: clamp(0.3rem, 1.8vw, 0.6rem);
-  grid-template-columns: repeat(3, max-content);
+  width: min(100%, calc(var(--card-width) * 3 + var(--oracle-gap) * 2));
+  max-width: calc(var(--card-width) * 3 + var(--oracle-gap) * 2);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--oracle-gap);
   justify-content: center;
   align-items: end;
@@ -1154,7 +1156,9 @@ body::before {
 .reading-board--oracle-2 {
   --card-width: clamp(114px, 34vw, 136px);
   --oracle-gap: clamp(0.5rem, 2.3vw, 0.85rem);
-  grid-template-columns: repeat(2, max-content);
+  width: min(100%, calc(var(--card-width) * 2 + var(--oracle-gap)));
+  max-width: calc(var(--card-width) * 2 + var(--oracle-gap));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--oracle-gap);
   justify-content: center;
   align-items: end;
@@ -1162,7 +1166,9 @@ body::before {
 
 .reading-board--oracle-1 {
   --card-width: clamp(154px, 52vw, 186px);
-  grid-template-columns: max-content;
+  width: min(100%, var(--card-width));
+  max-width: var(--card-width);
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.5rem;
   justify-content: center;
 }
@@ -1265,7 +1271,7 @@ body::before {
 }
 
 .reading-position--oracle .reading-position__card {
-  border-radius: 0.9rem 0.4rem 0.4rem 0.78rem;
+  border-radius: 0.42rem;
   background:
     linear-gradient(180deg, rgba(255, 252, 246, 0.98), rgba(247, 241, 229, 0.92));
   box-shadow:
@@ -1280,6 +1286,13 @@ body::before {
   align-content: center;
   justify-content: center;
   perspective: 1200px;
+}
+
+.reading-board--oracle-3 .reading-position--oracle,
+.reading-board--oracle-2 .reading-position--oracle,
+.reading-board--oracle-1 .reading-position--oracle {
+  width: 100%;
+  max-width: var(--card-width);
 }
 
 .reading-board--oracle-3 .reading-position--oracle:nth-child(1) .reading-position__card {
