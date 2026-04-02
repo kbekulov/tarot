@@ -563,7 +563,27 @@ body::before {
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph::after {
-  content: none;
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 196%;
+  height: 94%;
+  border-radius: 999px;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 18%,
+      rgba(247, 252, 255, 0.11) 18%,
+      rgba(247, 252, 255, 0.11) 74%,
+      transparent 74%,
+      transparent 100%
+    );
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: mirror-streak-cross-down 15.8s ease-in-out infinite 3.1s;
 }
 
 .mode-choice__artifact--archetype .mode-choice__glyph i {
@@ -840,7 +860,27 @@ body::before {
 }
 
 .app-shell[data-mode="archetype"] .mystery-card__inner::after {
-  content: none;
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 208%;
+  height: 88%;
+  border-radius: 999px;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 14%,
+      rgba(247, 252, 255, 0.12) 14%,
+      rgba(247, 252, 255, 0.12) 70%,
+      transparent 70%,
+      transparent 100%
+    );
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: mirror-streak-cross-down 16.9s ease-in-out infinite 2.6s;
 }
 
 .app-shell[data-mode="archetype"] .mystery-card.is-mirroring {
@@ -2181,6 +2221,28 @@ body::before {
   54%,
   100% {
     transform: translate(-50%, 155%) rotate(-33deg);
+    opacity: 0;
+  }
+}
+
+@keyframes mirror-streak-cross-down {
+  0%,
+  10% {
+    transform: translate(-66%, -195%) rotate(23deg);
+    opacity: 0;
+  }
+
+  24% {
+    opacity: 0.18;
+  }
+
+  44% {
+    opacity: 0.1;
+  }
+
+  58%,
+  100% {
+    transform: translate(-32%, 150%) rotate(23deg);
     opacity: 0;
   }
 }
