@@ -674,15 +674,15 @@ body::after {
 }
 
 .mode-choice__artifact--dice {
-  width: 5.9rem;
-  aspect-ratio: 1 / 1;
+  width: 5.7rem;
+  aspect-ratio: 190 / 317;
   overflow: visible;
 }
 
 .mode-choice__die {
   position: absolute;
-  width: 3rem;
-  height: 3rem;
+  width: 3.08rem;
+  height: 3.08rem;
   border-radius: 0.9rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 237, 226, 0.92));
@@ -715,15 +715,15 @@ body::after {
 }
 
 .mode-choice__die--one {
-  left: 0.38rem;
-  top: 1.16rem;
+  left: 0.28rem;
+  top: 2.94rem;
   transform: rotate(-12deg);
   animation: intro-dice-left 2.6s ease-in-out infinite;
 }
 
 .mode-choice__die--two {
-  right: 0.42rem;
-  top: 0.46rem;
+  right: 0.22rem;
+  top: 2.28rem;
   transform: rotate(11deg);
   animation: intro-dice-right 2.6s ease-in-out infinite 0.12s;
 }
@@ -842,10 +842,6 @@ body::after {
 .mode-choice[data-select-mode="dice"] .mode-choice__text,
 .mode-choice[data-select-mode="archetype"] .mode-choice__text {
   max-width: 9rem;
-}
-
-.mode-choice[data-select-mode="dice"] .mode-choice__artifact {
-  margin-bottom: 1.55rem;
 }
 
 .app-shell[data-mode="dice"] .btn-ios--secondary,
