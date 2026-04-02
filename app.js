@@ -528,7 +528,7 @@ function renderSpreadPicker() {
   elements.spreadPicker.innerHTML = spreadCatalog
     .map(
       (spread) => `
-        <div class="col-md-6">
+        <div class="col-12">
           <button
             type="button"
             class="spread-choice ${spread.id === appState.selectedSpreadId ? "is-active" : ""}"
@@ -537,10 +537,16 @@ function renderSpreadPicker() {
           >
             <div class="spread-choice__top">
               <span class="spread-choice__meta">${spread.shortLabel}</span>
-              <i class="bi bi-sparkles"></i>
+              <span class="spread-choice__icon">
+                <i class="bi ${spread.id === appState.selectedSpreadId ? "bi-check2" : "bi-chevron-right"}"></i>
+              </span>
             </div>
             <div class="spread-choice__title">${spread.name}</div>
             <p class="spread-choice__description">${spread.description}</p>
+            <div class="spread-choice__footer">
+              <span>${spread.positions.length} positions</span>
+              <span>${spread.id === appState.selectedSpreadId ? "Selected" : "Tap to choose"}</span>
+            </div>
           </button>
         </div>
       `

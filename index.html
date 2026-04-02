@@ -3,16 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#eef4fb" />
     <title>Tarot Atlas | Focused Tarot Readings</title>
     <meta
       name="description"
       content="Choose a tarot spread, ask your question, and reveal a focused tarot reading inside a simple app-style experience."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap"
-      rel="stylesheet"
     />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -83,121 +78,133 @@
           </aside>
 
           <main class="app-main">
-            <section id="setupView" class="experience-view">
-              <div class="view-header">
+            <div class="app-main__inner">
+              <div class="app-topbar">
                 <div>
-                  <div class="view-kicker">Setup</div>
-                  <h1 class="view-title">Pick the spread and ask the question.</h1>
-                  <p class="view-copy mb-0">
-                    This version stays intentionally compact: no long intro, no extra sections, just
-                    the controls you need before the reading begins.
-                  </p>
+                  <div class="app-topbar__eyebrow">Tarot Atlas</div>
+                  <div class="app-topbar__caption">A calm, native-style tarot reading flow.</div>
+                </div>
+                <div class="app-topbar__badge">
+                  <i class="bi bi-phone me-2"></i>iOS-inspired interface
                 </div>
               </div>
 
-              <div class="row g-4">
-                <div class="col-xl-7">
-                  <div class="surface-card h-100">
-                    <div class="surface-header">
-                      <div>
-                        <div class="surface-kicker">Spread styles</div>
-                        <h2 class="surface-title">Choose the shape of the reading</h2>
-                      </div>
-                    </div>
-                    <div id="spreadPicker" class="row g-3"></div>
-                  </div>
-                </div>
-
-                <div class="col-xl-5">
-                  <div class="surface-card h-100">
-                    <div class="surface-header">
-                      <div>
-                        <div class="surface-kicker">Question</div>
-                        <h2 class="surface-title">Focus the reading</h2>
-                      </div>
-                    </div>
-
-                    <div class="focus-note">
-                      <div class="focus-note__label">Current layout</div>
-                      <div id="setupSpreadName" class="focus-note__title"></div>
-                      <p id="setupSpreadMeta" class="focus-note__copy mb-0"></p>
-                    </div>
-
-                    <label class="form-label text-uppercase small tracking" for="questionInput">
-                      What do you want insight on?
-                    </label>
-                    <textarea
-                      id="questionInput"
-                      class="form-control form-control-lg question-box"
-                      rows="7"
-                      maxlength="240"
-                      placeholder="What should I understand about the relationship, choice, change, or pattern in front of me right now?"
-                    ></textarea>
-                    <div class="invalid-feedback">
-                      Write a question first so the reading has a clear center.
-                    </div>
-
-                    <div class="helper-note">
-                      Ask for insight, direction, or understanding. Your question also seeds the visual
-                      deck, so the artwork stays consistent as you redraw the reading.
-                    </div>
-
-                    <div class="d-grid">
-                      <button id="drawButton" class="btn btn-draw btn-lg" type="button">
-                        <i class="bi bi-stars me-2"></i>Reveal my reading
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="readingView" class="experience-view" hidden>
-              <div class="view-header view-header--reading">
-                <div>
-                  <div class="view-kicker">Reading</div>
-                  <h1 id="readingTitle" class="view-title"></h1>
-                  <p class="results-question mb-0">
-                    Question:
-                    <span id="readingQuestion"></span>
-                  </p>
-                </div>
-
-                <div class="view-actions">
-                  <button id="backButton" class="btn btn-outline-light" type="button">
-                    Refine setup
-                  </button>
-                  <button id="redrawButton" class="btn btn-outline-light" type="button">
-                    Draw again
-                  </button>
-                  <button id="resetButton" class="btn btn-light" type="button">
-                    New reading
-                  </button>
-                </div>
-              </div>
-
-              <div class="summary-card">
-                <div class="summary-top">
-                  <span id="readingMeta" class="rail-chip"></span>
-                </div>
-                <div id="readingSummary"></div>
-              </div>
-
-              <div class="surface-card">
-                <div class="surface-header">
+              <section id="setupView" class="experience-view">
+                <div class="view-header">
                   <div>
-                    <div class="surface-kicker">Spread map</div>
-                    <h2 class="surface-title">Open each position</h2>
+                    <div class="view-kicker">Setup</div>
+                    <h1 class="view-title">Choose the spread. Ask the question. Let the reading slide in.</h1>
+                    <p class="view-copy mb-0">
+                      The layout now leans into a native app feel: grouped surfaces, calm spacing,
+                      and just the controls you need before the cards appear.
+                    </p>
                   </div>
                 </div>
 
-                <div id="positionTimeline" class="timeline-grid"></div>
+                <div class="row g-4">
+                  <div class="col-xl-7">
+                    <div class="surface-card h-100">
+                      <div class="surface-header">
+                        <div>
+                          <div class="surface-kicker">Spread styles</div>
+                          <h2 class="surface-title">Pick a reading style</h2>
+                        </div>
+                      </div>
+                      <div id="spreadPicker" class="row g-3"></div>
+                    </div>
+                  </div>
 
-                <div id="cardsAccordion" class="accordion reading-accordion"></div>
-              </div>
+                  <div class="col-xl-5">
+                    <div class="surface-card h-100">
+                      <div class="surface-header">
+                        <div>
+                          <div class="surface-kicker">Question</div>
+                          <h2 class="surface-title">Focus the session</h2>
+                        </div>
+                      </div>
 
-              <div id="readingTakeaways" class="takeaways-card"></div>
-            </section>
+                      <div class="focus-note">
+                        <div class="focus-note__label">Current layout</div>
+                        <div id="setupSpreadName" class="focus-note__title"></div>
+                        <p id="setupSpreadMeta" class="focus-note__copy mb-0"></p>
+                      </div>
+
+                      <label class="form-label text-uppercase small tracking" for="questionInput">
+                        What do you want insight on?
+                      </label>
+                      <textarea
+                        id="questionInput"
+                        class="form-control form-control-lg question-box"
+                        rows="7"
+                        maxlength="240"
+                        placeholder="What should I understand about the relationship, choice, change, or pattern in front of me right now?"
+                      ></textarea>
+                      <div class="invalid-feedback">
+                        Write a question first so the reading has a clear center.
+                      </div>
+
+                      <div class="helper-note">
+                        Ask for insight, direction, or understanding. The wording of your question
+                        also seeds the visual deck, so the artwork stays consistent as you redraw.
+                      </div>
+
+                      <div class="d-grid">
+                        <button id="drawButton" class="btn btn-draw btn-lg" type="button">
+                          <i class="bi bi-stars me-2"></i>Reveal my reading
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="readingView" class="experience-view" hidden>
+                <div class="view-header view-header--reading">
+                  <div>
+                    <div class="view-kicker">Reading</div>
+                    <h1 id="readingTitle" class="view-title"></h1>
+                    <p class="results-question mb-0">
+                      Question:
+                      <span id="readingQuestion"></span>
+                    </p>
+                  </div>
+
+                  <div class="view-actions">
+                    <button id="backButton" class="btn btn-ios btn-ios--ghost" type="button">
+                      Refine setup
+                    </button>
+                    <button id="redrawButton" class="btn btn-ios btn-ios--secondary" type="button">
+                      Draw again
+                    </button>
+                    <button id="resetButton" class="btn btn-ios btn-ios--primary" type="button">
+                      New reading
+                    </button>
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="summary-top">
+                    <span id="readingMeta" class="rail-chip"></span>
+                  </div>
+                  <div id="readingSummary"></div>
+                </div>
+
+                <div class="surface-card">
+                  <div class="surface-header">
+                    <div>
+                      <div class="surface-kicker">Spread map</div>
+                      <h2 class="surface-title">Open each position</h2>
+                    </div>
+                  </div>
+
+                  <div id="positionTimeline" class="timeline-grid"></div>
+
+                  <div id="cardsAccordion" class="accordion reading-accordion"></div>
+                </div>
+
+                <div id="readingTakeaways" class="takeaways-card"></div>
+              </section>
+            </div>
           </main>
         </div>
       </div>
