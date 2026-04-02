@@ -869,12 +869,12 @@ function renderSetupStage() {
     elements.setupBody.textContent = isOracleMode
       ? "While the book opens, choose a straight answer, a now-and-then pair, or a past-present-future path."
       : isArchetypeMode
-        ? "Choose the inner pattern you want to examine."
+        ? "Choose the spread that best matches the pattern you want to see clearly."
         : "Pick the shape of the reveal while the deck keeps turning.";
     elements.setupFootnote.textContent = isOracleMode
       ? "Choose between one, two, or three pages."
       : isArchetypeMode
-        ? "Three reflective spreads."
+        ? "Each spread reflects a different kind of inner structure."
         : "Five layouts. One tap chooses.";
     elements.mysteryCardName.textContent = isOracleMode
       ? "Pages whisper"

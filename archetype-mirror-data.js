@@ -5,7 +5,7 @@
       name: "Quick Mirror",
       shortLabel: "3 positions",
       compactHint: "Fast reflection",
-      pickerHint: "Mask, hidden force, next move.",
+      pickerHint: "See what you show, what drives it, and the next honest move.",
       description: "A compact spread for the part you present, the force working underneath, and the next integrating move.",
       layoutClass: "spread-layout-three",
       intro:
@@ -39,7 +39,7 @@
       name: "Inner Tension",
       shortLabel: "4 positions",
       compactHint: "Inner conflict",
-      pickerHint: "Awareness, pressure, conflict, resolve.",
+      pickerHint: "Track the split between awareness, pressure, conflict, and repair.",
       description: "A four-part spread for what you know, what presses from below, where conflict forms, and how it can resolve.",
       layoutClass: "spread-layout-relationship",
       intro:
@@ -80,7 +80,7 @@
       name: "Relationship Pattern",
       shortLabel: "5 positions",
       compactHint: "Relational loop",
-      pickerHint: "Show, want, fear, repeat, change.",
+      pickerHint: "Trace what you show, want, fear, repeat, and need to change.",
       description: "A deeper spread for recurring patterns in closeness, projection, fear, repetition, and change.",
       layoutClass: "spread-layout-pattern",
       intro:
