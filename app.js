@@ -1670,18 +1670,25 @@ function buildOraclePageArt(page, config, index) {
 }
 
 function buildArchetypeCardArt(archetype, config, index) {
-  const titleLines = wrapOracleText(archetype.name, 15, 2);
-  const summaryLines = wrapOracleText(archetype.shortDescription, 18, 4);
+  const titleLines = wrapOracleText(archetype.name, 16, 2);
+  const summaryLines = wrapOracleText(archetype.shortDescription, 21, 4);
+  const titleY = titleLines.length > 1 ? 158 : 164;
+  const titleLineStep = titleLines.length > 1 ? 14 : 15;
+  const titleFontSize = titleLines.length > 1 ? 14.5 : 15.5;
+  const summaryY = titleLines.length > 1 ? 198 : 205;
+  const summaryLineStep = summaryLines.length > 3 ? 12 : 13;
+  const summaryFontSize = summaryLines.length > 3 ? 10.8 : 11.6;
+  const footerY = 276;
   const titleSvgLines = titleLines
     .map(
       (line, lineIndex) =>
-        `<tspan x="95" dy="${lineIndex === 0 ? 0 : 16}">${escapeSvgText(line)}</tspan>`
+        `<tspan x="95" dy="${lineIndex === 0 ? 0 : titleLineStep}">${escapeSvgText(line)}</tspan>`
     )
     .join("");
   const summarySvgLines = summaryLines
     .map(
       (line, lineIndex) =>
-        `<tspan x="95" dy="${lineIndex === 0 ? 0 : 15}">${escapeSvgText(line)}</tspan>`
+        `<tspan x="95" dy="${lineIndex === 0 ? 0 : summaryLineStep}">${escapeSvgText(line)}</tspan>`
     )
     .join("");
 
@@ -1704,16 +1711,16 @@ function buildArchetypeCardArt(archetype, config, index) {
       <circle cx="95" cy="84" r="28" fill="none" stroke="${archetype.accent.accent}" stroke-width="2.2" opacity="0.8"/>
       <circle cx="95" cy="84" r="8" fill="${archetype.accent.accent}" opacity="0.92"/>
       <path d="M58 84h74" stroke="${archetype.accent.accent}" stroke-width="1.8" opacity="0.62"/>
-      <text x="95" y="134" text-anchor="middle" font-size="12" letter-spacing="2.2" fill="${archetype.accent.accent}" font-family="Arial, sans-serif">ARCHETYPE ${
+      <text x="95" y="132" text-anchor="middle" font-size="10.8" letter-spacing="1.8" fill="${archetype.accent.accent}" font-family="Arial, sans-serif">ARCHETYPE ${
         index + 1
       }</text>
-      <text x="95" y="164" text-anchor="middle" font-size="16" fill="${archetype.accent.ink}" font-family="Georgia, serif">
+      <text x="95" y="${titleY}" text-anchor="middle" font-size="${titleFontSize}" fill="${archetype.accent.ink}" font-family="Georgia, serif">
         ${titleSvgLines}
       </text>
-      <text x="95" y="214" text-anchor="middle" font-size="12.5" fill="${archetype.accent.ink}" opacity="0.82" font-family="Arial, sans-serif">
+      <text x="95" y="${summaryY}" text-anchor="middle" font-size="${summaryFontSize}" fill="${archetype.accent.ink}" opacity="0.82" font-family="Arial, sans-serif">
         ${summarySvgLines}
       </text>
-      <text x="95" y="266" text-anchor="middle" font-size="11" letter-spacing="2.5" fill="${archetype.accent.accent}" font-family="Arial, sans-serif">${escapeSvgText(
+      <text x="95" y="${footerY}" text-anchor="middle" font-size="10.2" letter-spacing="1.9" fill="${archetype.accent.accent}" font-family="Arial, sans-serif">${escapeSvgText(
         config.compactHint.toUpperCase()
       )}</text>
     </svg>
