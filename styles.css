@@ -601,7 +601,7 @@ body::before {
 }
 
 .reading-stage {
-  --sheet-peek: 7.25rem;
+  --sheet-peek: 5.35rem;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -648,7 +648,7 @@ body::before {
   justify-content: center;
   align-items: start;
   padding-top: 0.2rem;
-  padding-bottom: calc(var(--sheet-peek) + 0.85rem);
+  padding-bottom: calc(var(--sheet-peek) + 0.55rem);
 }
 
 .reading-board {
@@ -889,12 +889,12 @@ body::before {
 .reading-sheet__handle {
   appearance: none;
   width: 100%;
-  padding: 0.7rem 1rem 0.45rem;
+  padding: 0.5rem 1rem 0.3rem;
   border: 0;
   background: transparent;
   display: grid;
   justify-items: center;
-  gap: 0.4rem;
+  gap: 0.28rem;
   color: var(--text-soft);
   font: inherit;
 }
@@ -907,7 +907,7 @@ body::before {
 }
 
 .reading-sheet__inner {
-  height: calc(100% - 3.6rem);
+  height: calc(100% - 3rem);
   overflow-y: auto;
   padding: 0 1rem 1rem;
   display: grid;
@@ -1204,7 +1204,7 @@ body::before {
 
 @media (max-height: 760px) {
   .reading-stage {
-    --sheet-peek: 6.35rem;
+    --sheet-peek: 4.75rem;
   }
 
   .setup-stage--spreads {
