@@ -601,6 +601,7 @@ body::before {
 }
 
 .reading-stage {
+  --sheet-peek: 7.25rem;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -647,7 +648,7 @@ body::before {
   justify-content: center;
   align-items: start;
   padding-top: 0.2rem;
-  padding-bottom: 12.5rem;
+  padding-bottom: calc(var(--sheet-peek) + 0.85rem);
 }
 
 .reading-board {
@@ -878,7 +879,7 @@ body::before {
 }
 
 .reading-sheet.is-visible {
-  transform: translateY(calc(100% - 13rem));
+  transform: translateY(calc(100% - var(--sheet-peek)));
 }
 
 .reading-sheet.is-visible.is-expanded {
@@ -1202,6 +1203,10 @@ body::before {
 }
 
 @media (max-height: 760px) {
+  .reading-stage {
+    --sheet-peek: 6.35rem;
+  }
+
   .setup-stage--spreads {
     grid-template-rows: minmax(5.8rem, 6.6rem) minmax(0, 1fr);
   }
