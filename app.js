@@ -526,6 +526,8 @@ const elements = {
   appShell: document.querySelector(".app-shell"),
   appMain: document.querySelector(".app-main"),
   modeButtons: Array.from(document.querySelectorAll("[data-app-mode]")),
+  modeChoiceButtons: Array.from(document.querySelectorAll("[data-select-mode]")),
+  modeChoiceGrid: document.querySelector("#modeChoiceGrid"),
   setupStage: document.querySelector(".setup-stage"),
   mysteryCardButton: document.querySelector("#mysteryCardButton"),
   mysteryCardCrest: document.querySelector(".mystery-card__crest"),
@@ -566,10 +568,10 @@ const elements = {
 const tarotDeck = buildDeck();
 const oracleDeck = buildOracleDeck();
 const appState = {
-  currentMode: "tarot",
+  currentMode: null,
   selectedSpreadId: null,
   currentView: "setup",
-  currentStage: "invite",
+  currentStage: "mode",
   currentReading: null,
   artworkDeck: null,
   artworkSeed: "",
@@ -591,7 +593,11 @@ function initialize() {
       switchMode(button.dataset.appMode);
     });
   });
-  elements.mysteryCardButton.addEventListener("click", activateDeck);
+  elements.modeChoiceButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      startModeFlow(button.dataset.selectMode);
+    });
+  });
   elements.sheetToggle.addEventListener("click", toggleSheet);
   elements.redrawButton.addEventListener("click", redrawReading);
   elements.redrawTopButton.addEventListener("click", redrawReading);
@@ -653,8 +659,8 @@ function renderModeSwitch() {
     button.setAttribute("aria-pressed", isActive ? "true" : "false");
   });
 
-  elements.appShell.dataset.mode = appState.currentMode;
-  elements.appMain.dataset.mode = appState.currentMode;
+  elements.appShell.dataset.mode = appState.currentMode || "chooser";
+  elements.appMain.dataset.mode = appState.currentMode || "chooser";
 }
 
 function switchMode(mode) {
@@ -662,14 +668,36 @@ function switchMode(mode) {
     return;
   }
 
+  startModeFlow(mode);
+}
+
+function startModeFlow(mode) {
+  if (!mode) {
+    return;
+  }
+
+  clearFocusCountdown();
+  disposeArtworkDeck();
+  clearReadingSurface();
   appState.currentMode = mode;
+  appState.selectedSpreadId = null;
+  appState.currentStage = "spreads";
+  appState.currentReading = null;
+  appState.sheetExpanded = false;
   renderModeSwitch();
-  resetExperience();
+  renderSpreadPicker();
+  renderSetupStage();
+  showView("setup");
 }
 
 function renderSpreadPicker() {
   const catalog = getActiveCatalog();
   const choiceUnit = appState.currentMode === "oracle" ? "pages" : "positions";
+
+  if (!catalog.length) {
+    elements.spreadPicker.innerHTML = "";
+    return;
+  }
 
   elements.spreadPicker.innerHTML = catalog
     .map(
@@ -693,15 +721,6 @@ function renderSpreadPicker() {
       selectSpread(button.dataset.spreadId);
     });
   });
-}
-
-function activateDeck() {
-  if (appState.currentStage !== "invite") {
-    return;
-  }
-
-  appState.currentStage = "spreads";
-  renderSetupStage();
 }
 
 function selectSpread(spreadId) {
@@ -736,15 +755,22 @@ function clearFocusCountdown() {
 
 function renderSetupStage() {
   const selection = getSelectedReadingConfig();
+  const isModeStage = appState.currentStage === "mode";
   const isOracleMode = appState.currentMode === "oracle";
-  const shouldAnimate = appState.currentStage !== "invite";
+  const shouldAnimate = appState.currentStage === "spreads" || appState.currentStage === "focus";
 
-  elements.setupStage.classList.toggle("setup-stage--invite", appState.currentStage === "invite");
+  elements.appMain.classList.toggle(
+    "is-mode-select",
+    appState.currentView === "setup" && appState.currentStage === "mode"
+  );
+  elements.setupStage.classList.toggle("setup-stage--mode", isModeStage);
   elements.setupStage.classList.toggle("setup-stage--spreads", appState.currentStage === "spreads");
   elements.setupStage.classList.toggle("setup-stage--focus", appState.currentStage === "focus");
   elements.setupStage.classList.toggle("setup-stage--oracle", isOracleMode);
   elements.mysteryCardButton.classList.toggle("is-spinning", shouldAnimate && !isOracleMode);
   elements.mysteryCardButton.classList.toggle("is-flipping", shouldAnimate && isOracleMode);
+  elements.modeChoiceGrid.hidden = !isModeStage;
+  elements.mysteryCardButton.hidden = isModeStage;
   elements.spreadChoicePanel.hidden = appState.currentStage !== "spreads";
   elements.focusPanel.hidden = appState.currentStage !== "focus";
   elements.choiceSectionLabel.textContent = isOracleMode ? "Choose the oracle form" : "Choose the reading type";
@@ -752,17 +778,12 @@ function renderSetupStage() {
     ? '<i class="bi bi-journal-bookmark-fill"></i>'
     : '<i class="bi bi-stars"></i>';
 
-  if (appState.currentStage === "invite") {
+  if (isModeStage) {
     elements.setupStepLabel.textContent = "Step 1";
-    elements.setupTitle.textContent = isOracleMode
-      ? "Tap the covered book to wake the oracle."
-      : "Tap the covered card to wake the deck.";
-    elements.setupBody.textContent = isOracleMode
-      ? "The cover stays closed at first. Once you touch it, the oracle begins turning toward the right page."
-      : "The card stays mysterious at first. Once you touch it, the ritual begins and the deck starts spinning.";
-    elements.setupFootnote.textContent = "No question yet. Just start the ritual.";
-    elements.mysteryCardName.textContent = isOracleMode ? "The book is closed" : "The deck is hidden";
-    elements.mysteryCardPrompt.textContent = "Tap to begin";
+    elements.setupTitle.textContent = "Choose Tarot or Oracle to begin.";
+    elements.setupBody.textContent =
+      "Pick the style of guidance you want first. Tarot is best when you want structure and positions. Oracle is best when you want a fast, page-like message.";
+    elements.setupFootnote.textContent = "Choose either one to move straight into the ritual.";
     return;
   }
 
@@ -1426,10 +1447,22 @@ function getActiveCatalog() {
 }
 
 function getCatalogForMode(mode) {
-  return mode === "oracle" ? oracleCatalog : spreadCatalog;
+  if (mode === "oracle") {
+    return oracleCatalog;
+  }
+
+  if (mode === "tarot") {
+    return spreadCatalog;
+  }
+
+  return [];
 }
 
 function getSelectedReadingConfig() {
+  if (!appState.selectedSpreadId) {
+    return null;
+  }
+
   return getActiveCatalog().find((item) => item.id === appState.selectedSpreadId);
 }
 
@@ -1438,6 +1471,7 @@ function showView(viewName) {
   elements.setupView.hidden = viewName !== "setup";
   elements.readingView.hidden = viewName !== "reading";
   elements.appMain.classList.toggle("is-reading", viewName === "reading");
+  elements.appMain.classList.toggle("is-mode-select", viewName === "setup" && appState.currentStage === "mode");
   elements.appMain.scrollTo({ top: 0, behavior: "auto" });
 }
 
@@ -1478,10 +1512,20 @@ function setSheetExpanded(expanded) {
 function resetExperience() {
   clearFocusCountdown();
   disposeArtworkDeck();
+  appState.currentMode = null;
   appState.selectedSpreadId = null;
-  appState.currentStage = "invite";
+  appState.currentStage = "mode";
   appState.currentReading = null;
   appState.sheetExpanded = false;
+  clearReadingSurface();
+  renderModeSwitch();
+  renderSpreadPicker();
+  renderSetupStage();
+  showView("setup");
+}
+
+function clearReadingSurface() {
+  setSheetExpanded(false);
   elements.readingStage.classList.remove("reading-stage--oracle");
   elements.readingSheet.hidden = false;
   elements.redrawTopButton.hidden = true;
@@ -1489,10 +1533,6 @@ function resetExperience() {
   elements.readingBoard.innerHTML = "";
   elements.cardsAccordion.innerHTML = "";
   elements.readingTakeaways.innerHTML = "";
-  renderModeSwitch();
-  renderSpreadPicker();
-  renderSetupStage();
-  showView("setup");
 }
 
 function getArtworkDeck(seedText) {
