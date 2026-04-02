@@ -255,6 +255,14 @@ body::after {
   display: none;
 }
 
+.app-main:not(.is-mode-select) .brand-mark__label {
+  display: none;
+}
+
+.app-main:not(.is-mode-select) .brand-mark {
+  gap: 0;
+}
+
 .mode-switch {
   display: inline-grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
