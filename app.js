@@ -437,6 +437,7 @@ const rankDefinitions = [
 ];
 
 const elements = {
+  appMain: document.querySelector(".app-main"),
   spreadPicker: document.querySelector("#spreadPicker"),
   spreadPreviewTitle: document.querySelector("#spreadPreviewTitle"),
   spreadPreviewCount: document.querySelector("#spreadPreviewCount"),
@@ -861,6 +862,7 @@ function showView(viewName) {
   appState.currentView = viewName;
   elements.setupView.hidden = viewName !== "setup";
   elements.readingView.hidden = viewName !== "reading";
+  elements.appMain.scrollTo({ top: 0, behavior: "auto" });
   updateProgress();
 }
 

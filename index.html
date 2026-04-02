@@ -23,69 +23,24 @@
     <div class="app-shell">
       <div class="container app-shell__container">
         <div class="app-frame">
-          <aside class="app-rail">
-            <div class="brand-block">
-              <a class="brand-mark text-decoration-none" href="#">
-                <span class="brand-mark__icon"><i class="bi bi-stars"></i></span>
-                <span>Tarot Atlas</span>
-              </a>
-              <p class="brand-copy mb-0">
-                A simpler tarot experience. Choose the layout, focus the question, and let the
-                interface shift into the reading itself.
-              </p>
+          <div class="device-statusbar" aria-hidden="true">
+            <span class="device-statusbar__time">9:41</span>
+            <div class="device-statusbar__icons">
+              <i class="bi bi-reception-4"></i>
+              <i class="bi bi-wifi"></i>
+              <i class="bi bi-battery-full"></i>
             </div>
-
-            <div class="rail-card">
-              <div class="rail-label">Reading flow</div>
-              <ul class="progress-list list-unstyled mb-0">
-                <li class="progress-item" data-progress-step="spread">Choose a spread</li>
-                <li class="progress-item" data-progress-step="question">Write your question</li>
-                <li class="progress-item" data-progress-step="reading">Open the reading</li>
-              </ul>
-            </div>
-
-            <div class="rail-card">
-              <div class="rail-label">Selected spread</div>
-              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-                <h2 id="spreadPreviewTitle" class="rail-title mb-0"></h2>
-                <span id="spreadPreviewCount" class="rail-chip"></span>
-              </div>
-              <p id="spreadPreviewDescription" class="rail-copy mb-3"></p>
-              <div id="spreadPreviewPositions" class="position-pill-list"></div>
-            </div>
-
-            <div class="rail-card">
-              <div class="rail-label">Current question</div>
-              <p id="questionPreview" class="question-preview mb-0">
-                Your question will appear here once you start typing.
-              </p>
-            </div>
-
-            <div class="rail-card rail-card--quiet">
-              <div class="rail-label">Artwork</div>
-              <p class="rail-copy mb-0">
-                Card art is generated locally from the open-source
-                <a href="https://github.com/abetusk/ResonatorVoyantTarot" target="_blank" rel="noreferrer">
-                  Resonator Voyant Tarot
-                </a>
-                project. Visual vocabulary artwork by Nina Paley under
-                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
-                  CC BY 4.0
-                </a>.
-                In this imported deck, Keys stand in for Wands.
-              </p>
-            </div>
-          </aside>
+          </div>
 
           <main class="app-main">
             <div class="app-main__inner">
               <div class="app-topbar">
-                <div>
-                  <div class="app-topbar__eyebrow">Tarot Atlas</div>
-                  <div class="app-topbar__caption">A calm, native-style tarot reading flow.</div>
-                </div>
+                <a class="brand-mark text-decoration-none" href="#">
+                  <span class="brand-mark__icon"><i class="bi bi-stars"></i></span>
+                  <span>Tarot Atlas</span>
+                </a>
                 <div class="app-topbar__badge">
-                  <i class="bi bi-phone me-2"></i>iOS-inspired interface
+                  <i class="bi bi-phone me-2"></i>iPhone-style preview
                 </div>
               </div>
 
@@ -93,67 +48,124 @@
                 <div class="view-header">
                   <div>
                     <div class="view-kicker">Setup</div>
-                    <h1 class="view-title">Choose the spread. Ask the question. Let the reading slide in.</h1>
+                    <h1 class="view-title">Choose the spread, ask the question, and draw.</h1>
                     <p class="view-copy mb-0">
-                      The layout now leans into a native app feel: grouped surfaces, calm spacing,
-                      and just the controls you need before the cards appear.
+                      One narrow screen, grouped cards, and a clean reading flow that feels much
+                      closer to a real phone app.
                     </p>
                   </div>
                 </div>
 
-                <div class="row g-4">
-                  <div class="col-xl-7">
-                    <div class="surface-card h-100">
-                      <div class="surface-header">
-                        <div>
-                          <div class="surface-kicker">Spread styles</div>
-                          <h2 class="surface-title">Pick a reading style</h2>
-                        </div>
+                <div class="screen-stack">
+                  <div class="surface-card surface-card--section">
+                    <div class="surface-header surface-header--compact">
+                      <div>
+                        <div class="surface-kicker">Reading flow</div>
+                        <h2 class="surface-title">Session overview</h2>
                       </div>
-                      <div id="spreadPicker" class="row g-3"></div>
+                    </div>
+
+                    <ul class="progress-list list-unstyled mb-0">
+                      <li class="progress-item" data-progress-step="spread">Choose a spread</li>
+                      <li class="progress-item" data-progress-step="question">Write your question</li>
+                      <li class="progress-item" data-progress-step="reading">Open the reading</li>
+                    </ul>
+                  </div>
+
+                  <div class="surface-card surface-card--section">
+                    <div class="surface-header surface-header--compact">
+                      <div>
+                        <div class="surface-kicker">Spread styles</div>
+                        <h2 class="surface-title">Pick a reading style</h2>
+                      </div>
+                    </div>
+                    <div id="spreadPicker" class="row g-3"></div>
+                  </div>
+
+                  <div class="surface-card surface-card--section">
+                    <div class="surface-header surface-header--compact">
+                      <div>
+                        <div class="surface-kicker">Question</div>
+                        <h2 class="surface-title">Focus the session</h2>
+                      </div>
+                    </div>
+
+                    <div class="focus-note">
+                      <div class="focus-note__label">Current layout</div>
+                      <div id="setupSpreadName" class="focus-note__title"></div>
+                      <p id="setupSpreadMeta" class="focus-note__copy mb-0"></p>
+                    </div>
+
+                    <label class="form-label text-uppercase small tracking" for="questionInput">
+                      What do you want insight on?
+                    </label>
+                    <textarea
+                      id="questionInput"
+                      class="form-control form-control-lg question-box"
+                      rows="6"
+                      maxlength="240"
+                      placeholder="What should I understand about the relationship, choice, change, or pattern in front of me right now?"
+                    ></textarea>
+                    <div class="invalid-feedback">
+                      Write a question first so the reading has a clear center.
+                    </div>
+
+                    <div class="helper-note">
+                      Ask for insight, direction, or understanding. The wording of your question
+                      also seeds the visual deck, so the artwork stays consistent as you redraw.
+                    </div>
+
+                    <div class="d-grid">
+                      <button id="drawButton" class="btn btn-draw btn-lg" type="button">
+                        <i class="bi bi-stars me-2"></i>Reveal my reading
+                      </button>
                     </div>
                   </div>
 
-                  <div class="col-xl-5">
-                    <div class="surface-card h-100">
-                      <div class="surface-header">
-                        <div>
-                          <div class="surface-kicker">Question</div>
-                          <h2 class="surface-title">Focus the session</h2>
-                        </div>
-                      </div>
-
-                      <div class="focus-note">
-                        <div class="focus-note__label">Current layout</div>
-                        <div id="setupSpreadName" class="focus-note__title"></div>
-                        <p id="setupSpreadMeta" class="focus-note__copy mb-0"></p>
-                      </div>
-
-                      <label class="form-label text-uppercase small tracking" for="questionInput">
-                        What do you want insight on?
-                      </label>
-                      <textarea
-                        id="questionInput"
-                        class="form-control form-control-lg question-box"
-                        rows="7"
-                        maxlength="240"
-                        placeholder="What should I understand about the relationship, choice, change, or pattern in front of me right now?"
-                      ></textarea>
-                      <div class="invalid-feedback">
-                        Write a question first so the reading has a clear center.
-                      </div>
-
-                      <div class="helper-note">
-                        Ask for insight, direction, or understanding. The wording of your question
-                        also seeds the visual deck, so the artwork stays consistent as you redraw.
-                      </div>
-
-                      <div class="d-grid">
-                        <button id="drawButton" class="btn btn-draw btn-lg" type="button">
-                          <i class="bi bi-stars me-2"></i>Reveal my reading
-                        </button>
+                  <div class="surface-card surface-card--section">
+                    <div class="surface-header surface-header--compact">
+                      <div>
+                        <div class="surface-kicker">Selection</div>
+                        <h2 class="surface-title">Current session</h2>
                       </div>
                     </div>
+
+                    <div class="session-card">
+                      <div class="session-card__label">Selected spread</div>
+                      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                        <h2 id="spreadPreviewTitle" class="rail-title mb-0"></h2>
+                        <span id="spreadPreviewCount" class="rail-chip"></span>
+                      </div>
+                      <p id="spreadPreviewDescription" class="rail-copy mb-3"></p>
+                      <div id="spreadPreviewPositions" class="position-pill-list"></div>
+                    </div>
+
+                    <div class="session-card">
+                      <div class="session-card__label">Current question</div>
+                      <p id="questionPreview" class="question-preview mb-0">
+                        Your question will appear here once you start typing.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="surface-card surface-card--quiet">
+                    <div class="surface-header surface-header--compact">
+                      <div>
+                        <div class="surface-kicker">Artwork</div>
+                        <h2 class="surface-title">Card visuals</h2>
+                      </div>
+                    </div>
+                    <p class="rail-copy mb-0">
+                      Card art is generated locally from the open-source
+                      <a href="https://github.com/abetusk/ResonatorVoyantTarot" target="_blank" rel="noreferrer">
+                        Resonator Voyant Tarot
+                      </a>
+                      project. Visual vocabulary artwork by Nina Paley under
+                      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
+                        CC BY 4.0
+                      </a>.
+                      In this imported deck, Keys stand in for Wands.
+                    </p>
                   </div>
                 </div>
               </section>
