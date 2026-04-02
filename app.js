@@ -908,8 +908,7 @@ function renderSetupStage() {
   if (appState.currentStage === "action" && selection && isArchetypeMode) {
     elements.setupStepLabel.textContent = "Step 3";
     elements.setupTitle.textContent = "Generate the mirror.";
-    elements.setupBody.textContent =
-      "This spread reflects inner patterns instead of predicting outcomes. Use it as a psychological mirror for what is active, defended, repeated, or ready to integrate.";
+    elements.setupBody.textContent = "";
     elements.setupFootnote.textContent = `Preparing ${selection.name.toLowerCase()}.`;
     elements.mysteryCardName.textContent = "The mirror is ready";
     elements.mysteryCardPrompt.textContent = "Reveal the pattern";
