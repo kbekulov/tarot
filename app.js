@@ -1136,23 +1136,23 @@ function buildDiceReading(config) {
         kind: "dice",
         id: "die-left",
         value: leftValue,
-        angle: randomBetween(-14, 8),
+        angle: randomBetween(-8, -2),
         startX: "-4.6rem",
         startY: "-4.8rem",
         startRotate: `${randomBetween(-260, -170)}deg`,
-        endX: "-4.1rem",
-        endY: "0.24rem"
+        endX: "-4.35rem",
+        endY: "0.12rem"
       },
       {
         kind: "dice",
         id: "die-right",
         value: rightValue,
-        angle: randomBetween(8, 18),
+        angle: randomBetween(2, 8),
         startX: "4.9rem",
         startY: "-4.2rem",
         startRotate: `${randomBetween(175, 255)}deg`,
-        endX: "3rem",
-        endY: "0rem"
+        endX: "4.35rem",
+        endY: "0.12rem"
       }
     ],
     result: {
@@ -1361,7 +1361,6 @@ function renderDiceDie(die, extraClass = "") {
           return `<span class="dice-cast__pip ${activePips.includes(pipIndex) ? "is-active" : ""}"></span>`;
         }).join("")}
       </div>
-      <div class="dice-cast__value">${die.value}</div>
     </div>
   `;
 }

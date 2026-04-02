@@ -870,13 +870,13 @@ body::after {
 .dice-cast {
   display: grid;
   justify-items: center;
-  gap: 1rem;
+  gap: 0.42rem;
 }
 
 .dice-cast__stage {
   position: relative;
-  width: min(100%, 17rem);
-  height: 12.5rem;
+  width: min(100%, 16.9rem);
+  height: 9.8rem;
 }
 
 .dice-cast__die {
@@ -929,23 +929,12 @@ body::after {
   transform: scale(1);
 }
 
-.dice-cast__value {
-  margin-top: 0.45rem;
-  text-align: center;
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  animation: dice-result-appear 0.55s ease 0.92s both;
-}
-
 .dice-cast__result {
   width: min(100%, 16.8rem);
   display: grid;
   justify-items: center;
-  gap: 0.35rem;
-  padding: 1rem 1rem 0;
+  gap: 0.28rem;
+  padding: 0.38rem 1rem 0;
   animation: dice-result-appear 0.62s ease 0.96s both;
 }
 
@@ -974,6 +963,7 @@ body::after {
 }
 
 .dice-cast__total {
+  margin-top: -0.08rem;
   font-size: clamp(2.6rem, 11vw, 3.35rem);
   font-weight: 820;
   line-height: 0.92;
@@ -2818,8 +2808,7 @@ body::after {
   .mode-choice__artifact--archetype .mode-choice__glyph::after,
   .mode-choice__die,
   .dice-cast__die,
-  .dice-cast__result,
-  .dice-cast__value {
+  .dice-cast__result {
     animation: none;
   }
 }
@@ -2992,13 +2981,13 @@ body::after {
   }
 
   .dice-cast__stage {
-    width: min(100%, 15.4rem);
-    height: 11.6rem;
+    width: min(100%, 15rem);
+    height: 9rem;
   }
 
   .dice-cast__die {
-    width: 5.6rem;
-    height: 5.6rem;
+    width: 5.45rem;
+    height: 5.45rem;
   }
 
   .dice-cast__face {
@@ -3007,7 +2996,8 @@ body::after {
 
   .dice-cast__result {
     width: min(100%, 15.2rem);
-    gap: 0.28rem;
+    gap: 0.24rem;
+    padding-top: 0.24rem;
   }
 
   .dice-cast__copy {
