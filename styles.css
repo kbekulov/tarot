@@ -1101,6 +1101,7 @@ body::before {
 
 .reading-stage--oracle .reading-stage__board {
   align-items: center;
+  min-height: 100%;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   padding-left: 0.35rem;
@@ -1288,6 +1289,20 @@ body::before {
   align-content: center;
   justify-content: center;
   perspective: 1200px;
+}
+
+.reading-stage--oracle {
+  gap: 0;
+}
+
+.reading-stage--oracle .reading-stage__top {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
+}
+
+.reading-stage--oracle .reading-stage__board {
+  flex: 1 1 auto;
 }
 
 .reading-board--oracle-3 .reading-position--oracle,
