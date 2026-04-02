@@ -2210,15 +2210,15 @@ body::before {
     opacity: 0;
   }
 
-  22% {
+  17% {
     opacity: 0.34;
   }
 
-  42% {
+  27% {
     opacity: 0.22;
   }
 
-  54%,
+  33%,
   100% {
     transform: translate(-50%, 155%) rotate(-33deg);
     opacity: 0;
@@ -2232,15 +2232,15 @@ body::before {
     opacity: 0;
   }
 
-  24% {
+  17% {
     opacity: 0.18;
   }
 
-  44% {
+  27% {
     opacity: 0.1;
   }
 
-  58%,
+  34%,
   100% {
     transform: translate(-32%, 150%) rotate(23deg);
     opacity: 0;
