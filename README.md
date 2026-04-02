@@ -18,3 +18,10 @@ python3 -m http.server 8000
 ```
 
 Then open `http://localhost:8000`.
+
+## Artwork
+
+Tarot Atlas uses locally generated tarot card artwork based on the open-source
+[Resonator Voyant Tarot](https://github.com/abetusk/ResonatorVoyantTarot) project.
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+for attribution and license details.

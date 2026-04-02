@@ -65,6 +65,21 @@
                 Your question will appear here once you start typing.
               </p>
             </div>
+
+            <div class="rail-card rail-card--quiet">
+              <div class="rail-label">Artwork</div>
+              <p class="rail-copy mb-0">
+                Card art is generated locally from the open-source
+                <a href="https://github.com/abetusk/ResonatorVoyantTarot" target="_blank" rel="noreferrer">
+                  Resonator Voyant Tarot
+                </a>
+                project. Visual vocabulary artwork by Nina Paley under
+                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">
+                  CC BY 4.0
+                </a>.
+                In this imported deck, Keys stand in for Wands.
+              </p>
+            </div>
           </aside>
 
           <main class="app-main">
@@ -123,8 +138,8 @@
                     </div>
 
                     <div class="helper-note">
-                      Ask for insight, direction, or understanding. The clearer the question, the more
-                      grounded the reading feels.
+                      Ask for insight, direction, or understanding. Your question also seeds the visual
+                      deck, so the artwork stays consistent as you redraw the reading.
                     </div>
 
                     <div class="d-grid">
@@ -189,6 +204,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/browser-sibyl.js" defer></script>
+    <script src="tarot-art.js" defer></script>
     <script src="app.js" defer></script>
   </body>
 </html>

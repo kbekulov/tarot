@@ -467,7 +467,9 @@ const appState = {
   selectedSpreadId: "three",
   currentView: "setup",
   currentQuestion: "",
-  currentReading: null
+  currentReading: null,
+  artworkDeck: null,
+  artworkSeed: ""
 };
 
 initialize();
@@ -487,22 +489,31 @@ function initialize() {
 }
 
 function buildDeck() {
+  const artIndexOffsets = {
+    wands: 22,
+    cups: 36,
+    swords: 50,
+    pentacles: 64
+  };
+
   const majorCards = majorArcana.map((card) => ({
     id: `major-${card.number}`,
     kind: "major",
     suitKey: "major",
     suit: "Major Arcana",
     icon: "bi-stars",
+    artIndex: card.number,
     ...card
   }));
 
   const minorCards = Object.entries(suitDefinitions).flatMap(([suitKey, suitConfig]) =>
-    rankDefinitions.map((rankConfig) => ({
+    rankDefinitions.map((rankConfig, rankIndex) => ({
       id: `${rankConfig.rank.toLowerCase()}-${suitKey}`,
       kind: "minor",
       suitKey,
       suit: suitConfig.label,
       icon: suitConfig.icon,
+      artIndex: artIndexOffsets[suitKey] + rankIndex,
       name: `${rankConfig.rank} of ${suitConfig.label}`,
       keywords: [...rankConfig.keywords, ...suitConfig.keywords],
       upright: `${rankConfig.upright} ${suitConfig.realm}.`,
@@ -570,7 +581,13 @@ function renderSetupContext() {
 
 function handleQuestionInput() {
   elements.questionInput.classList.remove("is-invalid");
-  appState.currentQuestion = elements.questionInput.value.trim();
+  const nextQuestion = elements.questionInput.value.trim();
+
+  if (nextQuestion !== appState.artworkSeed) {
+    disposeArtworkDeck();
+  }
+
+  appState.currentQuestion = nextQuestion;
   appState.currentReading = null;
   renderSidebar();
   updateProgress();
@@ -592,7 +609,11 @@ function handleDraw() {
 
 function createReading() {
   const spread = getSelectedSpread();
-  const draws = drawCards(spread.positions.length);
+  const artworkDeck = getArtworkDeck(appState.currentQuestion);
+  const draws = drawCards(spread.positions.length).map((draw) => ({
+    ...draw,
+    artUri: artworkDeck.getCardUrl(draw.artIndex)
+  }));
 
   appState.currentReading = {
     spreadId: spread.id,
@@ -644,9 +665,14 @@ function renderReadingView() {
     .map(
       (draw, index) => `
         <div class="timeline-card">
-          <div class="timeline-step">Position ${index + 1}</div>
-          <div class="timeline-title">${spread.positions[index].title}</div>
-          <p class="timeline-meta mb-0">${draw.name} · ${draw.isReversed ? "Reversed" : "Upright"}</p>
+          <div class="timeline-thumb ${draw.isReversed ? "timeline-thumb--reversed" : ""}">
+            <img src="${draw.artUri}" alt="${draw.name} tarot card art" loading="lazy" />
+          </div>
+          <div class="timeline-card__body">
+            <div class="timeline-step">Position ${index + 1}</div>
+            <div class="timeline-title">${spread.positions[index].title}</div>
+            <p class="timeline-meta mb-0">${draw.name} · ${draw.isReversed ? "Reversed" : "Upright"}</p>
+          </div>
         </div>
       `
     )
@@ -675,10 +701,10 @@ function renderAccordionItem(draw, position, index) {
     <div class="accordion-item">
       <h2 class="accordion-header" id="${headingId}">
         <button
-          class="accordion-button ${isFirst ? "" : "collapsed"}"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#${collapseId}"
+        class="accordion-button ${isFirst ? "" : "collapsed"}"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#${collapseId}"
           aria-expanded="${isFirst ? "true" : "false"}"
           aria-controls="${collapseId}"
         >
@@ -696,15 +722,13 @@ function renderAccordionItem(draw, position, index) {
       >
         <div class="accordion-body">
           <div class="accordion-detail">
-            <div class="card-face-mini ${draw.isReversed ? "card-face-mini--reversed" : ""}">
-              <div class="card-face-mini__top">
-                <span class="card-face-mini__icon"><i class="bi ${draw.icon}"></i></span>
-                <span class="card-face-mini__meta">${orientationLabel}</span>
+            <div class="card-art-panel">
+              <div class="card-art-frame ${draw.isReversed ? "card-art-frame--reversed" : ""}">
+                <img src="${draw.artUri}" alt="${draw.name} tarot card art" loading="lazy" />
               </div>
-              <div class="card-face-mini__title">${draw.name}</div>
-              <div class="card-face-mini__bottom">
-                <span class="card-face-mini__meta">${draw.suit}</span>
-                <span class="card-face-mini__meta">${draw.kind === "major" ? "Major" : "Minor"}</span>
+              <div class="card-art-meta">
+                <span>${orientationLabel}</span>
+                <span>${draw.kind === "major" ? "Major" : draw.suit}</span>
               </div>
             </div>
 
@@ -874,6 +898,7 @@ function updateProgress() {
 function resetReading() {
   appState.currentQuestion = "";
   appState.currentReading = null;
+  disposeArtworkDeck();
   elements.questionInput.value = "";
   elements.questionInput.classList.remove("is-invalid");
   elements.readingSummary.innerHTML = "";
@@ -884,6 +909,28 @@ function resetReading() {
   renderSetupContext();
   showView("setup");
   elements.questionInput.focus();
+}
+
+function getArtworkDeck(seedText) {
+  const normalizedSeed = seedText.trim();
+
+  if (appState.artworkDeck && appState.artworkSeed === normalizedSeed) {
+    return appState.artworkDeck;
+  }
+
+  disposeArtworkDeck();
+  appState.artworkDeck = TarotArt.createDeck(normalizedSeed);
+  appState.artworkSeed = normalizedSeed;
+  return appState.artworkDeck;
+}
+
+function disposeArtworkDeck() {
+  if (appState.artworkDeck) {
+    appState.artworkDeck.dispose();
+  }
+
+  appState.artworkDeck = null;
+  appState.artworkSeed = "";
 }
 
 function escapeHtml(value) {
