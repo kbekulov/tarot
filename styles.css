@@ -335,6 +335,23 @@ body::after {
   color: var(--accent);
 }
 
+.brand-mark__logo {
+  width: 1.22rem;
+  height: 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(28, 42, 64, 0.9), rgba(104, 125, 158, 0.72));
+  -webkit-mask-image: url("img/logo.png");
+  mask-image: url("img/logo.png");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: drop-shadow(0 4px 8px rgba(83, 109, 145, 0.12));
+  opacity: 0.96;
+}
+
 .experience-screen {
   min-height: 0;
 }
