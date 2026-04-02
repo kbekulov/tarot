@@ -1249,7 +1249,7 @@ function renderReadingPosition(draw, position, index, options = {}) {
     draw.kind === "oracle"
       ? `${draw.title} oracle page`
       : draw.kind === "archetype"
-        ? `${draw.name} archetype card`
+        ? `${draw.name} archetype`
         : `${draw.name} tarot card art`;
   const tagName = interactive ? "button" : "article";
   const interactiveAttributes = interactive
@@ -1427,7 +1427,7 @@ function renderArchetypeAccordionItem(draw, position, index) {
           <div class="accordion-detail">
             <div class="card-art-panel">
               <div class="card-art-frame card-art-frame--archetype">
-                <img src="${draw.artUri}" alt="${draw.name} archetype card" loading="lazy" />
+                <img src="${draw.artUri}" alt="${draw.name} archetype" loading="lazy" />
               </div>
               <div class="card-art-meta">
                 <span>${draw.name}</span>
@@ -1507,7 +1507,7 @@ function buildReadingGuide(mode, config) {
   }
 
   if (mode === "archetype") {
-    return "Tap any archetype card above or use the slip below to unlock scrolling and read the whole mirror.";
+    return "Tap any archetype above or use the slip below to unlock scrolling and read the whole mirror.";
   }
 
   if (config.positions.length === 1) {
@@ -1704,7 +1704,7 @@ function buildArchetypeCardArt(archetype, config, index) {
       <circle cx="95" cy="84" r="28" fill="none" stroke="${archetype.accent.accent}" stroke-width="2.2" opacity="0.8"/>
       <circle cx="95" cy="84" r="8" fill="${archetype.accent.accent}" opacity="0.92"/>
       <path d="M58 84h74" stroke="${archetype.accent.accent}" stroke-width="1.8" opacity="0.62"/>
-      <text x="95" y="134" text-anchor="middle" font-size="12" letter-spacing="3.1" fill="${archetype.accent.accent}" font-family="Arial, sans-serif">CARD ${
+      <text x="95" y="134" text-anchor="middle" font-size="12" letter-spacing="2.2" fill="${archetype.accent.accent}" font-family="Arial, sans-serif">ARCHETYPE ${
         index + 1
       }</text>
       <text x="95" y="164" text-anchor="middle" font-size="16" fill="${archetype.accent.ink}" font-family="Georgia, serif">
