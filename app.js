@@ -737,7 +737,11 @@ function renderSpreadPicker() {
   elements.spreadPicker.innerHTML = catalog
     .map((spread) => {
       const secondaryCopy =
-        appState.currentMode === "tarot" ? spread.compactHint : spread.description;
+        appState.currentMode === "tarot"
+          ? spread.compactHint
+          : appState.currentMode === "archetype"
+            ? spread.pickerHint || spread.compactHint || spread.description
+            : spread.description;
 
       return `
         <button
@@ -864,12 +868,12 @@ function renderSetupStage() {
     elements.setupBody.textContent = isOracleMode
       ? "While the book opens, choose a straight answer, a now-and-then pair, or a past-present-future path."
       : isArchetypeMode
-        ? "Archetype Mirror is for inner reflection, not prediction. Choose the spread that best matches the psychological pattern you want to examine."
+        ? "Choose the inner pattern you want to examine."
         : "Pick the shape of the reveal while the deck keeps turning.";
     elements.setupFootnote.textContent = isOracleMode
       ? "Choose between one, two, or three pages."
       : isArchetypeMode
-        ? "Three reflective spreads. Generate the mirror after you choose."
+        ? "Three reflective spreads."
         : "Five layouts. One tap chooses.";
     elements.mysteryCardName.textContent = isOracleMode
       ? "Pages whisper"
