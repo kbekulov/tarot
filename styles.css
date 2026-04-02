@@ -1302,50 +1302,50 @@ body::before {
 .oracle-layout--1 .oracle-layout__item--1 {
   top: 48%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(-1.5deg);
+  --oracle-card-transform: rotate(-0.8deg);
 }
 
 .oracle-layout--2 {
-  --oracle-page-width: clamp(138px, 40vw, 164px);
+  --oracle-page-width: clamp(132px, 38vw, 154px);
 }
 
 .oracle-layout--2 .oracle-layout__item--1 {
-  left: 40%;
+  left: 33%;
   top: 34%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(-11deg);
+  --oracle-card-transform: rotate(-5deg);
 }
 
 .oracle-layout--2 .oracle-layout__item--2 {
-  left: 60%;
-  top: 62%;
+  left: 67%;
+  top: 63%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(10deg);
+  --oracle-card-transform: rotate(4.5deg);
 }
 
 .oracle-layout--3 {
-  --oracle-page-width: clamp(112px, 31vw, 136px);
+  --oracle-page-width: clamp(104px, 29vw, 124px);
 }
 
 .oracle-layout--3 .oracle-layout__item--1 {
-  left: 36%;
+  left: 29%;
   top: 28%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(-12deg);
+  --oracle-card-transform: rotate(-5.5deg);
 }
 
 .oracle-layout--3 .oracle-layout__item--2 {
-  left: 60%;
-  top: 53%;
+  left: 54%;
+  top: 52%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(7deg);
+  --oracle-card-transform: rotate(4deg);
 }
 
 .oracle-layout--3 .oracle-layout__item--3 {
-  left: 77%;
-  top: 78%;
+  left: 79%;
+  top: 77%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(-9deg);
+  --oracle-card-transform: rotate(-4.5deg);
 }
 
 .oracle-layout--3 .oracle-layout__item--3 {
@@ -1879,11 +1879,11 @@ body::before {
   }
 
   .oracle-layout--2 {
-    --oracle-page-width: clamp(128px, 38vw, 148px);
+    --oracle-page-width: clamp(124px, 36vw, 144px);
   }
 
   .oracle-layout--3 {
-    --oracle-page-width: clamp(102px, 29vw, 120px);
+    --oracle-page-width: clamp(96px, 27vw, 114px);
   }
 
   .setup-stage--spreads {
@@ -1932,19 +1932,19 @@ body::before {
   }
 
   .oracle-layout--2 .oracle-layout__item--1 {
-    left: 41%;
+    left: 34%;
   }
 
   .oracle-layout--2 .oracle-layout__item--2 {
-    left: 59%;
+    left: 66%;
   }
 
   .oracle-layout--3 .oracle-layout__item--1 {
-    left: 37%;
+    left: 30%;
   }
 
   .oracle-layout--3 .oracle-layout__item--3 {
-    left: 76%;
+    left: 78%;
   }
 }
 
@@ -1965,11 +1965,11 @@ body::before {
   }
 
   .oracle-layout--2 {
-    --oracle-page-width: clamp(116px, 35vw, 138px);
+    --oracle-page-width: clamp(112px, 34vw, 132px);
   }
 
   .oracle-layout--3 {
-    --oracle-page-width: clamp(92px, 27vw, 112px);
+    --oracle-page-width: clamp(88px, 25vw, 104px);
   }
 
   .reading-position--oracle .reading-position__title {
@@ -1978,22 +1978,27 @@ body::before {
   }
 
   .oracle-layout--2 .oracle-layout__item--1 {
+    left: 35%;
     top: 35%;
   }
 
   .oracle-layout--2 .oracle-layout__item--2 {
+    left: 65%;
     top: 61%;
   }
 
   .oracle-layout--3 .oracle-layout__item--1 {
+    left: 31%;
     top: 30%;
   }
 
   .oracle-layout--3 .oracle-layout__item--2 {
+    left: 55%;
     top: 53%;
   }
 
   .oracle-layout--3 .oracle-layout__item--3 {
+    left: 79%;
     top: 75%;
   }
 
