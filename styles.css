@@ -1100,10 +1100,12 @@ body::before {
 }
 
 .reading-stage--oracle .reading-stage__board {
-  display: grid;
-  place-items: center;
+  display: block;
   min-height: 100%;
-  padding: 0.45rem 0.35rem;
+  padding:
+    clamp(7.9rem, 22vh, 8.8rem)
+    clamp(0.75rem, 3vw, 1.1rem)
+    clamp(1.4rem, 6vh, 2.2rem);
 }
 
 .reading-board {
@@ -1227,8 +1229,7 @@ body::before {
   height: 100%;
   min-height: 0;
   margin: 0;
-  display: grid;
-  place-items: center;
+  display: block;
   perspective: 1200px;
 }
 
@@ -1257,24 +1258,26 @@ body::before {
 }
 
 .reading-board--oracle-stage {
+  position: relative;
   overflow: hidden;
 }
 
 .oracle-layout {
-  --card-width: var(--oracle-page-width);
   position: relative;
-  width: min(100%, var(--oracle-layout-width));
-  height: min(100%, var(--oracle-layout-height));
-  min-height: 0;
+  width: min(100%, 20.5rem);
+  height: 100%;
+  max-height: 33rem;
+  margin: 0 auto;
 }
 
 .oracle-layout__item {
   position: absolute;
   top: 50%;
   left: 50%;
+  --card-width: var(--oracle-page-width);
   width: var(--oracle-page-width);
   max-width: var(--oracle-page-width);
-  gap: 0.5rem;
+  gap: 0.38rem;
   cursor: default;
   transform: var(--oracle-item-transform);
 }
@@ -1293,59 +1296,60 @@ body::before {
 }
 
 .oracle-layout--1 {
-  --oracle-page-width: clamp(168px, 48vw, 198px);
-  --oracle-layout-width: calc(var(--oracle-page-width) + 1rem);
-  --oracle-layout-height: calc(var(--oracle-page-width) * 2.02);
+  --oracle-page-width: clamp(184px, 54vw, 216px);
 }
 
 .oracle-layout--1 .oracle-layout__item--1 {
+  top: 48%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(-2deg);
+  --oracle-card-transform: rotate(-1.5deg);
 }
 
 .oracle-layout--2 {
-  --oracle-page-width: clamp(120px, 34vw, 142px);
-  --oracle-layout-width: calc(var(--oracle-page-width) * 2 + 2.2rem);
-  --oracle-layout-height: calc(var(--oracle-page-width) * 2.02);
+  --oracle-page-width: clamp(138px, 40vw, 164px);
 }
 
 .oracle-layout--2 .oracle-layout__item--1 {
-  left: 34%;
+  left: 40%;
+  top: 34%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(-6deg);
+  --oracle-card-transform: rotate(-11deg);
 }
 
 .oracle-layout--2 .oracle-layout__item--2 {
-  left: 66%;
+  left: 60%;
+  top: 62%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(6deg);
+  --oracle-card-transform: rotate(10deg);
 }
 
 .oracle-layout--3 {
-  --oracle-page-width: clamp(90px, 26vw, 108px);
-  --oracle-layout-width: calc(var(--oracle-page-width) * 3 + 2rem);
-  --oracle-layout-height: calc(var(--oracle-page-width) * 2.14);
+  --oracle-page-width: clamp(112px, 31vw, 136px);
 }
 
 .oracle-layout--3 .oracle-layout__item--1 {
-  left: 18%;
-  top: 53%;
+  left: 36%;
+  top: 28%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(-8deg);
+  --oracle-card-transform: rotate(-12deg);
 }
 
 .oracle-layout--3 .oracle-layout__item--2 {
-  left: 50%;
-  top: 48%;
+  left: 60%;
+  top: 53%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(-1deg);
+  --oracle-card-transform: rotate(7deg);
 }
 
 .oracle-layout--3 .oracle-layout__item--3 {
-  left: 82%;
-  top: 53%;
+  left: 77%;
+  top: 78%;
   --oracle-item-transform: translate(-50%, -50%);
-  --oracle-card-transform: rotate(8deg);
+  --oracle-card-transform: rotate(-9deg);
+}
+
+.oracle-layout--3 .oracle-layout__item--3 {
+  z-index: 3;
 }
 
 .reading-position__badge {
@@ -1871,17 +1875,15 @@ body::before {
   }
 
   .oracle-layout--1 {
-    --oracle-page-width: clamp(152px, 50vw, 184px);
+    --oracle-page-width: clamp(170px, 52vw, 198px);
   }
 
   .oracle-layout--2 {
-    --oracle-page-width: clamp(112px, 35vw, 132px);
-    --oracle-layout-width: calc(var(--oracle-page-width) * 2 + 1.7rem);
+    --oracle-page-width: clamp(128px, 38vw, 148px);
   }
 
   .oracle-layout--3 {
-    --oracle-page-width: clamp(82px, 25vw, 98px);
-    --oracle-layout-width: calc(var(--oracle-page-width) * 3 + 1.45rem);
+    --oracle-page-width: clamp(102px, 29vw, 120px);
   }
 
   .setup-stage--spreads {
@@ -1930,19 +1932,19 @@ body::before {
   }
 
   .oracle-layout--2 .oracle-layout__item--1 {
-    left: 35%;
+    left: 41%;
   }
 
   .oracle-layout--2 .oracle-layout__item--2 {
-    left: 65%;
+    left: 59%;
   }
 
   .oracle-layout--3 .oracle-layout__item--1 {
-    left: 19%;
+    left: 37%;
   }
 
   .oracle-layout--3 .oracle-layout__item--3 {
-    left: 81%;
+    left: 76%;
   }
 }
 
@@ -1952,28 +1954,47 @@ body::before {
   }
 
   .reading-stage--oracle .reading-stage__board {
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
+    padding:
+      clamp(6.9rem, 20vh, 7.5rem)
+      0.7rem
+      clamp(1rem, 4vh, 1.5rem);
   }
 
   .oracle-layout--1 {
-    --oracle-page-width: clamp(140px, 46vw, 164px);
+    --oracle-page-width: clamp(156px, 48vw, 182px);
   }
 
   .oracle-layout--2 {
-    --oracle-page-width: clamp(104px, 32vw, 120px);
-    --oracle-layout-width: calc(var(--oracle-page-width) * 2 + 1.45rem);
+    --oracle-page-width: clamp(116px, 35vw, 138px);
   }
 
   .oracle-layout--3 {
-    --oracle-page-width: clamp(78px, 23vw, 92px);
-    --oracle-layout-width: calc(var(--oracle-page-width) * 3 + 1.2rem);
-    --oracle-layout-height: calc(var(--oracle-page-width) * 2.04);
+    --oracle-page-width: clamp(92px, 27vw, 112px);
   }
 
   .reading-position--oracle .reading-position__title {
     max-width: calc(var(--oracle-page-width, var(--card-width)) + 0.15rem);
     font-size: 0.7rem;
+  }
+
+  .oracle-layout--2 .oracle-layout__item--1 {
+    top: 35%;
+  }
+
+  .oracle-layout--2 .oracle-layout__item--2 {
+    top: 61%;
+  }
+
+  .oracle-layout--3 .oracle-layout__item--1 {
+    top: 30%;
+  }
+
+  .oracle-layout--3 .oracle-layout__item--2 {
+    top: 53%;
+  }
+
+  .oracle-layout--3 .oracle-layout__item--3 {
+    top: 75%;
   }
 
   .setup-stage--spreads {
