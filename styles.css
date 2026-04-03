@@ -410,7 +410,7 @@ body::after {
 }
 
 .setup-stage--mode .setup-stage__card-zone {
-  padding-bottom: 0.55rem;
+  padding-bottom: 0;
 }
 
 .setup-stage__card-zone {
@@ -493,7 +493,7 @@ body::after {
 .install-app-cta {
   position: absolute;
   left: 50%;
-  bottom: -0.62rem;
+  bottom: 5px;
   z-index: 2;
   transform: translateX(-50%);
   appearance: none;
