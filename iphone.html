@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#eef4fb" />
+    <meta name="application-name" content="Divine Chamber" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Divine Chamber" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Divine Chamber | Tarot, Oracle, Archetype Mirror, and Dice</title>
     <meta
       name="description"
@@ -17,6 +22,8 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
       rel="stylesheet"
     />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -154,6 +161,9 @@
                         <span class="mystery-card__prompt">Tap to begin</span>
                       </span>
                     </div>
+                    <button id="installAppButton" class="install-app-cta" type="button" hidden>
+                      Download the App
+                    </button>
                   </div>
 
                   <div class="stage-panel">
@@ -279,6 +289,30 @@
               </section>
             </div>
           </main>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade install-modal"
+      id="installModal"
+      tabindex="-1"
+      aria-labelledby="installModalTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content install-modal__content">
+          <div class="modal-body install-modal__body">
+            <div class="install-modal__kicker">Download the App</div>
+            <h2 id="installModalTitle" class="install-modal__title">Add Divine Chamber</h2>
+            <p id="installModalBody" class="install-modal__text mb-0"></p>
+            <ol id="installModalSteps" class="install-modal__steps mb-0"></ol>
+            <div class="install-modal__actions">
+              <button type="button" class="btn btn-ios btn-ios--secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

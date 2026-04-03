@@ -583,6 +583,11 @@ const elements = {
   actionSpreadBody: document.querySelector("#actionSpreadBody"),
   generateMirrorButton: document.querySelector("#generateMirrorButton"),
   setupFootnote: document.querySelector("#setupFootnote"),
+  installAppButton: document.querySelector("#installAppButton"),
+  installModal: document.querySelector("#installModal"),
+  installModalTitle: document.querySelector("#installModalTitle"),
+  installModalBody: document.querySelector("#installModalBody"),
+  installModalSteps: document.querySelector("#installModalSteps"),
   setupView: document.querySelector("#setupView"),
   readingView: document.querySelector("#readingView"),
   readingStage: document.querySelector(".reading-stage"),
@@ -619,12 +624,15 @@ const appState = {
   artworkSeed: "",
   focusCountdown: 10,
   focusTimerId: null,
-  readingScrollUnlocked: false
+  readingScrollUnlocked: false,
+  installPromptEvent: null,
+  isInstalled: isAppInstalled()
 };
 
 initialize();
 
 function initialize() {
+  initializeInstallExperience();
   renderModeSwitch();
   renderSpreadPicker();
   renderSetupStage();
@@ -644,12 +652,195 @@ function initialize() {
       startModeFlow(button.dataset.selectMode);
     });
   });
+  elements.installAppButton?.addEventListener("click", handleInstallAppClick);
   elements.sheetToggle.addEventListener("click", toggleSheet);
   elements.redrawButton.addEventListener("click", redrawReading);
   elements.redrawTopButton.addEventListener("click", redrawReading);
   elements.generateMirrorButton?.addEventListener("click", revealReading);
   elements.backButton.addEventListener("click", resetExperience);
   elements.resetButton.addEventListener("click", resetExperience);
+}
+
+function initializeInstallExperience() {
+  updateInstallCta();
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    appState.installPromptEvent = event;
+    updateInstallCta();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    appState.installPromptEvent = null;
+    appState.isInstalled = true;
+    updateInstallCta();
+    getInstallModal()?.hide();
+  });
+
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  const isLocalhost =
+    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+  if (!window.isSecureContext && !isLocalhost) {
+    return;
+  }
+
+  window.addEventListener(
+    "load",
+    () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    },
+    { once: true }
+  );
+}
+
+function isAppInstalled() {
+  return (
+    window.matchMedia?.("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+function updateInstallCta() {
+  if (!elements.installAppButton) {
+    return;
+  }
+
+  const shouldShow =
+    appState.currentView === "setup" && appState.currentStage === "mode" && !appState.isInstalled;
+
+  elements.installAppButton.hidden = !shouldShow;
+}
+
+async function handleInstallAppClick() {
+  if (appState.isInstalled) {
+    showInstallModal({
+      title: "Already on your Home Screen",
+      body: "Divine Chamber is already installed on this device.",
+      steps: []
+    });
+    return;
+  }
+
+  if (appState.installPromptEvent) {
+    const promptEvent = appState.installPromptEvent;
+    appState.installPromptEvent = null;
+    updateInstallCta();
+
+    try {
+      await promptEvent.prompt();
+      const choice = await promptEvent.userChoice;
+
+      if (choice?.outcome !== "accepted") {
+        showInstallModal(buildInstallHelpContent());
+      }
+    } catch (error) {
+      showInstallModal(buildInstallHelpContent());
+    }
+
+    return;
+  }
+
+  showInstallModal(buildInstallHelpContent());
+}
+
+function buildInstallHelpContent() {
+  if (appState.isInstalled) {
+    return {
+      title: "Already on your Home Screen",
+      body: "Divine Chamber is already installed on this device.",
+      steps: []
+    };
+  }
+
+  if (isIOSDevice()) {
+    return {
+      title: isSafariBrowser() ? "Add it to Home Screen" : "Open in Safari to add it",
+      body: isSafariBrowser()
+        ? "iPhone does not allow this step to run automatically, but it only takes a moment."
+        : "On iPhone, the final Add to Home Screen step works best in Safari.",
+      steps: isSafariBrowser()
+        ? [
+            "Tap the Share button in the browser toolbar.",
+            "Choose Add to Home Screen.",
+            "Tap Add to place Divine Chamber on your Home Screen."
+          ]
+        : [
+            "Open this page in Safari.",
+            "Tap the Share button.",
+            "Choose Add to Home Screen, then tap Add."
+          ]
+    };
+  }
+
+  if (isAndroidDevice()) {
+    return {
+      title: "Add it on Android",
+      body: "If your browser does not offer a one-tap install prompt, you can still place Divine Chamber on your app screen manually.",
+      steps: [
+        "Open the browser menu.",
+        "Choose Install app or Add to Home screen.",
+        "Confirm Add."
+      ]
+    };
+  }
+
+  return {
+    title: "Install Divine Chamber",
+    body: "If this browser does not open an install prompt here, use its menu to add Divine Chamber as an app or shortcut.",
+    steps: [
+      "Open the browser menu.",
+      "Choose Install app, Add to Home Screen, or Create shortcut.",
+      "Confirm the add."
+    ]
+  };
+}
+
+function showInstallModal(content) {
+  if (!elements.installModal || !elements.installModalTitle || !elements.installModalBody) {
+    return;
+  }
+
+  elements.installModalTitle.textContent = content.title;
+  elements.installModalBody.textContent = content.body;
+
+  if (elements.installModalSteps) {
+    const steps = Array.isArray(content.steps) ? content.steps : [];
+    elements.installModalSteps.hidden = steps.length === 0;
+    elements.installModalSteps.innerHTML = steps.map((step) => `<li>${step}</li>`).join("");
+  }
+
+  getInstallModal()?.show();
+}
+
+function getInstallModal() {
+  if (!elements.installModal || typeof bootstrap === "undefined") {
+    return null;
+  }
+
+  return bootstrap.Modal.getOrCreateInstance(elements.installModal);
+}
+
+function isIOSDevice() {
+  const userAgent = window.navigator.userAgent;
+
+  return (
+    /iphone|ipad|ipod/i.test(userAgent) ||
+    (window.navigator.platform === "MacIntel" && window.navigator.maxTouchPoints > 1)
+  );
+}
+
+function isAndroidDevice() {
+  return /android/i.test(window.navigator.userAgent);
+}
+
+function isSafariBrowser() {
+  const userAgent = window.navigator.userAgent;
+
+  return /safari/i.test(userAgent) && !/crios|fxios|edgios|opr\/|opios/i.test(userAgent);
 }
 
 function buildDeck() {
@@ -889,6 +1080,7 @@ function renderSetupStage() {
     elements.setupBody.textContent =
       "Tarot reads symbols. Oracle opens pages. Archetype Mirror reflects inner patterns. Dice gives a direct total and a yes, maybe, or no.";
     elements.setupFootnote.textContent = "Choose one to begin.";
+    updateInstallCta();
     return;
   }
 
@@ -919,6 +1111,7 @@ function renderSetupStage() {
       : isArchetypeMode
         ? "Pick a spread"
         : "Pick a layout";
+    updateInstallCta();
     return;
   }
 
@@ -936,6 +1129,7 @@ function renderSetupStage() {
       : "The question is settling";
     elements.mysteryCardPrompt.textContent = isOracleMode ? "The page is almost here" : "The reveal is close";
     updateFocusCountdown();
+    updateInstallCta();
     return;
   }
 
@@ -950,6 +1144,8 @@ function renderSetupStage() {
     elements.actionSpreadBody.textContent = selection.intro || selection.description;
     elements.generateMirrorButton.textContent = "Reveal the mirror";
   }
+
+  updateInstallCta();
 }
 
 function updateFocusCountdown() {
@@ -2074,6 +2270,7 @@ function showView(viewName) {
   );
   elements.appMain.classList.toggle("is-mode-select", viewName === "setup" && appState.currentStage === "mode");
   elements.appMain.scrollTo({ top: 0, behavior: "auto" });
+  updateInstallCta();
 }
 
 function openReadingCard(index) {
