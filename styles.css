@@ -401,6 +401,10 @@ body::after {
   min-height: 0;
 }
 
+.setup-stage--mode {
+  position: relative;
+}
+
 .setup-stage--mode .setup-stage__halo {
   display: none;
 }
@@ -410,6 +414,7 @@ body::after {
 }
 
 .setup-stage--mode .setup-stage__card-zone {
+  position: static;
   padding-bottom: 0;
 }
 
@@ -516,6 +521,10 @@ body::after {
     color 180ms ease,
     transform 180ms ease,
     opacity 180ms ease;
+}
+
+.setup-stage--mode .install-app-cta {
+  bottom: 5px;
 }
 
 .install-app-cta i {
