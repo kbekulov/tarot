@@ -575,6 +575,7 @@ const elements = {
   spreadPicker: document.querySelector("#spreadPicker"),
   focusPanel: document.querySelector("#focusPanel"),
   actionPanel: document.querySelector("#actionPanel"),
+  questionPanel: document.querySelector("#questionPanel"),
   focusRing: document.querySelector("#focusRing"),
   focusTimerValue: document.querySelector("#focusTimerValue"),
   focusSpreadName: document.querySelector("#focusSpreadName"),
@@ -582,6 +583,13 @@ const elements = {
   actionSpreadName: document.querySelector("#actionSpreadName"),
   actionSpreadBody: document.querySelector("#actionSpreadBody"),
   generateMirrorButton: document.querySelector("#generateMirrorButton"),
+  questionPanelLabel: document.querySelector("#questionPanelLabel"),
+  questionPanelTitle: document.querySelector("#questionPanelTitle"),
+  questionPanelBody: document.querySelector("#questionPanelBody"),
+  aiQuestionInput: document.querySelector("#aiQuestionInput"),
+  questionPanelStatus: document.querySelector("#questionPanelStatus"),
+  askAiButton: document.querySelector("#askAiButton"),
+  skipQuestionButton: document.querySelector("#skipQuestionButton"),
   setupFootnote: document.querySelector("#setupFootnote"),
   installAppButton: document.querySelector("#installAppButton"),
   installModal: document.querySelector("#installModal"),
@@ -605,6 +613,10 @@ const elements = {
   readingSurfaceKicker: document.querySelector("#readingSurfaceKicker"),
   cardsAccordion: document.querySelector("#cardsAccordion"),
   readingTakeaways: document.querySelector("#readingTakeaways"),
+  aiInterpretationPanel: document.querySelector("#aiInterpretationPanel"),
+  aiInterpretationTitle: document.querySelector("#aiInterpretationTitle"),
+  aiInterpretationQuestion: document.querySelector("#aiInterpretationQuestion"),
+  aiInterpretationBody: document.querySelector("#aiInterpretationBody"),
   redrawButton: document.querySelector("#redrawButton"),
   redrawTopButton: document.querySelector("#redrawTopButton"),
   backButton: document.querySelector("#backButton"),
@@ -625,9 +637,12 @@ const appState = {
   focusCountdown: 10,
   focusTimerId: null,
   readingScrollUnlocked: false,
+  pendingQuestion: "",
   installPromptEvent: null,
   isInstalled: isAppInstalled()
 };
+const DEFAULT_AI_INTERPRET_ENDPOINT = "/api/divination/interpret";
+const AI_ENABLED_MODES = new Set(["tarot", "oracle", "archetype"]);
 
 initialize();
 
@@ -657,6 +672,9 @@ function initialize() {
   elements.redrawButton.addEventListener("click", redrawReading);
   elements.redrawTopButton.addEventListener("click", redrawReading);
   elements.generateMirrorButton?.addEventListener("click", revealReading);
+  elements.aiQuestionInput?.addEventListener("input", handleQuestionInput);
+  elements.askAiButton?.addEventListener("click", submitAiQuestion);
+  elements.skipQuestionButton?.addEventListener("click", skipAiQuestion);
   elements.backButton.addEventListener("click", resetExperience);
   elements.resetButton.addEventListener("click", resetExperience);
 }
@@ -936,6 +954,7 @@ function startModeFlow(mode) {
   appState.currentStage = mode === "dice" ? "result" : "spreads";
   appState.currentReading = null;
   appState.readingScrollUnlocked = false;
+  appState.pendingQuestion = "";
   renderModeSwitch();
 
   if (mode === "dice") {
@@ -993,19 +1012,29 @@ function renderSpreadPicker() {
 function selectSpread(spreadId) {
   appState.selectedSpreadId = spreadId;
   appState.currentReading = null;
+  appState.pendingQuestion = "";
 
-  if (appState.currentMode === "archetype") {
-    prepareArchetypeReflection();
+  if (shouldOfferAiStep()) {
+    openQuestionGate();
     return;
   }
 
-  startFocusCountdown();
+  continueAfterQuestionGate();
 }
 
 function prepareArchetypeReflection() {
   clearFocusCountdown();
   appState.currentStage = "action";
   renderSetupStage();
+}
+
+function continueAfterQuestionGate() {
+  if (appState.currentMode === "archetype") {
+    prepareArchetypeReflection();
+    return;
+  }
+
+  startFocusCountdown();
 }
 
 function startFocusCountdown() {
@@ -1023,6 +1052,134 @@ function startFocusCountdown() {
       revealReading();
     }
   }, 1000);
+}
+
+function handleQuestionInput() {
+  appState.pendingQuestion = elements.aiQuestionInput?.value || "";
+  syncQuestionControls();
+}
+
+function shouldOfferAiStep(mode = appState.currentMode) {
+  return AI_ENABLED_MODES.has(mode);
+}
+
+function syncQuestionControls() {
+  if (!elements.aiQuestionInput || !elements.askAiButton || !elements.skipQuestionButton) {
+    return;
+  }
+
+  const hasQuestion = Boolean((elements.aiQuestionInput.value || "").trim());
+
+  elements.aiQuestionInput.disabled = false;
+  elements.askAiButton.disabled = !hasQuestion;
+  elements.skipQuestionButton.disabled = false;
+  elements.askAiButton.textContent = "Submit";
+  elements.skipQuestionButton.textContent = "Skip";
+}
+
+function setQuestionStatus(message = "", tone = "neutral") {
+  if (!elements.questionPanelStatus) {
+    return;
+  }
+
+  elements.questionPanelStatus.hidden = !message;
+  elements.questionPanelStatus.textContent = message;
+  elements.questionPanelStatus.classList.toggle("is-loading", tone === "loading");
+  elements.questionPanelStatus.classList.toggle("is-error", tone === "error");
+}
+
+function openQuestionGate() {
+  const selection = getSelectedReadingConfig();
+
+  if (!selection) {
+    return;
+  }
+
+  appState.currentStage = "question";
+  appState.pendingQuestion = "";
+
+  if (elements.aiQuestionInput) {
+    elements.aiQuestionInput.value = "";
+  }
+
+  if (appState.currentReading?.ai) {
+    appState.currentReading.ai = {
+      question: "",
+      status: "idle",
+      interpretation: "",
+      error: ""
+    };
+  }
+
+  setQuestionStatus("");
+  renderSetupStage();
+  showView("setup");
+  syncQuestionControls();
+}
+
+function revealPreparedReading() {
+  renderReadingView();
+  showView("reading");
+  setReadingScrollUnlocked(false);
+}
+
+async function startAiInterpretationFlow() {
+  if (!appState.currentReading) {
+    return;
+  }
+
+  const question = appState.pendingQuestion.trim();
+
+  appState.currentReading.ai = {
+    question,
+    status: "loading",
+    interpretation: "",
+    error: ""
+  };
+
+  renderReadingView();
+  showView("reading");
+  setReadingScrollUnlocked(false);
+
+  try {
+    const interpretation = await requestAiInterpretation(appState.currentReading);
+    appState.currentReading.ai = {
+      question,
+      status: "success",
+      interpretation,
+      error: ""
+    };
+  } catch (error) {
+    appState.currentReading.ai = {
+      question,
+      status: "error",
+      interpretation: "",
+      error: getAiFallbackMessage(error)
+    };
+  }
+
+  revealPreparedReading();
+}
+
+async function submitAiQuestion() {
+  const question = (elements.aiQuestionInput?.value || "").trim();
+
+  if (!question) {
+    syncQuestionControls();
+    return;
+  }
+
+  appState.pendingQuestion = question;
+  setQuestionStatus("");
+  syncQuestionControls();
+  continueAfterQuestionGate();
+}
+
+function skipAiQuestion() {
+  appState.pendingQuestion = "";
+  setQuestionStatus("");
+  syncQuestionControls();
+  continueAfterQuestionGate();
 }
 
 function clearFocusCountdown() {
@@ -1050,6 +1207,7 @@ function renderSetupStage() {
   elements.setupStage.classList.toggle("setup-stage--spreads", appState.currentStage === "spreads");
   elements.setupStage.classList.toggle("setup-stage--focus", appState.currentStage === "focus");
   elements.setupStage.classList.toggle("setup-stage--action", appState.currentStage === "action");
+  elements.setupStage.classList.toggle("setup-stage--question", appState.currentStage === "question");
   elements.setupStage.classList.toggle("setup-stage--oracle", isOracleMode);
   elements.setupStage.classList.toggle("setup-stage--archetype", isArchetypeMode);
   elements.mysteryCardButton.classList.toggle(
@@ -1063,6 +1221,7 @@ function renderSetupStage() {
   elements.spreadChoicePanel.hidden = appState.currentStage !== "spreads";
   elements.focusPanel.hidden = appState.currentStage !== "focus";
   elements.actionPanel.hidden = appState.currentStage !== "action";
+  elements.questionPanel.hidden = appState.currentStage !== "question";
   elements.choiceSectionLabel.textContent = isOracleMode
     ? "Choose the oracle form"
     : isArchetypeMode
@@ -1116,7 +1275,7 @@ function renderSetupStage() {
   }
 
   if (appState.currentStage === "focus" && selection) {
-    elements.setupStepLabel.textContent = "Step 3";
+    elements.setupStepLabel.textContent = shouldOfferAiStep() ? "Step 4" : "Step 3";
     elements.setupTitle.textContent = "Hold your question in mind for ten slow seconds.";
     elements.setupBody.textContent = isOracleMode
       ? "No typing now. Keep the feeling simple and let the right page rise from the book."
@@ -1134,7 +1293,7 @@ function renderSetupStage() {
   }
 
   if (appState.currentStage === "action" && selection && isArchetypeMode) {
-    elements.setupStepLabel.textContent = "Step 3";
+    elements.setupStepLabel.textContent = shouldOfferAiStep() ? "Step 4" : "Step 3";
     elements.setupTitle.textContent = "Generate the mirror.";
     elements.setupBody.textContent = "";
     elements.setupFootnote.textContent = `Preparing ${selection.name.toLowerCase()}.`;
@@ -1143,6 +1302,24 @@ function renderSetupStage() {
     elements.actionSpreadName.textContent = selection.name;
     elements.actionSpreadBody.textContent = selection.intro || selection.description;
     elements.generateMirrorButton.textContent = "Reveal the mirror";
+  }
+
+  if (appState.currentStage === "question" && selection && shouldOfferAiStep()) {
+    const label = getQuestionStepCopy(appState.currentMode, selection);
+    elements.setupStepLabel.textContent = "Step 3";
+    elements.setupTitle.textContent = label.title;
+    elements.setupBody.textContent = label.body;
+    elements.setupFootnote.textContent = label.footnote;
+    elements.mysteryCardName.textContent = label.cardName;
+    elements.mysteryCardPrompt.textContent = label.cardPrompt;
+    elements.questionPanelLabel.textContent = label.panelLabel;
+    elements.questionPanelTitle.textContent = label.panelTitle;
+    elements.questionPanelBody.textContent = label.panelBody;
+    if (elements.aiQuestionInput) {
+      elements.aiQuestionInput.placeholder = label.placeholder;
+      elements.aiQuestionInput.value = appState.pendingQuestion || "";
+    }
+    syncQuestionControls();
   }
 
   updateInstallCta();
@@ -1181,8 +1358,21 @@ function revealReading() {
     return;
   }
 
-  showView("reading");
-  setReadingScrollUnlocked(false);
+  if (shouldOfferAiStep() && appState.pendingQuestion.trim()) {
+    startAiInterpretationFlow();
+    return;
+  }
+
+  if (appState.currentReading?.ai) {
+    appState.currentReading.ai = {
+      question: "",
+      status: "skipped",
+      interpretation: "",
+      error: ""
+    };
+  }
+
+  revealPreparedReading();
 }
 
 function createReading() {
@@ -1207,9 +1397,14 @@ function createReading() {
     appState.currentReading = {
       mode: "oracle",
       configId: selection.id,
-      draws: drawOraclePages(selection.positions.length, selection)
+      draws: drawOraclePages(selection.positions.length, selection),
+      ai: {
+        question: "",
+        status: "idle",
+        interpretation: "",
+        error: ""
+      }
     };
-    renderReadingView();
     return true;
   }
 
@@ -1222,9 +1417,14 @@ function createReading() {
     appState.currentReading = {
       mode: "archetype",
       configId: selection.id,
-      draws: drawArchetypes(selection.positions.length, selection)
+      draws: drawArchetypes(selection.positions.length, selection),
+      ai: {
+        question: "",
+        status: "idle",
+        interpretation: "",
+        error: ""
+      }
     };
-    renderReadingView();
     return true;
   }
 
@@ -1237,16 +1437,28 @@ function createReading() {
   appState.currentReading = {
     mode: "tarot",
     configId: selection.id,
-    draws
+    draws,
+    ai: {
+      question: "",
+      status: "idle",
+      interpretation: "",
+      error: ""
+    }
   };
 
-  renderReadingView();
   return true;
 }
 
 function redrawReading() {
   if (!appState.selectedSpreadId) {
     showView("setup");
+    return;
+  }
+
+  if (shouldOfferAiStep()) {
+    appState.currentReading = null;
+    appState.pendingQuestion = "";
+    openQuestionGate();
     return;
   }
 
@@ -1408,6 +1620,7 @@ function renderReadingView() {
   const isOracle = reading.mode === "oracle";
   const isArchetype = reading.mode === "archetype";
   const isDice = reading.mode === "dice";
+  const isAiLoading = reading.ai?.status === "loading";
   const overallInsight = isOracle ? null : buildOverallInsight(reading.mode, config, reading.draws);
 
   elements.readingKicker.textContent = isDice
@@ -1426,29 +1639,40 @@ function renderReadingView() {
   elements.readingStage.classList.toggle("reading-stage--oracle", isOracle);
   elements.readingStage.classList.toggle("reading-stage--archetype", isArchetype);
   elements.readingStage.classList.toggle("reading-stage--dice", isDice);
+  elements.readingStage.classList.toggle("reading-stage--ai-loading", isAiLoading);
   elements.readingStage.classList.remove("is-scroll-unlocked");
-  elements.readingSheet.hidden = isDice;
-  elements.redrawTopButton.hidden = !(isOracle || isDice);
+  elements.readingSheet.hidden = isDice || isAiLoading;
+  elements.redrawTopButton.hidden = isAiLoading || !(isOracle || isDice);
   elements.redrawTopButton.setAttribute(
     "aria-label",
     isDice ? "Roll the dice again" : "Open a new oracle reading"
   );
   elements.readingHeadline.textContent = isOracle
-    ? drawsLabel(reading.draws.length, "Opened page", "Opened pages")
+    ? isAiLoading
+      ? "Writing the oracle interpretation"
+      : drawsLabel(reading.draws.length, "Opened page", "Opened pages")
     : isDice
       ? `Total ${reading.result.total}`
-    : overallInsight
-      ? overallInsight.headline
-      : "";
+      : isAiLoading
+        ? "Writing the interpretation"
+      : overallInsight
+        ? overallInsight.headline
+        : "";
   elements.readingSummary.textContent = isOracle
-    ? drawsLabel(reading.draws.length, "One oracle page is ready below.", `${reading.draws.length} oracle pages are ready below.`)
+    ? isAiLoading
+      ? "The pages are open. Divine Chamber is shaping your question into a fuller response."
+      : drawsLabel(reading.draws.length, "One oracle page is ready below.", `${reading.draws.length} oracle pages are ready below.`)
     : isDice
       ? reading.result.explanation
-    : overallInsight
-      ? overallInsight.summary
-      : "";
-  elements.readingGuideText.textContent = isDice ? "" : buildReadingGuide(reading.mode, config);
-  elements.readingMeta.textContent = isOracle
+    : isAiLoading
+        ? "The static reading is ready and will appear as soon as the personalised interpretation lands."
+      : overallInsight
+        ? overallInsight.summary
+        : "";
+  elements.readingGuideText.textContent = isDice || isAiLoading ? "" : buildReadingGuide(reading.mode, config);
+  elements.readingMeta.textContent = isAiLoading
+    ? "AI in progress"
+    : isOracle
     ? `${config.positions.length} page${config.positions.length === 1 ? "" : "s"} · oracle`
     : isDice
       ? `${reading.draws[0].value} + ${reading.draws[1].value} · ${reading.result.answer.toLowerCase()}`
@@ -1465,13 +1689,13 @@ function renderReadingView() {
 
   renderReadingBoard(config, reading.draws, reading.mode);
 
-  elements.cardsAccordion.innerHTML = isDice
+  elements.cardsAccordion.innerHTML = isDice || isAiLoading
     ? ""
     : reading.draws
         .map((draw, index) => renderAccordionItem(draw, config.positions[index], index, config))
         .join("");
 
-  elements.readingTakeaways.hidden = isOracle || isDice;
+  elements.readingTakeaways.hidden = isOracle || isDice || isAiLoading;
   elements.readingTakeaways.innerHTML = isOracle
     ? ""
     : isDice
@@ -1482,9 +1706,50 @@ function renderReadingView() {
           ${overallInsight.takeaways.map((item) => `<li>${item}</li>`).join("")}
         </ul>
       `;
+
+  renderAiInterpretation();
+}
+
+function renderAiInterpretation() {
+  if (!elements.aiInterpretationPanel || !elements.aiInterpretationBody || !elements.aiInterpretationQuestion) {
+    return;
+  }
+
+  const ai = appState.currentReading?.ai;
+
+  if (!ai || ai.status === "idle" || ai.status === "skipped") {
+    elements.aiInterpretationPanel.hidden = true;
+    elements.aiInterpretationBody.className = "ai-interpretation__body";
+    elements.aiInterpretationBody.innerHTML = "";
+    elements.aiInterpretationQuestion.textContent = "";
+    return;
+  }
+
+  elements.aiInterpretationPanel.hidden = false;
+  elements.aiInterpretationTitle.textContent = "Personalised Interpretation";
+  elements.aiInterpretationQuestion.textContent = ai.question
+    ? `Question: ${ai.question}`
+    : "";
+
+  if (ai.status === "error") {
+    elements.aiInterpretationBody.className = "ai-interpretation__body ai-interpretation__body--error";
+    elements.aiInterpretationBody.innerHTML = `<p>${ai.error}</p>`;
+    return;
+  }
+
+  elements.aiInterpretationBody.className = "ai-interpretation__body";
+  elements.aiInterpretationBody.innerHTML = splitIntoParagraphs(ai.interpretation)
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join("");
 }
 
 function renderReadingBoard(config, draws, mode) {
+  if (appState.currentReading?.ai?.status === "loading") {
+    elements.readingBoard.className = "reading-board reading-board--ai-loading";
+    elements.readingBoard.innerHTML = renderAiLoadingBoard(appState.currentReading);
+    return;
+  }
+
   if (mode === "dice") {
     elements.readingBoard.className = "reading-board reading-board--dice-stage";
     elements.readingBoard.innerHTML = renderDiceBoard(appState.currentReading);
@@ -1511,6 +1776,28 @@ function renderReadingBoard(config, draws, mode) {
       openReadingCard(Number(button.dataset.cardIndex));
     });
   });
+}
+
+function renderAiLoadingBoard(reading) {
+  const noun =
+    reading.mode === "oracle"
+      ? "pages"
+      : reading.mode === "archetype"
+        ? "archetypes"
+        : "cards";
+
+  return `
+    <div class="ai-loading-board" aria-live="polite">
+      <div class="ai-loading-board__pulse" aria-hidden="true"></div>
+      <div class="ai-loading-board__copy">
+        <div class="view-kicker">Personalised interpretation</div>
+        <h2 class="surface-title">Reading the ${noun}</h2>
+        <p class="reading-sheet__summary mb-0">
+          Your divination is already generated. Divine Chamber is now writing the answer to your question.
+        </p>
+      </div>
+    </div>
+  `;
 }
 
 function renderDiceBoard(reading) {
@@ -1899,6 +2186,202 @@ function buildArchetypeInterpretation(draw, position) {
 
 function buildArchetypeReflectionPrompt(draw, position) {
   return position.promptLead ? `${position.promptLead} ${draw.reflectionPrompt}` : draw.reflectionPrompt;
+}
+
+function getQuestionStepCopy(mode, selection) {
+  if (mode === "oracle") {
+    return {
+      title: "What is your question?",
+      body: "",
+      footnote: "",
+      cardName: "The pages are ready",
+      cardPrompt: "Submit or skip",
+      panelLabel: "",
+      panelTitle: "",
+      panelBody: "",
+      placeholder: "Type your question"
+    };
+  }
+
+  if (mode === "archetype") {
+    return {
+      title: "What is your question?",
+      body: "",
+      footnote: "",
+      cardName: "The mirror is waiting",
+      cardPrompt: "Submit or skip",
+      panelLabel: "",
+      panelTitle: "",
+      panelBody: "",
+      placeholder: "Type your question"
+    };
+  }
+
+  return {
+    title: "What is your question?",
+    body: "",
+    footnote: "",
+    cardName: "The cards are ready",
+    cardPrompt: "Submit or skip",
+    panelLabel: "",
+    panelTitle: "",
+    panelBody: "",
+    placeholder: "Type your question"
+  };
+}
+
+async function requestAiInterpretation(reading) {
+  const payload = buildAiInterpretationPayload(reading);
+  const response = await fetch(getAiInterpretEndpoint(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch (error) {
+    data = null;
+  }
+
+  if (!response.ok) {
+    const error = new Error(
+      typeof data?.error === "string" && data.error.trim()
+        ? data.error.trim()
+        : `AI request failed with status ${response.status}`
+    );
+    error.status = response.status;
+    throw error;
+  }
+
+  const interpretation = typeof data?.interpretation === "string" ? data.interpretation.trim() : "";
+
+  if (!interpretation) {
+    throw new Error("AI response was empty");
+  }
+
+  return interpretation;
+}
+
+function getAiInterpretEndpoint() {
+  const configuredEndpoint = window.DIVINE_CHAMBER_CONFIG?.aiInterpretEndpoint;
+
+  if (typeof configuredEndpoint === "string" && configuredEndpoint.trim()) {
+    return configuredEndpoint.trim();
+  }
+
+  return DEFAULT_AI_INTERPRET_ENDPOINT;
+}
+
+function getAiFallbackMessage(error) {
+  const message = String(error?.message || "");
+  const status = Number(error?.status || 0);
+
+  if (
+    status === 404 ||
+    status === 503 ||
+    /not configured/i.test(message) ||
+    /workers ai/i.test(message)
+  ) {
+    return "The personalised reading is not connected yet, but the original divination is ready below.";
+  }
+
+  return "The personalised reading could not be completed right now, but the original divination is ready below.";
+}
+
+function buildAiInterpretationPayload(reading) {
+  const config = getCatalogForMode(reading.mode).find((item) => item.id === reading.configId);
+
+  return {
+    type: getAiTypeForMode(reading.mode),
+    question: reading.ai?.question || "",
+    result: serializeReadingForAi(reading, config)
+  };
+}
+
+function getAiTypeForMode(mode) {
+  if (mode === "oracle") {
+    return "pages";
+  }
+
+  if (mode === "archetype") {
+    return "mirror";
+  }
+
+  return "tarot";
+}
+
+function serializeReadingForAi(reading, config) {
+  const base = {
+    spread: config?.name || "",
+    positions: config?.positions?.map((position) => ({
+      title: position.title,
+      summary: position.summary,
+      purpose: position.purpose
+    })) || []
+  };
+
+  if (reading.mode === "oracle") {
+    return {
+      ...base,
+      pages: reading.draws.map((draw, index) => ({
+        title: draw.title,
+        phrase: draw.phrase,
+        theme: draw.theme,
+        position: config?.positions?.[index]?.title || `Page ${index + 1}`,
+        summary: config?.positions?.[index]?.summary || ""
+      }))
+    };
+  }
+
+  if (reading.mode === "archetype") {
+    return {
+      ...base,
+      archetypes: reading.draws.map((draw, index) => ({
+        name: draw.name,
+        shortDescription: draw.shortDescription,
+        tone: draw.tone,
+        coreMeaning: draw.coreMeaning,
+        gift: draw.gift,
+        risk: draw.risk,
+        reflectionPrompt: buildArchetypeReflectionPrompt(draw, config?.positions?.[index] || {}),
+        position: config?.positions?.[index]?.title || `Position ${index + 1}`,
+        positionSummary: config?.positions?.[index]?.summary || ""
+      }))
+    };
+  }
+
+  return {
+    ...base,
+    cards: reading.draws.map((draw, index) => ({
+      name: draw.name,
+      orientation: draw.isReversed ? "reversed" : "upright",
+      suit: draw.suit,
+      keywords: draw.keywords,
+      position: config?.positions?.[index]?.title || `Card ${index + 1}`,
+      positionSummary: config?.positions?.[index]?.summary || ""
+    }))
+  };
+}
+
+function splitIntoParagraphs(text) {
+  return text
+    .split(/\n\s*\n/g)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function buildReadingGuide(mode, config) {
@@ -2363,6 +2846,7 @@ function resetExperience() {
   appState.currentStage = "mode";
   appState.currentReading = null;
   appState.readingScrollUnlocked = false;
+  appState.pendingQuestion = "";
   clearReadingSurface();
   renderModeSwitch();
   renderSpreadPicker();
@@ -2375,6 +2859,7 @@ function clearReadingSurface() {
   elements.readingStage.classList.remove("reading-stage--oracle");
   elements.readingStage.classList.remove("reading-stage--archetype");
   elements.readingStage.classList.remove("reading-stage--dice");
+  elements.readingStage.classList.remove("reading-stage--ai-loading");
   elements.readingStage.classList.remove("is-scroll-unlocked");
   elements.readingSheet.hidden = false;
   elements.redrawTopButton.hidden = true;
@@ -2382,6 +2867,22 @@ function clearReadingSurface() {
   elements.cardsAccordion.innerHTML = "";
   elements.readingTakeaways.hidden = false;
   elements.readingTakeaways.innerHTML = "";
+  if (elements.aiInterpretationPanel) {
+    elements.aiInterpretationPanel.hidden = true;
+  }
+  if (elements.aiInterpretationQuestion) {
+    elements.aiInterpretationQuestion.textContent = "";
+  }
+  if (elements.aiInterpretationBody) {
+    elements.aiInterpretationBody.className = "ai-interpretation__body";
+    elements.aiInterpretationBody.innerHTML = "";
+  }
+  if (elements.aiQuestionInput) {
+    elements.aiQuestionInput.value = "";
+    elements.aiQuestionInput.disabled = false;
+  }
+  setQuestionStatus("");
+  syncQuestionControls();
 }
 
 function drawsLabel(count, singular, plural) {

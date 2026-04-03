@@ -203,6 +203,45 @@
                       </div>
                     </div>
 
+                    <div id="questionPanel" class="stage-section" hidden>
+                      <div class="question-gate">
+                        <div class="question-gate__copy">
+                          <div id="questionPanelLabel" class="stage-section__label">Optional question</div>
+                          <h2 id="questionPanelTitle" class="focus-timer__title">Ask about this reading.</h2>
+                          <p id="questionPanelBody" class="focus-timer__body mb-0">
+                            Add a question for a personalised interpretation, or skip and open the reading as it stands.
+                          </p>
+                        </div>
+
+                        <label class="question-gate__field" for="aiQuestionInput">
+                          <span class="question-gate__label">Your question</span>
+                          <textarea
+                            id="aiQuestionInput"
+                            class="question-gate__input"
+                            rows="4"
+                            maxlength="360"
+                            placeholder="What should I understand about this reading?"
+                          ></textarea>
+                        </label>
+
+                        <p id="questionPanelStatus" class="question-gate__status mb-0" hidden></p>
+
+                        <div class="question-gate__actions">
+                          <button id="skipQuestionButton" class="btn btn-ios btn-ios--ghost" type="button">
+                            Skip
+                          </button>
+                          <button
+                            id="askAiButton"
+                            class="btn btn-ios btn-ios--secondary"
+                            type="button"
+                            disabled
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                     <p id="setupFootnote" class="stage-footnote mb-0">Choose one to begin.</p>
                   </div>
                 </div>
@@ -253,6 +292,13 @@
                     </button>
 
                     <div class="reading-sheet__inner">
+                      <div id="aiInterpretationPanel" class="ai-interpretation" hidden>
+                        <div class="surface-kicker">Personalised Interpretation</div>
+                        <h2 id="aiInterpretationTitle" class="takeaways-title">Personalised Interpretation</h2>
+                        <p id="aiInterpretationQuestion" class="ai-interpretation__question mb-0"></p>
+                        <div id="aiInterpretationBody" class="ai-interpretation__body"></div>
+                      </div>
+
                       <div class="reading-sheet__header">
                         <div>
                           <div id="readingSurfaceKicker" class="surface-kicker">Interpretation</div>
@@ -314,6 +360,7 @@
     <script src="tarot-art.js" defer></script>
     <script src="oracle-phrases.js" defer></script>
     <script src="archetype-mirror-data.js" defer></script>
+    <script src="site-config.js" defer></script>
     <script src="app.js" defer></script>
   </body>
 </html>
