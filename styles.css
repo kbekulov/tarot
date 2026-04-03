@@ -401,10 +401,6 @@ body::after {
   min-height: 0;
 }
 
-.setup-stage--mode {
-  position: relative;
-}
-
 .setup-stage--mode .setup-stage__halo {
   display: none;
 }
@@ -523,7 +519,7 @@ body::after {
     opacity 180ms ease;
 }
 
-.setup-stage--mode .install-app-cta {
+.app-main.is-mode-select .install-app-cta {
   bottom: 5px;
 }
 
