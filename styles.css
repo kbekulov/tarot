@@ -425,11 +425,11 @@ body::after {
   position: relative;
   width: min(100%, 9.05rem);
   margin-inline: auto;
-  margin-bottom: -0.72rem;
+  margin-bottom: -0.42rem;
   height: 7.45rem;
   display: grid;
   place-items: center;
-  transform: translateY(-0.98rem);
+  transform: translateY(-0.3rem);
 }
 
 .mode-choice-logo__halo,
@@ -3025,8 +3025,8 @@ body::after {
   .mode-choice-logo {
     width: min(100%, 7.95rem);
     height: 6.55rem;
-    margin-bottom: -0.46rem;
-    transform: translateY(-0.72rem);
+    margin-bottom: -0.22rem;
+    transform: translateY(-0.2rem);
   }
 
   .mode-choice {
