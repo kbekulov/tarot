@@ -425,7 +425,7 @@ body::after {
   position: relative;
   width: min(100%, 9.05rem);
   margin-inline: auto;
-  margin-bottom: 0.54rem;
+  margin-bottom: 0.82rem;
   height: 7.45rem;
   display: grid;
   place-items: center;
@@ -3025,7 +3025,7 @@ body::after {
   .mode-choice-logo {
     width: min(100%, 7.95rem);
     height: 6.55rem;
-    margin-bottom: 0.36rem;
+    margin-bottom: 0.58rem;
     transform: translateY(0.36rem);
   }
 
