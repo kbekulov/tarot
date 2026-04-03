@@ -2490,7 +2490,7 @@ body::after {
 }
 
 .accordion-body {
-  padding-top: 0;
+  padding-top: 0.9rem;
 }
 
 .accordion-detail {
