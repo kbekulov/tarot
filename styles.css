@@ -264,18 +264,6 @@ body::after {
 }
 
 .app-main.is-mode-select .app-topbar {
-  justify-content: center;
-}
-
-.app-main.is-mode-select .mode-switch {
-  display: none;
-}
-
-.app-main.is-mode-select .brand-mark {
-  margin-inline: auto;
-}
-
-.app-main.is-mode-select .brand-mark__icon {
   display: none;
 }
 
